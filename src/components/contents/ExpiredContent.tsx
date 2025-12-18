@@ -2,14 +2,14 @@
 
 import { RegisterButton } from '@/components/button/RegisterButton'
 
-interface ExpiredContentProps {
-  onRegister: () => void
-}
+export function ExpiredContent() {
+  const handleRegister = () => {
+    window.open('https://remoratrader.id', '_blank', 'noopener,noreferrer')
+  }
 
-export function ExpiredContent({ onRegister }: ExpiredContentProps) {
   return (
     <RegisterButton
-      onClick={onRegister}
+      onClick={handleRegister}
       className="animate-slide-up"
       style={{ animationDelay: '0.2s' }}
     >

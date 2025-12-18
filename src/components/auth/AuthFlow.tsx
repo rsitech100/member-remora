@@ -28,10 +28,6 @@ export function AuthFlow() {
     setStep('login')
   }
 
-  const handleRegister = () => {
-    console.log('Redirect to registration')
-  }
-
   return (
     <>
       <LoginModal
@@ -51,7 +47,6 @@ export function AuthFlow() {
       <ExpiredModal
         isOpen={step === 'expired'}
         onClose={handleClose}
-        onRegister={handleRegister}
       />
     </>
   )

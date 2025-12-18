@@ -13,8 +13,9 @@ interface OTPFormProps {
 export function OTPForm({ phoneNumber, onSuccess }: OTPFormProps) {
   const [otp, setOtp] = useState(['', '', '', '', '', ''])
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
     if (otp.some(digit => !digit)) {
@@ -22,18 +23,37 @@ export function OTPForm({ phoneNumber, onSuccess }: OTPFormProps) {
     }
 
     setIsLoading(true)
+    setError('')
     
-    setTimeout(() => {
-      setIsLoading(false)
-      
+    try {
       const otpCode = otp.join('')
       
-      if (phoneNumber === '08987654321' && otpCode === '123456') {
+      const response = await fetch('/api/verify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          phone_number: phoneNumber, 
+          verification_code: otpCode 
+        }),
+      })
+
+      const data = await response.json()
+
+      if (data.success && data.data?.token) {
         onSuccess()
       } else {
+        setError(data.message || data.error || 'Invalid OTP. Please try again')
         setOtp(['', '', '', '', '', ''])
       }
-    }, 1000)
+    } catch (error) {
+      console.error('Verify OTP error:', error)
+      setError('Network error. Please try again')
+      setOtp(['', '', '', '', '', ''])
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleResend = () => {
@@ -43,6 +63,10 @@ export function OTPForm({ phoneNumber, onSuccess }: OTPFormProps) {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-6 animate-slide-up" style={{ animationDelay: '0.2s' }}>
       <OTPInput value={otp} onChange={setOtp} />
+      
+      {error && (
+        <p className="text-red-500 text-sm text-center">{error}</p>
+      )}
 
       <ResendButton onResend={handleResend} className="text-center text-sm" />
 

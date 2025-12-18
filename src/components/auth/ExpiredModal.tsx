@@ -6,10 +6,9 @@ import { RemoraLogo } from '@/components/ui/Icon'
 interface ExpiredModalProps {
   isOpen: boolean
   onClose: () => void
-  onRegister: () => void
 }
 
-export function ExpiredModal({ isOpen, onClose, onRegister }: ExpiredModalProps) {
+export function ExpiredModal({ isOpen, onClose }: ExpiredModalProps) {
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <div className="flex flex-col md:grid md:grid-cols-2 gap-0">
@@ -37,7 +36,7 @@ export function ExpiredModal({ isOpen, onClose, onRegister }: ExpiredModalProps)
               </p>
             </div>
 
-            <ExpiredContent onRegister={onRegister} />
+            <ExpiredContent />
           </div>
         </div>
       </div>

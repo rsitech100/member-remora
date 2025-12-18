@@ -25,15 +25,34 @@ export function LoginForm({ onSuccess, onExpired }: LoginFormProps) {
 
     setIsLoading(true)
     
-    setTimeout(() => {
-      setIsLoading(false)
+    try {
+      const formattedPhone = phoneNumber.startsWith('+') ? phoneNumber : `+62${phoneNumber.replace(/^0/, '')}`
       
-      if (phoneNumber === '089876543211') {
-        onExpired()
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ phone_number: formattedPhone }),
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        if (data.message?.toLowerCase().includes('expired') || data.error?.toLowerCase().includes('expired')) {
+          onExpired()
+        } else {
+          onSuccess(formattedPhone)
+        }
       } else {
-        onSuccess(phoneNumber)
+        setError(data.message || data.error || 'Login failed. Please try again')
       }
-    }, 1000)
+    } catch (error) {
+      console.error('Login error:', error)
+      setError('Network error. Please check your connection and try again')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
