@@ -28,12 +28,12 @@ export function UserProfileButton({ userName, userInitial }: UserProfileButtonPr
     <div className="relative" ref={menuRef}>
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 hover:bg-white/10 rounded-lg px-3 py-2 transition-colors"
+        className="flex items-center gap-3 bg-[#1a2733] hover:bg-[#1f2f3d] rounded-full pl-1 pr-4 py-1 transition-colors"
       >
         <div className="w-10 h-10 rounded-full bg-[#2A9E8B] flex items-center justify-center text-white font-semibold text-lg">
           {userInitial}
         </div>
-        <span className="text-white font-medium">{userName}</span>
+        <span className="text-white font-medium text-sm">{userName}</span>
         <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>

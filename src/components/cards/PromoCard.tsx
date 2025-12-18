@@ -16,12 +16,17 @@ export function PromoCard() {
             Libat strategi real-time, analisis pasar, dan ambil peluang trading terbaik hari ini.
           </p>
           
-          <button className="w-full bg-[#2A9E8B] hover:bg-[#248276] text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2">
-            <span>Daftar Live Trading Remora</span>
+          <a 
+            href="https://remoratrader.id"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full bg-[#2A9E8B] hover:bg-[#248276] text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
+          >
+            <span className='text-xs'>Daftar Live Trading Remora</span>
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
-          </button>
+          </a>
         </div>
       </div>
     </div>

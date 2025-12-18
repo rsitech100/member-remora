@@ -18,15 +18,15 @@ export function LessonProgressList({ lessons }: LessonProgressListProps) {
         {lessons.map((lesson) => (
           <div
             key={lesson.id}
-            className={`flex items-center gap-4 p-5 rounded-xl transition-colors ${
+            className={`relative flex items-center gap-4 p-5 rounded-xl transition-colors ${
               lesson.status === 'watching'
-                ? 'bg-[#2A9E8B]'
-                : 'bg-[#252d3d]'
+                ? 'bg-[#2A9E8B] overflow-visible pr-[100vw] mr-[-100vw]'
+                : 'bg-[#22222C] overflow-hidden'
             }`}
           >
             <div className="flex-shrink-0">
               {lesson.status === 'completed' && (
-                <div className="w-8 h-8 rounded-full bg-[#3d4654] flex items-center justify-center">
+                <div className="w-8 h-8 rounded-full bg-[#3a3a44] flex items-center justify-center">
                   <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                   </svg>
@@ -44,30 +44,28 @@ export function LessonProgressList({ lessons }: LessonProgressListProps) {
               )}
             </div>
             
-            <div className="flex-1 min-w-0 flex items-center justify-between">
-              <div className="flex-1">
-                <p className={`text-base font-medium ${
-                  lesson.status === 'watching' ? 'text-white' : 'text-gray-300'
-                }`}>
-                  {lesson.title}
-                </p>
-                <span className={`text-sm ${
-                  lesson.status === 'watching' ? 'text-white/70' : 'text-gray-500'
-                }`}>{lesson.duration}</span>
-              </div>
-              <div className="flex-shrink-0 ml-4">
-                {lesson.status === 'completed' && (
-                  <span className="px-4 py-1.5 bg-[#1a1f2e] text-gray-400 text-sm rounded-full">
-                    Completed
-                  </span>
-                )}
-                {lesson.status === 'watching' && (
-                  <span className="px-4 py-1.5 bg-[#1e7a6d] text-white text-sm rounded-full">
-                    Now Watching
-                  </span>
-                )}
-              </div>
+            <div className="flex-1 min-w-0">
+              <p className={`text-base font-medium ${
+                lesson.status === 'watching' ? 'text-white' : 'text-gray-300'
+              }`}>
+                {lesson.title}
+              </p>
+
+              <span className={`text-sm ${
+                lesson.status === 'watching' ? 'text-white/70' : 'text-gray-500'
+              }`}>{lesson.duration}</span>
             </div>
+
+            {lesson.status === 'completed' && (
+              <div className="absolute bottom-0 right-0 px-3 py-1.5 bg-[#444455] text-white text-xs font-medium rounded-tl-lg rounded-bl-lg">
+                Completed
+              </div>
+            )}
+            {lesson.status === 'watching' && (
+              <div className="absolute bottom-0 right-0 px-3 py-1.5 pr-[100vw] bg-[#1e7a6d] text-white text-xs font-medium rounded-tl-lg whitespace-nowrap">
+                Now Watching
+              </div>
+            )}
           </div>
         ))}
       </div>

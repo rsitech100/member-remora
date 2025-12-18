@@ -1,6 +1,7 @@
 import Image from 'next/image'
 
 interface LessonCardSmallProps {
+  id: string
   title: string
   description: string
   thumbnail: string
@@ -10,6 +11,7 @@ interface LessonCardSmallProps {
 }
 
 export function LessonCardSmall({
+  id,
   title,
   description,
   thumbnail,
@@ -17,34 +19,48 @@ export function LessonCardSmall({
   instructor,
   completed = false
 }: LessonCardSmallProps) {
+  const handleClick = () => {
+    window.location.href = `/lesson/${id}`
+  }
+
   return (
-    <div className="flex-shrink-0 w-64 bg-[#1a2332] rounded-xl overflow-hidden">
-      <div className="relative w-full h-36">
+    <div 
+      onClick={handleClick}
+      className="relative flex-shrink-0 w-72 bg-[#22222C] rounded-xl overflow-hidden cursor-pointer hover:bg-[#2a2a36] transition-colors"
+    >
+      <div className="relative w-full h-40">
         <Image
-          src={thumbnail}
+          src="/images/dummy-image.png"
           alt={title}
           fill
           className="object-cover"
         />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <Image
+            src="/images/play-button.png"
+            alt="Play"
+            width={40}
+            height={40}
+            className="opacity-90"
+          />
+        </div>
       </div>
       
       <div className="p-4">
         <h3 className="text-white font-semibold text-sm mb-2 line-clamp-2">{title}</h3>
         <p className="text-gray-400 text-xs mb-3 line-clamp-2">{description}</p>
         
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-xs text-gray-500">
-            <span>{instructor}</span>
-            <span>⏱ {duration}</span>
-          </div>
-          
-          {completed && (
-            <span className="px-2 py-1 bg-gray-700 text-white text-xs rounded">
-              Completed
-            </span>
-          )}
+        <div className="flex items-center gap-2 text-xs text-gray-500">
+          <span>{instructor}</span>
+          <span>⏱ {duration}</span>
         </div>
       </div>
+
+      {completed && (
+        <div className="absolute bottom-0 right-0 px-3 py-1.5 bg-[#2A9E8B] text-white text-xs font-medium rounded-tl-lg rounded-bl-lg">
+          Completed
+        </div>
+      )}
     </div>
   )
 }
