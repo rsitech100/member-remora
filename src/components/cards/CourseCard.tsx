@@ -1,41 +1,34 @@
 import Image from 'next/image'
+import Link from 'next/link'
 
 interface CourseCardProps {
+  id: string
   title: string
   description: string
   thumbnail: string
   duration: string
   instructor: string
   completed?: boolean
-  onClick?: () => void
 }
 
 export function CourseCard({
+  id,
   title,
   description,
   thumbnail,
   duration,
   instructor,
   completed = false,
-  onClick
 }: CourseCardProps) {
-  const handleClick = () => {
-    if (onClick) {
-      onClick()
-    } else {
-      window.location.href = '/lesson/1'
-    }
-  }
-
   return (
-    <div 
-      className="relative bg-[#22222C] rounded-xl overflow-hidden hover:bg-[#2a2a36] transition-colors cursor-pointer group"
-      onClick={handleClick}
+    <Link 
+      href={`/course/${id}`}
+      className="block relative bg-[#22222C] rounded-xl overflow-hidden hover:bg-[#2a2a36] transition-colors cursor-pointer group"
     >
       <div className="flex flex-col sm:flex-row gap-4 p-4">
         <div className="relative w-full sm:w-64 h-40 sm:h-32 flex-shrink-0 rounded-lg overflow-hidden bg-[#0d1820]">
           <Image
-            src="/images/dummy-image.png"
+            src={thumbnail || '/images/dummy-image.png'}
             alt={title}
             fill
             className="object-cover"
@@ -78,6 +71,6 @@ export function CourseCard({
           Now Watching
         </div>
       )}
-    </div>
+    </Link>
   )
 }

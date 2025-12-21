@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 
-interface LessonCardSmallProps {
+interface CourseCardSmallProps {
   id: string
   title: string
   description: string
@@ -11,7 +11,7 @@ interface LessonCardSmallProps {
   completed?: boolean
 }
 
-export function LessonCardSmall({
+export function CourseCardSmall({
   id,
   title,
   description,
@@ -19,7 +19,7 @@ export function LessonCardSmall({
   duration,
   instructor,
   completed = false
-}: LessonCardSmallProps) {
+}: CourseCardSmallProps) {
   return (
     <Link 
       href={`/course/${id}`}
@@ -27,7 +27,7 @@ export function LessonCardSmall({
     >
       <div className="relative w-full h-40">
         <Image
-          src="/images/dummy-image.png"
+          src={thumbnail || '/images/dummy-image.png'}
           alt={title}
           fill
           className="object-cover"

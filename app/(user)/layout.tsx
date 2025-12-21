@@ -1,14 +1,5 @@
-import { DashboardHeader } from '@/components/layout/DashboardHeader'
+import { UserLayoutView } from '@/components/layout/UserLayoutView'
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
-  return (
-    <div className="min-h-screen bg-[#0a0e14]">
-      <DashboardHeader />
-      {children}
-    </div>
-  )
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+  return <UserLayoutView>{children}</UserLayoutView>
 }

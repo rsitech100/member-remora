@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import Link from 'next/link'
 
 interface LastVideoCardProps {
   title: string
@@ -7,8 +8,9 @@ interface LastVideoCardProps {
   instructorRole: string
   thumbnail: string
   duration: string
-  totalLessons: string
+  totalVideos: string
   language: string
+  courseId: number
 }
 
 export function LastVideoCard({
@@ -18,14 +20,15 @@ export function LastVideoCard({
   instructorRole,
   thumbnail,
   duration,
-  totalLessons,
-  language
+  totalVideos,
+  language,
+  courseId
 }: LastVideoCardProps) {
   return (
     <div>
       <h2 className="text-[#2A9E8B] text-2xl font-semibold mb-4">Your Last Video</h2>
       
-      <div>
+      <Link href={`/course/${courseId}`} className="block">
         <div className="relative w-full h-48 overflow-hidden">
         <Image
           src="/images/dummy-image.png"
@@ -80,7 +83,7 @@ export function LastVideoCard({
               </svg>
             </div>
             <div className="text-xs text-gray-400 mb-2">Module</div>
-            <div className="text-white text-sm font-semibold">{totalLessons}</div>
+            <div className="text-white text-sm font-semibold">{totalVideos}</div>
           </div>
           
           <div className="bg-[#2C2C36] rounded-lg p-4 ">
@@ -94,7 +97,7 @@ export function LastVideoCard({
           </div>
         </div>
       </div>
-</div>
+      </Link>
     </div>
   )
 }

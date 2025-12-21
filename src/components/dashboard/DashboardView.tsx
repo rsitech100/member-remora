@@ -1,106 +1,69 @@
-'use client'
-
-import { useRef } from 'react'
 import { CourseCard } from '../cards/CourseCard'
 import { ProgressCard } from '../cards/ProgressCard'
 import { LastVideoCard } from '../cards/LastVideoCard'
-import { LessonCardSmall } from '../cards/LessonCardSmall'
+import { CourseCardSmall } from '../cards/CourseCardSmall'
 import { PromoCard } from '../cards/PromoCard'
 import { Container } from '../layout/Container'
+import { CarouselWrapper } from './CarouselWrapper'
+import { IUser, IDashboardCourse, ICourse } from '@/types/api'
 
-const courses = [
-  {
-    id: '1',
-    title: 'Welcome To The Course!',
-    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua',
-    thumbnail: '/images/course-1.jpg',
-    duration: '5 Min',
-    instructor: 'Introduction',
-    completed: true,
-  },
-  {
-    id: '2',
-    title: 'Lorem Ipsum Dolor Sit Amet',
-    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua',
-    thumbnail: '/images/course-2.jpg',
-    duration: '21 Min',
-    instructor: 'Module 1',
-    completed: true,
-  },
-  {
-    id: '3',
-    title: 'Consectetur Adipiscing Et Ullm',
-    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua',
-    thumbnail: '/images/course-3.jpg',
-    duration: '14 Min',
-    instructor: 'Module 2',
-    completed: false,
-  },
-]
+interface DashboardViewProps {
+  user: IUser
+  dashboardCourses: (IDashboardCourse & { completed: boolean })[]
+  allCourses: ICourse[]
+}
 
-export function DashboardView() {
-  const carouselRef = useRef<HTMLDivElement>(null)
+export function DashboardView({ user, dashboardCourses, allCourses }: DashboardViewProps) {
+  const lastWatchedCourse = dashboardCourses.find(c => c.last_watched_video)
+  const lastWatchedVideo = lastWatchedCourse?.last_watched_video
 
-  const scrollCarousel = (direction: 'left' | 'right') => {
-    if (carouselRef.current) {
-      const scrollAmount = 300
-      const newScrollPosition = carouselRef.current.scrollLeft + (direction === 'right' ? scrollAmount : -scrollAmount)
-      carouselRef.current.scrollTo({
-        left: newScrollPosition,
-        behavior: 'smooth'
-      })
+  const totalVideos = dashboardCourses.reduce((sum, course) => sum + course.total_videos, 0)
+  const totalCompleted = dashboardCourses.reduce((sum, course) => sum + course.completed_videos, 0)
+  const percentage = totalVideos > 0 ? Math.round((totalCompleted / totalVideos) * 100) : 0
+
+  const coursesToDisplay = allCourses.map(course => {
+    const dashboardCourse = dashboardCourses.find(dc => dc.course_id === course.id)
+    return {
+      id: course.id.toString(),
+      title: course.title,
+      description: course.description,
+      thumbnail: '/images/course-1.jpg',
+      duration: `${course.videos.length} Videos`,
+      instructor: course.subtitle,
+      completed: dashboardCourse?.completed ?? false,
     }
-  }
+  })
 
   return (
     <>
       {/* Mobile View */}
       <Container className="lg:hidden py-6 space-y-6">
-        <LastVideoCard
-          title="Learning how to basic trading in 30 minutes"
-          description="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam"
-          instructor="Hengky Adinata"
-          instructorRole="Trading Mentor"
-          thumbnail="/images/last-video.jpg"
-          duration="01:08:00 Hrs"
-          totalLessons="27/30 Total Module"
-          language="Indonesia"
+        {lastWatchedVideo && lastWatchedCourse && (
+          <LastVideoCard
+            title={lastWatchedCourse.title}
+            description={lastWatchedCourse.description}
+            instructor={user.first_name + ' ' + user.last_name}
+            instructorRole="Student"
+            thumbnail="/images/last-video.jpg"
+            duration={lastWatchedCourse.progress}
+            totalVideos={`${lastWatchedCourse.completed_videos}/${lastWatchedCourse.total_videos} Videos`}
+            language="Indonesia"
+            courseId={lastWatchedCourse.course_id}
+          />
+        )}
+
+        <CarouselWrapper title="All Course">
+          {coursesToDisplay.map((course) => (
+            <CourseCardSmall key={course.id} {...course} />
+          ))}
+        </CarouselWrapper>
+
+        <ProgressCard
+          percentage={percentage}
+          completed={totalCompleted}
+          total={totalVideos}
+          isMobile={true}
         />
-
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-[#2A9E8B] text-xl font-semibold">All Lessons</h2>
-            <div className="flex gap-2">
-              <button 
-                onClick={() => scrollCarousel('left')}
-                className="p-2 rounded-lg bg-[#1a2332] text-gray-400 hover:text-white transition-colors"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-              <button 
-                onClick={() => scrollCarousel('right')}
-                className="p-2 rounded-lg bg-[#1a2332] text-gray-400 hover:text-white transition-colors"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            </div>
-          </div>
-          
-          <div 
-            ref={carouselRef}
-            className="flex gap-4 overflow-x-auto pb-4 -mx-4 px-4 scrollbar-hide scroll-smooth"
-          >
-            {courses.map((course) => (
-              <LessonCardSmall key={course.id} {...course} />
-            ))}
-          </div>
-        </div>
-
-        <ProgressCard percentage={75} completed={2} total={3} isMobile={true} />
         
         <PromoCard />
       </Container>
@@ -114,7 +77,7 @@ export function DashboardView() {
             </div>
             
             <div className="space-y-4">
-              {courses.map((course) => (
+              {coursesToDisplay.map((course) => (
                 <CourseCard key={course.id} {...course} />
               ))}
             </div>
@@ -122,21 +85,15 @@ export function DashboardView() {
 
           <div className="lg:col-span-1">
             <div className="sticky top-24">
-              <ProgressCard percentage={75} completed={2} total={3} />
+              <ProgressCard
+                percentage={percentage}
+                completed={totalCompleted}
+                total={totalVideos}
+              />
             </div>
           </div>
         </div>
       </Container>
-
-      <style jsx global>{`
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-        }
-        .scrollbar-hide {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-      `}</style>
     </>
   )
 }

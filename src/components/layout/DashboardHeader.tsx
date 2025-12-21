@@ -1,8 +1,29 @@
 import { RemoraLogo } from '@/components/ui/Icon'
 import { UserProfileButton } from '@/components/button/UserProfileButton'
 import { MobileMenuButton } from '@/components/button/MobileMenuButton'
+import { IDashboardData } from '@/types/api'
 
-export function DashboardHeader() {
+interface DashboardHeaderProps {
+  dashboardData: IDashboardData | null
+}
+
+export function DashboardHeader({ dashboardData }: DashboardHeaderProps) {
+  const user = dashboardData?.user
+  const userName = user ? `${user.first_name} ${user.last_name}` : 'Guest'
+  const userInitial = user ? user.first_name.charAt(0).toUpperCase() : 'G'
+  
+  const formatExpirationDate = (dateStr: string | undefined) => {
+    if (!dateStr) return '00 MM YYYY'
+    const date = new Date(dateStr)
+    const day = date.getDate().toString().padStart(2, '0')
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    const month = months[date.getMonth()]
+    const year = date.getFullYear()
+    return `${day} ${month} ${year}`
+  }
+  
+  const expirationDate = formatExpirationDate(user?.expires_at)
+  
   return (
     <header className="sticky top-0 z-50 relative bg-gradient-to-r from-[#0f4238] via-[#165046] to-[#1a5d52]">
       <svg 
@@ -50,10 +71,10 @@ export function DashboardHeader() {
 
         <div className="hidden md:flex items-center gap-6">
           <span className="text-white/90 text-sm">
-            Membership expiring on <span className="font-semibold">00 MM YYYY</span>
+            Membership expiring on <span className="font-semibold">{expirationDate}</span>
           </span>
           
-          <UserProfileButton userName="Jay Park" userInitial="J" />
+          <UserProfileButton userName={userName} userInitial={userInitial} />
         </div>
       </div>
     </header>

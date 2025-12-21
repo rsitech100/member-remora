@@ -1,0 +1,31 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { fetchWithAuth } from '@/lib/api'
+import { getAuthToken } from '@/lib/auth'
+import { IAPIResponse, IWatchVideoData } from '@/types/api'
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const token = await getAuthToken()
+    if (!token) {
+      return NextResponse.json(
+        { success: false, message: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    const { id } = await params
+    const data = await fetchWithAuth<IAPIResponse<IWatchVideoData>>(`/api/watch/${id}`)
+    return NextResponse.json(data)
+  } catch (error) {
+    console.error('Watch video API error:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    console.error('Error details:', errorMessage)
+    return NextResponse.json(
+      { success: false, message: 'Failed to fetch video', error: errorMessage },
+      { status: 500 }
+    )
+  }
+}

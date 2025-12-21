@@ -24,52 +24,35 @@ export function UserProfileButton({ userName, userInitial }: UserProfileButtonPr
     }
   }, [isOpen])
 
+  const handleLogout = () => {
+    window.location.href = '/api/logout'
+  }
+
   return (
     <div className="relative" ref={menuRef}>
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-3 bg-[#1a2733] hover:bg-[#1f2f3d] rounded-full pl-1 pr-4 py-1 transition-colors"
+        className="flex items-center gap-3 bg-[#1a2733] hover:bg-[#1f2f3d] rounded-full pl-1 pr-4 py-1 transition-all duration-300 hover:shadow-lg hover:scale-105"
       >
-        <div className="w-10 h-10 rounded-full bg-[#2A9E8B] flex items-center justify-center text-white font-semibold text-lg">
+        <div className="w-10 h-10 rounded-full bg-[#2A9E8B] flex items-center justify-center text-white font-semibold text-lg transition-transform duration-300 hover:scale-110">
           {userInitial}
         </div>
         <span className="text-white font-medium text-sm">{userName}</span>
-        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className={`w-4 h-4 text-white transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 w-48 bg-[#0f1419] rounded-lg shadow-xl border border-white/10 overflow-hidden z-50">
-          <div className="py-2">
-            <a
-              href="/dashboard/profile"
-              className="flex items-center gap-3 px-4 py-2.5 hover:bg-white/10 transition-colors text-gray-300 hover:text-white"
-            >
-              <span>👤</span>
-              <span>Profile</span>
-            </a>
-            <a
-              href="/dashboard/settings"
-              className="flex items-center gap-3 px-4 py-2.5 hover:bg-white/10 transition-colors text-gray-300 hover:text-white"
-            >
-              <span>⚙️</span>
-              <span>Settings</span>
-            </a>
-          </div>
-          
-          <div className="border-t border-white/10">
-            <button
-              onClick={() => {
-                window.location.href = '/login'
-              }}
-              className="flex items-center gap-3 px-4 py-2.5 hover:bg-red-500/10 transition-colors text-gray-300 hover:text-red-400 w-full"
-            >
-              <span>🚪</span>
-              <span>Logout</span>
-            </button>
-          </div>
-        </div>
+        <button
+          onClick={handleLogout}
+          className="absolute right-0 top-full mt-2 flex items-center gap-3 px-4 py-2.5 bg-[#2A9E8B] hover:bg-[#238174] transition-all duration-300 text-white rounded-lg shadow-xl z-50 animate-in fade-in slide-in-from-top-2 hover:shadow-2xl hover:scale-105 backdrop-blur-sm"
+        >
+          <svg className="w-5 h-5 transition-transform duration-300 hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          <span className="font-medium">Logout</span>
+        </button>
       )}
     </div>
   )

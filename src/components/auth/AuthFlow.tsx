@@ -21,7 +21,7 @@ export function AuthFlow() {
   }
 
   const handleOTPSuccess = () => {
-    router.push('/dashboard')
+    window.location.href = '/dashboard'
   }
 
   const handleClose = () => {
