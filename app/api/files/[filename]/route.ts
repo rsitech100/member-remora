@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAuthToken } from '@/lib/auth'
 
-const API_BASE_URL = process.env.API_BASE_URL || 'https://remora.hla12.xyz'
+const NEXT_PUBLIC_API_URL = process.env.NEXT_PUBLIC_API_URL
 
 export async function GET(
   request: NextRequest,
@@ -18,7 +18,7 @@ export async function GET(
       )
     }
 
-    const response = await fetch(`${API_BASE_URL}/files/${filename}`, {
+    const response = await fetch(`${NEXT_PUBLIC_API_URL}/files/${filename}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
