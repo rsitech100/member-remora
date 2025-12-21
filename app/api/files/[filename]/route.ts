@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAuthToken } from '@/lib/auth'
 
-const NEXT_PUBLIC_API_URL = process.env.NEXT_PUBLIC_API_URL
+const API_URL = process.env.API_BASE_URL || process.env.NEXT_PUBLIC_BASE_URL
 
 export async function GET(
   request: NextRequest,
@@ -18,7 +18,15 @@ export async function GET(
       )
     }
 
-    const response = await fetch(`${NEXT_PUBLIC_API_URL}/files/${filename}`, {
+    if (!API_URL) {
+      console.error('API_BASE_URL or NEXT_PUBLIC_BASE_URL is not configured')
+      return NextResponse.json(
+        { success: false, error: 'Configuration error', message: 'API URL not configured' },
+        { status: 500 }
+      )
+    }
+
+    const response = await fetch(`${API_URL}/files/${filename}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

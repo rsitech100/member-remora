@@ -16,7 +16,16 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const apiUrl = process.env.NEXT_PUBLIC_BASE_URL 
+    const apiUrl = process.env.API_BASE_URL || process.env.NEXT_PUBLIC_BASE_URL
+    
+    if (!apiUrl) {
+      console.error('API_BASE_URL or NEXT_PUBLIC_BASE_URL is not configured')
+      return NextResponse.json(
+        { success: false, error: 'Configuration error', message: 'API URL not configured' },
+        { status: 500 }
+      )
+    }
+
     const response = await fetch(`${apiUrl}/api/verify`, {
       method: 'POST',
       headers: {
