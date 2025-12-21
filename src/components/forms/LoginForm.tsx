@@ -14,12 +14,65 @@ export function LoginForm({ onSuccess, onExpired }: LoginFormProps) {
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
+  const validatePhoneNumber = (value: string): string => {
+    if (!value) return ''
+    
+    const cleanPhone = value.replace(/\D/g, '')
+    
+    if (value.startsWith('+')) {
+      if (value.length === 1) return ''
+      if (!value.startsWith('+62')) {
+        return 'Country code must be +62'
+      }
+      if (value.length > 3) {
+        const digitCount = cleanPhone.length - 2 
+        if (digitCount > 13) {
+          return 'Phone number too long (max 13 digits after +62)'
+        }
+      }
+    } else if (value.startsWith('0')) {
+      if (cleanPhone.length > 14) {
+        return 'Phone number too long (max 14 digits)'
+      }
+    } else if (value.startsWith('62')) {
+      if (cleanPhone.length > 15) {
+        return 'Phone number too long (max 15 digits)'
+      }
+    } else if (value.length > 0) {
+      return 'Phone number must start with 0, 62, or +62'
+    }
+    
+    return ''
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError('')
+    
+    const validationError = validatePhoneNumber(phoneNumber)
+    if (validationError) {
+      setError(validationError)
+      return
+    }
 
-    if (!phoneNumber || phoneNumber.length < 10) {
-      setError('Invalid phone number. Please try again')
+    const cleanPhone = phoneNumber.replace(/\D/g, '')
+    
+    if (phoneNumber.startsWith('+')) {
+      if (!/^\+62\d{9,13}$/.test(phoneNumber)) {
+        setError('Phone number must be in format +62XXXXXXXXX (9-13 digits)')
+        return
+      }
+    } else if (phoneNumber.startsWith('0')) {
+      if (cleanPhone.length < 10 || cleanPhone.length > 14) {
+        setError('Phone number must be 10-14 digits')
+        return
+      }
+    } else if (phoneNumber.startsWith('62')) {
+      if (cleanPhone.length < 11 || cleanPhone.length > 15) {
+        setError('Phone number must be 11-15 digits (including country code)')
+        return
+      }
+    } else {
+      setError('Phone number must start with 0, 62, or +62')
       return
     }
 
@@ -61,8 +114,13 @@ export function LoginForm({ onSuccess, onExpired }: LoginFormProps) {
         placeholder="Phone Number"
         value={phoneNumber}
         onChange={(e) => {
-          setPhoneNumber(e.target.value)
-          setError('')
+          const value = e.target.value
+          // Only allow numbers and + symbol at the start
+          if (value === '' || /^[\+]?[0-9]*$/.test(value)) {
+            setPhoneNumber(value)
+            const validationError = validatePhoneNumber(value)
+            setError(validationError)
+          }
         }}
         error={error}
       />

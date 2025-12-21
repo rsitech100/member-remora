@@ -14,6 +14,8 @@ export const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
         <input
           ref={ref}
           type="tel"
+          inputMode="numeric"
+          pattern="[\+]?[0-9]*"
           className={cn(
             'w-full px-4 py-3 bg-transparent border-b-2 border-gray-700',
             'text-white placeholder:text-gray-500',
