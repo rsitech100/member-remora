@@ -1,6 +1,7 @@
 import { getAuthToken } from './auth'
+import { redirect } from 'next/navigation'
 
-const API_BASE_URL = process.env.API_BASE_URL || 'https://remora.hla12.xyz'
+const API_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL
 
 export async function fetchAPI<T>(
   endpoint: string,
@@ -28,6 +29,15 @@ export async function fetchAPI<T>(
   })
 
   if (!response.ok) {
+    if (response.status === 401) {
+      if (typeof window !== 'undefined') {
+        await fetch('/api/logout', { method: 'POST' }).catch(() => {})
+        window.location.href = '/login'
+      } else {
+        redirect('/login')
+      }
+    }
+    
     const errorText = await response.text().catch(() => '')
     console.error(`API Error ${response.status} for ${endpoint}:`, errorText)
     throw new Error(`API Error: ${response.status} - ${errorText || response.statusText}`)

@@ -64,6 +64,18 @@ export function CourseContent({ initialVideoId, courseData }: CourseContentProps
     router.refresh()
   }
 
+  const handleNextVideo = () => {
+    if (nextVideoId) {
+      setCurrentVideoId(nextVideoId)
+    }
+  }
+
+  const handlePreviousVideo = () => {
+    if (previousVideoId) {
+      setCurrentVideoId(previousVideoId)
+    }
+  }
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
       <div className="lg:col-span-2 animate-in fade-in slide-in-from-left-8 duration-500">
@@ -80,6 +92,8 @@ export function CourseContent({ initialVideoId, courseData }: CourseContentProps
           isLoading={isLoading}
           hasError={error}
           onVideoComplete={handleVideoComplete}
+          onNextVideo={handleNextVideo}
+          onPreviousVideo={handlePreviousVideo}
         />
       </div>
       

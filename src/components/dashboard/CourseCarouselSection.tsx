@@ -1,33 +1,17 @@
 import { redirect } from 'next/navigation'
 import { IAPIResponse, ICourse } from '@/types/api'
 import { getAuthToken } from '@/lib/auth'
+import { fetchWithAuth } from '@/lib/api'
 import { CourseCarousel } from './CourseCarousel'
 
 async function getCourses() {
-  try {
-    const token = await getAuthToken()
-    if (!token) {
-      redirect('/login')
-    }
-    
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
-    const res = await fetch(`${baseUrl}/api/courses`, {
-      headers: {
-        'Cookie': `auth_token=${token}`,
-      },
-      cache: 'no-store',
-    })
-    
-    if (!res.ok) {
-      throw new Error(`Courses API returned ${res.status}`)
-    }
-    
-    const response: IAPIResponse<ICourse[]> = await res.json()
-    return response.data
-  } catch (error) {
-    console.error('Error fetching courses:', error)
-    return []
+  const token = await getAuthToken()
+  if (!token) {
+    redirect('/login')
   }
+  
+  const response = await fetchWithAuth<IAPIResponse<ICourse[]>>('/api/courses')
+  return response.data
 }
 
 export async function CourseCarouselSection() {

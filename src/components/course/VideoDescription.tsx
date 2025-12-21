@@ -1,13 +1,13 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
-
 interface VideoDescriptionProps {
   title: string
   subtitle: string
   description: string
   previousVideoId?: string | null
   nextVideoId?: string | null
+  onNextVideo?: () => void
+  onPreviousVideo?: () => void
 }
 
 export function VideoDescription({ 
@@ -15,9 +15,10 @@ export function VideoDescription({
   subtitle,
   description,
   previousVideoId,
-  nextVideoId
+  nextVideoId,
+  onNextVideo,
+  onPreviousVideo
 }: VideoDescriptionProps) {
-  const router = useRouter()
 
   return (
     <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
@@ -35,7 +36,7 @@ export function VideoDescription({
       <div className="flex gap-3 pt-6 animate-in fade-in slide-in-from-bottom-2 duration-500 delay-700">
         {previousVideoId ? (
           <button
-            onClick={() => router.push(`/course/${previousVideoId}`)}
+            onClick={onPreviousVideo}
             className="flex-1 px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-all duration-300 font-medium text-sm flex items-center justify-center gap-2 hover:scale-105 hover:shadow-lg"
           >
             <svg className="w-4 h-4 transition-transform duration-300 group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -57,7 +58,7 @@ export function VideoDescription({
         
         {nextVideoId ? (
           <button
-            onClick={() => router.push(`/course/${nextVideoId}`)}
+            onClick={onNextVideo}
             className="flex-1 px-6 py-3 bg-[#2A9E8B] hover:bg-[#238174] text-white rounded-lg transition-all duration-300 font-medium text-sm flex items-center justify-center gap-2 hover:scale-105 hover:shadow-lg hover:shadow-[#2A9E8B]/30 animate-in fade-in zoom-in-95 duration-500"
           >
             Video Selanjutnya

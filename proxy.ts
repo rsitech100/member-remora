@@ -16,10 +16,6 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl)
   }
 
-  if (isPublicPath && token && pathname === '/login') {
-    const dashboardUrl = new URL('/dashboard', request.url)
-    return NextResponse.redirect(dashboardUrl)
-  }
 
   return NextResponse.next()
 }

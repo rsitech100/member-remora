@@ -17,6 +17,8 @@ interface VideoPlayerViewProps {
   isLoading?: boolean
   hasError?: boolean
   onVideoComplete?: () => void
+  onNextVideo?: () => void
+  onPreviousVideo?: () => void
 }
 
 export function VideoPlayerView({ 
@@ -31,7 +33,9 @@ export function VideoPlayerView({
   videoDescription,
   isLoading = false,
   hasError = false,
-  onVideoComplete
+  onVideoComplete,
+  onNextVideo,
+  onPreviousVideo
 }: VideoPlayerViewProps) {
   return (
     <div className="space-y-6">
@@ -51,6 +55,8 @@ export function VideoPlayerView({
         description={videoDescription || ''}
         previousVideoId={previousVideoId}
         nextVideoId={nextVideoId}
+        onNextVideo={onNextVideo}
+        onPreviousVideo={onPreviousVideo}
       />
     </div>
   )

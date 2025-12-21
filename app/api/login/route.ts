@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const apiUrl = process.env.API_BASE_URL
+    const apiUrl = process.env.NEXT_PUBLIC_BASE_URL
     const response = await fetch(`${apiUrl}/api/login`, {
       method: 'POST',
       headers: {

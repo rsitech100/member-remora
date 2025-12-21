@@ -1,31 +1,17 @@
 import { getAuthToken } from '@/lib/auth'
+import { fetchWithAuth } from '@/lib/api'
 import { IAPIResponse, IDashboardData } from '@/types/api'
 import { redirect } from 'next/navigation'
 import { DashboardHeader } from '@/components/layout/DashboardHeader'
 
 async function getDashboardData() {
-  try {
-    const token = await getAuthToken()
-    if (!token) {
-      redirect('/login')
-    }
-    
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL 
-    const res = await fetch(`${baseUrl}/api/dashboard`, {
-      headers: {
-        'Cookie': `auth_token=${token}`,
-      },
-      cache: 'no-store',
-    })
-    
-    if (res.ok) {
-      const response: IAPIResponse<IDashboardData> = await res.json()
-      return response.data
-    }
-  } catch (error) {
-    console.error('Error fetching dashboard data for header:', error)
+  const token = await getAuthToken()
+  if (!token) {
+    redirect('/login')
   }
-  return null
+  
+  const response = await fetchWithAuth<IAPIResponse<IDashboardData>>('/api/dashboard')
+  return response.data
 }
 
 interface UserLayoutViewProps {

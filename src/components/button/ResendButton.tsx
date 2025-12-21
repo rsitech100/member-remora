@@ -8,7 +8,7 @@ interface ResendButtonProps {
   className?: string
 }
 
-export function ResendButton({ onResend, initialCountdown = 30, className }: ResendButtonProps) {
+export function ResendButton({ onResend, initialCountdown = 300, className }: ResendButtonProps) {
   const [countdown, setCountdown] = useState(initialCountdown)
 
   useEffect(() => {
@@ -25,12 +25,16 @@ export function ResendButton({ onResend, initialCountdown = 30, className }: Res
     onResend()
   }
 
+  const minutes = Math.floor(countdown / 60)
+  const seconds = countdown % 60
+  const timeDisplay = `${minutes}:${seconds.toString().padStart(2, '0')}`
+
   return (
     <div className={className}>
       {countdown > 0 ? (
         <p className="text-gray-400">
           Belum mendapatkan kode?{' '}
-          <span className="text-gray-500">Kirim ulang dalam {countdown}s</span>
+          <span className="text-gray-500">Kirim ulang dalam {timeDisplay}</span>
         </p>
       ) : (
         <button
