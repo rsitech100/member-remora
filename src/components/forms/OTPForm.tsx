@@ -56,8 +56,28 @@ export function OTPForm({ phoneNumber, onSuccess }: OTPFormProps) {
     }
   }
 
-  const handleResend = () => {
+  const handleResend = async () => {
     setOtp(['', '', '', '', '', ''])
+    setError('')
+    
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ phone_number: phoneNumber }),
+      })
+
+      const data = await response.json()
+
+      if (!data.success) {
+        setError(data.message || data.error || 'Failed to resend OTP')
+      }
+    } catch (error) {
+      console.error('Resend OTP error:', error)
+      setError('Failed to resend OTP. Please try again')
+    }
   }
 
   return (

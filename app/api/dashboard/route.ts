@@ -16,6 +16,9 @@ export async function GET(request: NextRequest) {
     const data = await fetchWithAuth<IAPIResponse<IDashboardData>>('/api/dashboard')
     return NextResponse.json(data)
   } catch (error) {
+    if (error && typeof error === 'object' && 'digest' in error && String(error.digest).includes('NEXT_REDIRECT')) {
+      throw error
+    }
     console.error('Dashboard API error:', error)
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     console.error('Error details:', errorMessage)

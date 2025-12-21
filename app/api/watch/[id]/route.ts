@@ -20,6 +20,9 @@ export async function GET(
     const data = await fetchWithAuth<IAPIResponse<IWatchVideoData>>(`/api/watch/${id}`)
     return NextResponse.json(data)
   } catch (error) {
+    if (error && typeof error === 'object' && 'digest' in error && String(error.digest).includes('NEXT_REDIRECT')) {
+      throw error
+    }
     console.error('Watch video API error:', error)
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     console.error('Error details:', errorMessage)

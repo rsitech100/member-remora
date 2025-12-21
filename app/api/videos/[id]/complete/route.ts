@@ -21,6 +21,9 @@ export async function POST(
     })
     return NextResponse.json(data)
   } catch (error) {
+    if (error && typeof error === 'object' && 'digest' in error && String(error.digest).includes('NEXT_REDIRECT')) {
+      throw error
+    }
     console.error('Complete video API error:', error)
     return NextResponse.json(
       { success: false, message: 'Failed to mark video as complete' },

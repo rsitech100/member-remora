@@ -3,6 +3,7 @@ import { fetchWithAuth } from '@/lib/api'
 import { IAPIResponse, IDashboardData } from '@/types/api'
 import { redirect } from 'next/navigation'
 import { DashboardHeader } from '@/components/layout/DashboardHeader'
+import { SessionChecker } from '@/components/auth/SessionChecker'
 
 async function getDashboardData() {
   const token = await getAuthToken()
@@ -23,6 +24,7 @@ export async function UserLayoutView({ children }: UserLayoutViewProps) {
   
   return (
     <div className="min-h-screen bg-[#0a0e14]">
+      <SessionChecker />
       <DashboardHeader dashboardData={dashboardData} />
       {children}
     </div>
