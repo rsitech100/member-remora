@@ -81,21 +81,21 @@ export function OTPForm({ phoneNumber, onSuccess }: OTPFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-6 animate-slide-up" style={{ animationDelay: '0.2s' }}>
+    <form onSubmit={handleSubmit} className="flex flex-col gap-6 pb-12">
       <OTPInput value={otp} onChange={setOtp} />
       
       {error && (
         <p className="text-red-500 text-sm text-center">{error}</p>
       )}
 
-      <ResendButton onResend={handleResend} className="text-center text-sm" />
+      <ResendButton onResend={handleResend} className="text-sm" />
 
       <SubmitOTPButton
         type="submit"
         isLoading={isLoading}
         disabled={otp.some(digit => !digit)}
       >
-        Verifikasi
+        Login
       </SubmitOTPButton>
     </form>
   )

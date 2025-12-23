@@ -11,6 +11,10 @@ const outfit = Outfit({
 export const metadata: Metadata = {
   title: "Member Remora | Trading Platform",
   description: "Belajar cara profit jutaan di saham",
+  icons: {
+    icon: "/images/logo.png",
+    apple: "/images/logo.png",
+  },
 };
 
 export default function RootLayout({

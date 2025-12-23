@@ -32,7 +32,7 @@ export function ResendButton({ onResend, initialCountdown = 300, className }: Re
   return (
     <div className={className}>
       {countdown > 0 ? (
-        <p className="text-gray-400">
+        <p className="text-white text-sm text-center md:text-left">
           Belum mendapatkan kode?{' '}
           <span className="text-gray-500">Kirim ulang dalam {timeDisplay}</span>
         </p>
@@ -40,9 +40,9 @@ export function ResendButton({ onResend, initialCountdown = 300, className }: Re
         <button
           type="button"
           onClick={handleResend}
-          className="text-[#2A9E8B] hover:text-[#248276] transition-colors"
+          className="text-white text-sm w-full md:w-auto text-center md:text-left"
         >
-          Belum mendapatkan kode? <span className="underline">Kirim ulang</span>
+          Belum mendapatkan kode? <span className="text-[#2A9E8B] underline hover:text-[#248276] transition-colors">Kirim ulang</span>
         </button>
       )}
     </div>

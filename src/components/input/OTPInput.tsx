@@ -32,7 +32,7 @@ export function OTPInput({ value, onChange, length = 6, className }: OTPInputPro
   }
 
   return (
-    <div className={cn('flex gap-3 justify-center', className)}>
+    <div className={cn('flex gap-2 md:gap-4 justify-center', className)}>
       {Array.from({ length }).map((_, index) => (
         <input
           key={index}
@@ -46,12 +46,12 @@ export function OTPInput({ value, onChange, length = 6, className }: OTPInputPro
           onChange={(e) => handleChange(index, e.target.value)}
           onKeyDown={(e) => handleKeyDown(index, e)}
           className={cn(
-            'w-12 h-14 text-center text-2xl font-bold',
-            'bg-transparent border-b-2 border-gray-700',
-            'text-[#2A9E8B] focus:outline-none focus:border-[#2A9E8B]',
-            'transition-all duration-200 animate-slide-up'
+            'w-10 h-16 md:w-14 md:h-20 text-center text-4xl md:text-5xl font-bold',
+            'bg-transparent border-b-4',
+            'text-[#2A9E8B] focus:outline-none',
+            'transition-all duration-200',
+            value[index] ? 'border-[#2A9E8B]' : 'border-gray-700 focus:border-[#2A9E8B]'
           )}
-          style={{ animationDelay: `${0.3 + index * 0.05}s` }}
         />
       ))}
     </div>

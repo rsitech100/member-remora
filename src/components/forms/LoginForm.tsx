@@ -92,30 +92,29 @@ export function LoginForm({ onSuccess, onExpired }: LoginFormProps) {
       const data = await response.json()
 
       if (data.success) {
-        if (data.message?.toLowerCase().includes('expired') || data.error?.toLowerCase().includes('expired')) {
+        onSuccess(formattedPhone)
+      } else {
+        if (data.error === 'expired_subscription' || data.message?.toLowerCase().includes('expired')) {
           onExpired()
         } else {
-          onSuccess(formattedPhone)
+          setError('Invalid phone number. Please try again')
         }
-      } else {
-        setError(data.message || data.error || 'Login failed. Please try again')
       }
     } catch (error) {
       console.error('Login error:', error)
-      setError('Network error. Please check your connection and try again')
+      setError('Invalid phone number. Please try again')
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-6 animate-slide-up" style={{ animationDelay: '0.2s' }}>
+    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
       <PhoneInput
         placeholder="Phone Number"
         value={phoneNumber}
         onChange={(e) => {
           const value = e.target.value
-          // Only allow numbers and + symbol at the start
           if (value === '' || /^[\+]?[0-9]*$/.test(value)) {
             setPhoneNumber(value)
             const validationError = validatePhoneNumber(value)

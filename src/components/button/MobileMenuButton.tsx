@@ -2,7 +2,13 @@
 
 import { useState, useRef, useEffect } from 'react'
 
-export function MobileMenuButton() {
+interface MobileMenuButtonProps {
+  userName?: string
+  userInitial?: string
+  expirationDate?: string
+}
+
+export function MobileMenuButton({ userName = 'Guest', userInitial = 'G', expirationDate = '00 MM YYYY' }: MobileMenuButtonProps) {
   const [isOpen, setIsOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
@@ -31,52 +37,30 @@ export function MobileMenuButton() {
       </button>
 
       {isOpen && (
-        <div className="absolute left-0 top-full mt-2 w-64 bg-[#0f1419] rounded-lg shadow-xl border border-white/10 overflow-hidden z-50">
-          <div className="p-4 border-b border-white/10">
+        <div className="absolute left-0 top-full mt-2 w-64 bg-[#0a0e14] rounded-lg shadow-2xl border border-[#2A9E8B]/30 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className="p-4 bg-gradient-to-br from-[#2A9E8B] to-[#1a7a6b] border-b border-[#2A9E8B]/40">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-[#2A9E8B] flex items-center justify-center text-white font-semibold text-xl">
-                J
+              <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white font-semibold text-xl shadow-lg">
+                {userInitial}
               </div>
               <div>
-                <div className="text-white font-medium">Jay Park</div>
-                <div className="text-gray-400 text-sm">Membership expiring on 00 MM YYYY</div>
+                <div className="text-white font-semibold">{userName}</div>
+                <div className="text-white/80 text-sm">Membership expiring on {expirationDate}</div>
               </div>
             </div>
           </div>
 
-          <div className="py-2">
-            <a
-              href="/dashboard"
-              className="flex items-center gap-3 px-4 py-2.5 hover:bg-white/10 transition-colors text-gray-300 hover:text-white"
-            >
-              <span>🏠</span>
-              <span>Dashboard</span>
-            </a>
-            <a
-              href="/dashboard/profile"
-              className="flex items-center gap-3 px-4 py-2.5 hover:bg-white/10 transition-colors text-gray-300 hover:text-white"
-            >
-              <span>👤</span>
-              <span>Profile</span>
-            </a>
-            <a
-              href="/dashboard/settings"
-              className="flex items-center gap-3 px-4 py-2.5 hover:bg-white/10 transition-colors text-gray-300 hover:text-white"
-            >
-              <span>⚙️</span>
-              <span>Settings</span>
-            </a>
-          </div>
-
-          <div className="border-t border-white/10">
+          <div className="border-t border-[#2A9E8B]/20">
             <button
               onClick={() => {
-                window.location.href = '/login'
+                window.location.href = '/api/logout'
               }}
-              className="flex items-center gap-3 px-4 py-2.5 hover:bg-red-500/10 transition-colors text-gray-300 hover:text-red-400 w-full"
+              className="flex items-center gap-3 px-4 py-3 hover:bg-[#2A9E8B]/20 transition-all duration-300 w-full group"
             >
-              <span>🚪</span>
-              <span>Logout</span>
+              <svg className="w-5 h-5 text-[#2A9E8B] transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+              <span className="text-white font-medium group-hover:text-[#2A9E8B] transition-colors duration-300">Logout</span>
             </button>
           </div>
         </div>

@@ -54,7 +54,7 @@ export function DashboardHeader({ dashboardData }: DashboardHeaderProps) {
       
       <div className="relative w-full px-4 md:px-6 h-20 flex items-center justify-between md:justify-between z-10">
         <div className="flex items-center md:hidden">
-          <MobileMenuButton />
+          <MobileMenuButton userName={userName} userInitial={userInitial} expirationDate={expirationDate} />
         </div>
 
         <div className="flex items-center gap-2 md:hidden absolute left-1/2 transform -translate-x-1/2">

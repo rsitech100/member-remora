@@ -17,7 +17,7 @@ export function Modal({ isOpen, onClose, children, className, showCloseButton = 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in">
       <div 
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in"
+        className="absolute inset-0 bg-black/10 backdrop-blur-sm animate-fade-in"
       />
       
       <div className={cn(
