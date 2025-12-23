@@ -29,7 +29,7 @@ export async function fetchAPI<T>(
   })
 
   if (!response.ok) {
-    if (response.status === 401) {
+    if (response.status === 401 || response.status === 500) {
       if (typeof window !== 'undefined') {
         await fetch('/api/logout', { method: 'POST' }).catch(() => {})
         window.location.href = '/login'

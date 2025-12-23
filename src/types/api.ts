@@ -80,3 +80,11 @@ export interface IWatchVideoData {
   video_url: string
   description?: string
 }
+
+export interface IWatchHLSData {
+  video_id: number
+  title: string
+  token: string
+  playlist_url: string
+  description?: string
+}

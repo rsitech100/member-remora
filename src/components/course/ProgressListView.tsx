@@ -19,7 +19,10 @@ export function ProgressListView({
   const firstIncompleteIndex = courseVideos.findIndex(video => !video.is_completed)
   
   const courses = courseVideos.map((video, index) => {
-    const status: 'completed' | 'watching' = video.is_completed ? 'completed' : 'watching'
+    const isCurrentVideo = video.id.toString() === currentVideoId
+    const status: 'completed' | 'now_watching' | 'not_started' = 
+      isCurrentVideo ? 'now_watching' : 
+      video.is_completed ? 'completed' : 'not_started'
     
     const isAccessible = video.is_completed || 
                         index === firstIncompleteIndex || 

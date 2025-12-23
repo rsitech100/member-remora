@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { VideoPlayerView } from '@/components/course/VideoPlayerView'
 import { ProgressListView } from '@/components/course/ProgressListView'
-import { ICourseDetailData, IWatchVideoData, IAPIResponse } from '@/types/api'
+import { ICourseDetailData, IWatchHLSData, IAPIResponse } from '@/types/api'
 
 interface CourseContentProps {
   initialVideoId: string
@@ -13,9 +13,10 @@ interface CourseContentProps {
 
 export function CourseContent({ initialVideoId, courseData }: CourseContentProps) {
   const [currentVideoId, setCurrentVideoId] = useState(initialVideoId)
-  const [videoData, setVideoData] = useState<IWatchVideoData | null>(null)
+  const [videoData, setVideoData] = useState<IWatchHLSData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(false)
+  const [isFetching, setIsFetching] = useState(false)
   const router = useRouter()
 
   const currentIndex = courseData.videos.findIndex(v => v.id.toString() === currentVideoId)
@@ -33,12 +34,15 @@ export function CourseContent({ initialVideoId, courseData }: CourseContentProps
 
   useEffect(() => {
     async function fetchVideo() {
+      if (isFetching) return
+      
+      setIsFetching(true)
       setIsLoading(true)
       setError(false)
       
       try {
-        const response = await fetch(`/api/watch/${currentVideoId}`)
-        const result: IAPIResponse<IWatchVideoData> = await response.json()
+        const response = await fetch(`/api/watch-hls/${currentVideoId}`)
+        const result: IAPIResponse<IWatchHLSData> = await response.json()
         
         if (result.success && result.data) {
           setVideoData(result.data)
@@ -50,6 +54,7 @@ export function CourseContent({ initialVideoId, courseData }: CourseContentProps
         setError(true)
       } finally {
         setIsLoading(false)
+        setIsFetching(false)
       }
     }
 
