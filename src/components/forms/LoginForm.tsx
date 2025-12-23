@@ -94,7 +94,7 @@ export function LoginForm({ onSuccess, onExpired }: LoginFormProps) {
       if (data.success) {
         onSuccess(formattedPhone)
       } else {
-        if (data.error === 'expired_subscription' || data.message?.toLowerCase().includes('expired')) {
+        if (data.expired || data.status === 403 || data.error === 'expired_subscription' || data.message?.toLowerCase().includes('expired')) {
           onExpired()
         } else {
           setError('Invalid phone number. Please try again')

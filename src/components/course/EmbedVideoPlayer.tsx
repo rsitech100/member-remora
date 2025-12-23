@@ -19,10 +19,8 @@ export function EmbedVideoPlayer({
   const [iframeLoaded, setIframeLoaded] = useState(false)
   const [isBuffering, setIsBuffering] = useState(false)
 
-  // Listen for messages from the iframe (video player events)
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      // Only accept messages from the backend domain
       if (!event.origin.includes('remoratrader.id')) return
       
       if (event.data.type === 'video-buffering') {
@@ -46,7 +44,7 @@ export function EmbedVideoPlayer({
     setIframeLoaded(true)
   }
 
-  if (isLoading) {
+  if (isLoading || hasError || !embedUrl || embedUrl.trim() === '') {
     return (
       <div className="relative w-full aspect-video bg-black rounded-lg overflow-hidden">
         <div className="absolute inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 z-10">
@@ -56,21 +54,7 @@ export function EmbedVideoPlayer({
     )
   }
 
-  if (hasError || !embedUrl || embedUrl.trim() === '') {
-    return (
-      <div className="relative w-full aspect-video bg-gray-900 rounded-lg flex items-center justify-center">
-        <div className="text-center text-white p-4">
-          <p className="text-lg mb-2">⚠️ Error loading video</p>
-          <p className="text-sm text-gray-400">
-            {!embedUrl ? 'No embed URL available' : 'Failed to load video player'}
-          </p>
-        </div>
-      </div>
-    )
-  }
-
-  // Add autoplay and unmute parameters to the embed URL
-  const enhancedUrl = `${embedUrl}${embedUrl.includes('?') ? '&' : '?'}autoplay=1&muted=0&controls=0`
+  const enhancedUrl = `${embedUrl}${embedUrl.includes('?') ? '&' : '?'}autoplay=1&muted=0&controls=1`
 
   return (
     <div className="relative w-full aspect-video bg-black rounded-lg overflow-hidden">
@@ -86,7 +70,6 @@ export function EmbedVideoPlayer({
         src={enhancedUrl}
         title={videoTitle}
         className="w-full h-full"
-        frameBorder="0"
         allowFullScreen
         allow="autoplay *; encrypted-media *; fullscreen *"
         style={{ border: 'none', pointerEvents: 'auto' }}

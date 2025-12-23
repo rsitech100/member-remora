@@ -31,13 +31,39 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({ phone_number }),
     })
 
+    const responseText = await response.text()
+
     if (!response.ok) {
       console.error('API returned error status:', response.status)
-      const errorText = await response.text()
-      console.error('API error response:', errorText)
+      console.error('API error response:', responseText)
+      
+      if (response.status === 403) {
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: 'Access Expired',
+            message: 'Your access has expired',
+            expired: true,
+            details: responseText,
+            status: 403
+          },
+          { status: 403 }
+        )
+      }
+      
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'API Error',
+          message: 'Login request failed',
+          details: responseText,
+          status: response.status
+        },
+        { status: response.status }
+      )
     }
 
-    const data = await response.json()
+    const data = JSON.parse(responseText)
 
     return NextResponse.json(data, { status: response.status })
   } catch (error) {
