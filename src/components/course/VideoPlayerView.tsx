@@ -1,11 +1,11 @@
 'use client'
 
-import { HLSVideoPlayer } from './HLSVideoPlayer'
+import { EmbedVideoPlayer } from './EmbedVideoPlayer'
 import { VideoDescription } from './VideoDescription'
-import { IWatchHLSData } from '@/types/api'
+import { IEmbedData } from '@/types/api'
 
 interface VideoPlayerViewProps {
-  videoData: IWatchHLSData | null
+  videoData: IEmbedData | null
   currentVideoId: string
   previousVideoId?: string | null
   nextVideoId?: string | null
@@ -39,23 +39,12 @@ export function VideoPlayerView({
 }: VideoPlayerViewProps) {
   return (
     <div className="space-y-6">
-      {isLoading ? (
-        <div className="w-full aspect-video bg-gray-900 rounded-lg flex items-center justify-center">
-          <p className="text-white">Loading video...</p>
-        </div>
-      ) : hasError ? (
-        <div className="w-full aspect-video bg-gray-900 rounded-lg flex items-center justify-center">
-          <p className="text-white">Error loading video</p>
-        </div>
-      ) : videoData?.playlist_url ? (
-        <HLSVideoPlayer
-          videoId={currentVideoId}
-          playlistUrl={videoData.playlist_url}
-          title={videoData?.title || videoTitle || 'Video'}
-          description={videoData?.description}
-          onVideoComplete={onVideoComplete}
-        />
-      ) : null}
+      <EmbedVideoPlayer
+        embedUrl={videoData?.embed_url || ''}
+        videoTitle={videoData?.video_title || videoTitle || 'Video'}
+        isLoading={isLoading}
+        hasError={hasError}
+      />
       
       <VideoDescription
         title={videoSubtitle || videoTitle || 'Untitled Video'}

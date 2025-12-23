@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { VideoPlayerView } from '@/components/course/VideoPlayerView'
 import { ProgressListView } from '@/components/course/ProgressListView'
-import { ICourseDetailData, IWatchHLSData, IAPIResponse } from '@/types/api'
+import { ICourseDetailData, IEmbedData, IAPIResponse } from '@/types/api'
 
 interface CourseContentProps {
   initialVideoId: string
@@ -13,7 +13,7 @@ interface CourseContentProps {
 
 export function CourseContent({ initialVideoId, courseData }: CourseContentProps) {
   const [currentVideoId, setCurrentVideoId] = useState(initialVideoId)
-  const [videoData, setVideoData] = useState<IWatchHLSData | null>(null)
+  const [videoData, setVideoData] = useState<IEmbedData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(false)
   const [isFetching, setIsFetching] = useState(false)
@@ -41,8 +41,8 @@ export function CourseContent({ initialVideoId, courseData }: CourseContentProps
       setError(false)
       
       try {
-        const response = await fetch(`/api/watch-hls/${currentVideoId}`)
-        const result: IAPIResponse<IWatchHLSData> = await response.json()
+        const response = await fetch(`/api/embed/${currentVideoId}`)
+        const result: IAPIResponse<IEmbedData> = await response.json()
         
         if (result.success && result.data) {
           setVideoData(result.data)
@@ -50,7 +50,6 @@ export function CourseContent({ initialVideoId, courseData }: CourseContentProps
           setError(true)
         }
       } catch (err) {
-        console.error('Error fetching video:', err)
         setError(true)
       } finally {
         setIsLoading(false)

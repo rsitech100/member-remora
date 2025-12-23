@@ -88,3 +88,10 @@ export interface IWatchHLSData {
   playlist_url: string
   description?: string
 }
+
+export interface IEmbedData {
+  embed_url: string
+  user_name: string
+  user_phone: string
+  video_title: string
+}
