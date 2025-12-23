@@ -19,12 +19,12 @@ export async function GET(request: NextRequest) {
     if (error && typeof error === 'object' && 'digest' in error && String(error.digest).includes('NEXT_REDIRECT')) {
       throw error
     }
-    console.error('Dashboard API error:', error)
+    
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-    console.error('Error details:', errorMessage)
+    
     return NextResponse.json(
       { success: false, message: 'Failed to fetch dashboard data', error: errorMessage },
-      { status: 500 }
+      { status: 200 }
     )
   }
 }
