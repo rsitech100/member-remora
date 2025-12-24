@@ -72,7 +72,7 @@ export function LastVideoCard({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <div className="text-xs text-gray-400 mb-2">Duration</div>
+            <div className="text-xs text-gray-400 mb-2">Progress</div>
             <div className="text-white text-sm font-semibold">{duration}</div>
           </div>
           
@@ -82,7 +82,7 @@ export function LastVideoCard({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             </div>
-            <div className="text-xs text-gray-400 mb-2">Module</div>
+            <div className="text-xs text-gray-400 mb-2">Videos</div>
             <div className="text-white text-sm font-semibold">{totalVideos}</div>
           </div>
           

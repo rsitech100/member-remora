@@ -24,12 +24,14 @@ export function CarouselWrapper({ title, children }: CarouselWrapperProps) {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-6">
         <h2 className="text-[#2A9E8B] text-xl font-semibold">{title}</h2>
-        <CarouselControls 
-          onScrollLeft={() => scrollCarousel('left')}
-          onScrollRight={() => scrollCarousel('right')}
-        />
+        <div className="flex-shrink-0">
+          <CarouselControls 
+            onScrollLeft={() => scrollCarousel('left')}
+            onScrollRight={() => scrollCarousel('right')}
+          />
+        </div>
       </div>
       
       <div 

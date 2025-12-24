@@ -62,7 +62,7 @@ export function CourseCard({
       </div>
 
       {completed && (
-        <div className="absolute bottom-0 right-0 px-4 py-1.5 bg-[#2A9E8B] text-white text-xs font-medium rounded-tl-lg rounded-bl-lg">
+        <div className="absolute bottom-0 right-0 px-4 py-1.5 bg-gray-500 text-white text-xs font-medium rounded-tl-lg rounded-bl-lg">
           Completed
         </div>
       )}

@@ -23,6 +23,10 @@ export function DashboardView({ user, dashboardCourses, allCourses }: DashboardV
 
   const coursesToDisplay = allCourses.map(course => {
     const dashboardCourse = dashboardCourses.find(dc => dc.course_id === course.id)
+    const isCompleted = dashboardCourse?.completed ?? false
+    const hasProgress = dashboardCourse && dashboardCourse.completed_videos > 0
+    const isNowWatching = hasProgress && !isCompleted
+    
     return {
       id: course.id.toString(),
       title: course.title,
@@ -30,7 +34,8 @@ export function DashboardView({ user, dashboardCourses, allCourses }: DashboardV
       thumbnail: '/images/course-1.jpg',
       duration: `${course.videos.length} Videos`,
       instructor: course.subtitle,
-      completed: dashboardCourse?.completed ?? false,
+      completed: isCompleted,
+      status: (isCompleted ? 'completed' : isNowWatching ? 'now_watching' : 'not_started') as 'completed' | 'now_watching' | 'not_started'
     }
   })
 

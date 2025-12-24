@@ -97,7 +97,20 @@ export function LoginForm({ onSuccess, onExpired }: LoginFormProps) {
         if (data.expired || data.status === 403 || data.error === 'expired_subscription' || data.message?.toLowerCase().includes('expired')) {
           onExpired()
         } else {
-          setError('Invalid phone number. Please try again')
+          let errorMessage = 'Invalid phone number. Please try again'
+          
+          if (data.details) {
+            try {
+              const parsedDetails = JSON.parse(data.details)
+              errorMessage = parsedDetails.error || parsedDetails.message || errorMessage
+            } catch {
+              errorMessage = data.error || data.message || errorMessage
+            }
+          } else {
+            errorMessage = data.error || data.message || errorMessage
+          }
+          
+          setError(errorMessage)
         }
       }
     } catch (error) {

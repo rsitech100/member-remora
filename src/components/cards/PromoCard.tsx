@@ -17,7 +17,7 @@ export function PromoCard() {
           </p>
           
           <a 
-            href="https://remoratrader.id"
+            href="https://remoratrader.id/live-trading"
             target="_blank"
             rel="noopener noreferrer"
             className="w-full bg-[#2A9E8B] hover:bg-[#248276] text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
