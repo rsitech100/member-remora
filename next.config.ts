@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
+
 const nextConfig: NextConfig = {
+  poweredByHeader: false,
   images: {
     remotePatterns: [
       {
@@ -8,6 +10,11 @@ const nextConfig: NextConfig = {
         hostname: '*',
       },
     ],
+  },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '3000mb',
+    },
   },
 };
 

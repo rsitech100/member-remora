@@ -15,6 +15,9 @@ export interface IVideo {
   subtitle?: string
   description?: string
   original_video: string
+  hls_playlist?: string
+  hls_directory?: string
+  hls_status?: 'ready' | 'processing' | 'failed' | 'pending'
   status: 'active' | 'inactive'
   order: number
   is_completed?: boolean

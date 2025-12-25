@@ -15,6 +15,18 @@ export const metadata: Metadata = {
     icon: "/images/logo.png",
     apple: "/images/logo.png",
   },
+  openGraph: {
+    title: "Login | Member Remora",
+    description: "Mulai perjalanan trading Anda bersama Remora",
+    images: ["/images/logo.png"],
+    siteName: "Member Remora Trading",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Login | Member Remora",
+    description: "Mulai perjalanan trading Anda bersama Remora",
+    images: ["/images/logo.png"],
+  },
 };
 
 export default function RootLayout({
