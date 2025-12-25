@@ -11,6 +11,12 @@ async function getDashboardData() {
   }
   
   const response = await fetchWithAuth<IAPIResponse<IDashboardData>>('/api/dashboard')
+  
+  // Redirect admin users to admin panel
+  if (response.data.user.role === 'admin' || response.data.user.role === 'superadmin') {
+    redirect('/admin')
+  }
+  
   return response.data
 }
 

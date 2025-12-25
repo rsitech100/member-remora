@@ -41,7 +41,7 @@ export async function CoursesListSection() {
       title: course.title,
       description: course.description,
       thumbnail: course.image || '/images/dummy-image.png',
-      duration: dashboardCourse?.progress || `${course.videos.length} Videos`,
+      duration: dashboardCourse?.progress || `${course.videos?.length || 0} Videos`,
       instructor: course.subtitle,
       completed: dashboardCourse?.status === 'completed',
     }
