@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
     const token = await getAuthToken()
     if (!token) {
       return NextResponse.json(
-        { success: false, message: 'Unauthorized' },
+        { success: false, message: 'Unauthorized - No token found' },
         { status: 401 }
       )
     }
@@ -22,12 +22,24 @@ export async function GET(request: NextRequest) {
     
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     
-    if (errorMessage.includes('401') || errorMessage.includes('Unauthorized')) {
+    const isAuthError = errorMessage.includes('401') || 
+                       errorMessage.includes('403') ||
+                       errorMessage.toLowerCase().includes('unauthorized') ||
+                       errorMessage.toLowerCase().includes('invalid token') ||
+                       errorMessage.toLowerCase().includes('session expired') ||
+                       errorMessage.toLowerCase().includes('token')
+    
+    if (isAuthError) {
       await removeAuthToken()
-      return NextResponse.json(
-        { success: false, message: 'Invalid token', error: errorMessage },
+      
+      const response = NextResponse.json(
+        { success: false, message: 'Session expired - Please login again', error: errorMessage },
         { status: 401 }
       )
+      
+      response.cookies.delete('auth_token')
+      
+      return response
     }
     
     return NextResponse.json(

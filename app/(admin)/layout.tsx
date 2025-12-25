@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { getAuthToken } from '@/lib/auth'
+import { getAuthToken, removeAuthToken } from '@/lib/auth'
 import { fetchWithAuth } from '@/lib/api'
 import { IAPIResponse, IDashboardData } from '@/types/api'
 import AdminLayoutView from '@/components/admin/AdminLayoutView'
@@ -20,7 +20,7 @@ async function checkAdminAccess() {
 
     return user
   } catch (error) {
-    redirect('/login')
+    redirect('/api/logout')
   }
 }
 

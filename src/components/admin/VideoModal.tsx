@@ -119,7 +119,7 @@ export default function VideoModal({ video, courseId, onClose, onSuccess }: Vide
 
   return (
     <Modal isOpen onClose={onClose}>
-      <div className="bg-[#1a1a1a] rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <div className="bg-[#1a1a1a] rounded-xl p-6 w-full max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-white">
             {isEditing ? 'Edit Video' : 'Add Video'}
@@ -128,7 +128,6 @@ export default function VideoModal({ video, courseId, onClose, onSuccess }: Vide
             onClick={onClose}
             className="text-gray-400 hover:text-white transition-colors"
           >
-            <Icon name="x" className="w-6 h-6" />
           </button>
         </div>
 

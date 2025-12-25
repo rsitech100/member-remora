@@ -1,4 +1,4 @@
-import { getAuthToken } from '@/lib/auth'
+import { getAuthToken, removeAuthToken } from '@/lib/auth'
 import { fetchWithAuth } from '@/lib/api'
 import { IAPIResponse, IDashboardData } from '@/types/api'
 import { redirect } from 'next/navigation'
@@ -11,8 +11,12 @@ async function getDashboardData() {
     redirect('/login')
   }
   
-  const response = await fetchWithAuth<IAPIResponse<IDashboardData>>('/api/dashboard')
-  return response.data
+  try {
+    const response = await fetchWithAuth<IAPIResponse<IDashboardData>>('/api/dashboard')
+    return response.data
+  } catch (error) {
+    redirect('/api/logout')
+  }
 }
 
 interface UserLayoutViewProps {

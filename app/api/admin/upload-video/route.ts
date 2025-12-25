@@ -3,6 +3,13 @@ import { getAuthToken } from '@/lib/auth'
 
 const API_BASE_URL = process.env.API_BASE_URL || process.env.NEXT_PUBLIC_BASE_URL
 
+export const config = {
+  api: {
+    bodyParser: false,
+    sizeLimit: '3000mb',
+  },
+}
+
 export async function POST(request: NextRequest) {
   try {
     const token = await getAuthToken()
@@ -21,6 +28,7 @@ export async function POST(request: NextRequest) {
         'Authorization': `Bearer ${token}`,
       },
       body: formData,
+      
     })
 
     const data = await response.json()

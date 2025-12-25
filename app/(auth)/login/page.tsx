@@ -1,6 +1,6 @@
 import LoginView from '@/components/login/LoginView'
 import { redirect } from 'next/navigation'
-import { isAuthenticated, getAuthToken } from '@/lib/auth'
+import { isAuthenticated, getAuthToken, removeAuthToken } from '@/lib/auth'
 import { fetchWithAuth } from '@/lib/api'
 import { IAPIResponse, IDashboardData } from '@/types/api'
 
@@ -14,7 +14,6 @@ export const dynamic = 'force-dynamic'
 export default async function LoginPage() {
   const authenticated = await isAuthenticated()
   
-  // If authenticated, check role and redirect appropriately
   if (authenticated) {
     try {
       const data = await fetchWithAuth<IAPIResponse<IDashboardData>>('/api/dashboard')
@@ -26,6 +25,7 @@ export default async function LoginPage() {
         redirect('/dashboard')
       }
     } catch (error) {
+      redirect('/api/logout')
     }
   }
 

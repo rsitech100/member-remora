@@ -56,7 +56,6 @@ export default function CourseModal({ course, onClose, onSuccess }: CourseModalP
 
       const data = await response.json()
       if (data.success && data.data?.file_url) {
-        // Convert relative URL to full URL
         const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || ''
         return `${baseUrl}${data.data.file_url}`
       }
@@ -76,7 +75,6 @@ export default function CourseModal({ course, onClose, onSuccess }: CourseModalP
     try {
       setSaving(true)
 
-      // Upload image if a new one was selected
       let imageUrl = formData.image
       if (imageFile) {
         const uploadedUrl = await uploadImage()
@@ -118,7 +116,7 @@ export default function CourseModal({ course, onClose, onSuccess }: CourseModalP
 
   return (
     <Modal isOpen onClose={onClose}>
-      <div className="bg-[#1a1a1a] rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <div className="bg-[#1a1a1a] rounded-xl p-6 w-full max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-white">
             {isEditing ? 'Edit Course' : 'Create Course'}
@@ -127,7 +125,6 @@ export default function CourseModal({ course, onClose, onSuccess }: CourseModalP
             onClick={onClose}
             className="text-gray-400 hover:text-white transition-colors"
           >
-            <Icon name="x" className="w-6 h-6" />
           </button>
         </div>
 

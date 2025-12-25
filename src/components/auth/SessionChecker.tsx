@@ -10,13 +10,29 @@ export function SessionChecker() {
     const checkSession = async () => {
       try {
         const response = await fetch('/api/dashboard', {
-          redirect: 'manual' // Don't follow redirects automatically
+          redirect: 'manual',
+          headers: {
+            'Cache-Control': 'no-cache',
+          },
         })
         
-        // Handle 307 redirect, 401 unauthorized, or 500 server error
-        if (response.type === 'opaqueredirect' || response.status === 307 || response.status === 401 || response.status === 500) {
+        const isAuthError = response.type === 'opaqueredirect' || 
+                           response.status === 307 || 
+                           response.status === 401 ||
+                           response.status === 403
+        
+        if (isAuthError) {
           await fetch('/api/logout', { method: 'POST' }).catch(() => {})
           router.push('/login')
+          return
+        }
+        if (response.ok) {
+          const data = await response.json()
+          if (!data.success || data.message?.toLowerCase().includes('unauthorized') || 
+              data.message?.toLowerCase().includes('invalid token')) {
+            await fetch('/api/logout', { method: 'POST' }).catch(() => {})
+            router.push('/login')
+          }
         }
       } catch (error) {
         console.error('Session check error:', error)
@@ -25,9 +41,10 @@ export function SessionChecker() {
       }
     }
 
+    // Initial check
     checkSession()
 
-    const intervalId = setInterval(checkSession, 10000)
+    const intervalId = setInterval(checkSession, 30000)
 
     return () => clearInterval(intervalId)
   }, [router])

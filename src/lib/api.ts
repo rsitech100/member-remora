@@ -1,4 +1,4 @@
-import { getAuthToken } from './auth'
+import { getAuthToken, removeAuthToken } from './auth'
 import { redirect } from 'next/navigation'
 
 const API_BASE_URL = process.env.API_BASE_URL || process.env.NEXT_PUBLIC_BASE_URL
@@ -29,7 +29,14 @@ export async function fetchAPI<T>(
   })
 
   if (!response.ok) {
-    if (response.status === 401 || response.status === 500) {
+    const errorText = await response.text().catch(() => '')
+    const isAuthError = response.status === 401 || 
+                       errorText.toLowerCase().includes('unauthorized') || 
+                       errorText.toLowerCase().includes('token') ||
+                       errorText.toLowerCase().includes('session expired')
+    
+    if (isAuthError) {
+      await removeAuthToken().catch(() => {})
       if (typeof window !== 'undefined') {
         await fetch('/api/logout', { method: 'POST' }).catch(() => {})
         window.location.href = '/login'
@@ -38,7 +45,6 @@ export async function fetchAPI<T>(
       }
     }
     
-    const errorText = await response.text().catch(() => '')
     console.error(`API Error ${response.status} for ${endpoint}:`, errorText)
     throw new Error(`API Error: ${response.status} - ${errorText || response.statusText}`)
   }
