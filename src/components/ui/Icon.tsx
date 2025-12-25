@@ -1,3 +1,5 @@
+
+import React, { JSX } from 'react';
 import Image from 'next/image'
 
 export function RemoraLogo({ className, width = 120, height = 40 }: { className?: string; width?: number; height?: number }) {
