@@ -1,11 +1,10 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { VideoPlayer } from './VideoPlayer'
 import { VideoProgressList } from './VideoProgressList'
 import { ICourseDetailData, IEmbedData, IAPIResponse } from '@/types/api'
-import { getVideoNavigation } from './utils'
 
 interface CourseContentWrapperProps {
   initialVideoId: string
@@ -20,14 +19,20 @@ export function CourseContentWrapper({ initialVideoId, courseData }: CourseConte
   const [isFetching, setIsFetching] = useState(false)
   const router = useRouter()
 
-  const { currentVideo, previousVideoId, nextVideoId } = useMemo(
-    () => getVideoNavigation(courseData.videos, currentVideoId),
-    [currentVideoId, courseData.videos]
-  )
+  const currentIndex = courseData.videos.findIndex(v => v.id.toString() === currentVideoId)
+  const currentVideo = courseData.videos[currentIndex]
+  
+  const previousVideoId = currentIndex > 0 
+    ? courseData.videos[currentIndex - 1].id.toString() 
+    : null
+    
+  const nextVideoId = currentIndex >= 0 && 
+    currentIndex < courseData.videos.length - 1 && 
+    currentVideo?.is_completed
+    ? courseData.videos[currentIndex + 1].id.toString()
+    : null
 
   useEffect(() => {
-    let isCancelled = false
-
     async function fetchVideo() {
       if (isFetching) return
       
@@ -37,9 +42,25 @@ export function CourseContentWrapper({ initialVideoId, courseData }: CourseConte
       
       try {
         const response = await fetch(`/api/embed/${currentVideoId}`)
+        
+        // Handle authentication errors
+        if (response.status === 401 || response.status === 403) {
+          await fetch('/api/logout', { method: 'POST' }).catch(() => {})
+          window.location.href = '/login'
+          return
+        }
+        
         const result: IAPIResponse<IEmbedData> = await response.json()
         
-        if (isCancelled) return
+        // Check for auth errors in response body
+        if (!result.success && result.message) {
+          const msg = result.message.toLowerCase()
+          if (msg.includes('unauthorized') || msg.includes('token') || msg.includes('expired')) {
+            await fetch('/api/logout', { method: 'POST' }).catch(() => {})
+            window.location.href = '/login'
+            return
+          }
+        }
         
         if (result.success && result.data) {
           setVideoData(result.data)
@@ -47,38 +68,36 @@ export function CourseContentWrapper({ initialVideoId, courseData }: CourseConte
           setError(true)
         }
       } catch (err) {
-        if (!isCancelled) setError(true)
+        console.error('Error fetching video:', err)
+        setError(true)
       } finally {
-        if (!isCancelled) {
-          setIsLoading(false)
-          setIsFetching(false)
-        }
+        setIsLoading(false)
+        setIsFetching(false)
       }
     }
 
     fetchVideo()
-    return () => { isCancelled = true }
-  }, [currentVideoId, isFetching])
+  }, [currentVideoId])
 
-  const handleVideoChange = useCallback((videoId: string) => {
+  const handleVideoChange = (videoId: string) => {
     setCurrentVideoId(videoId)
-  }, [])
+  }
   
-  const handleVideoComplete = useCallback(() => {
+  const handleVideoComplete = () => {
     router.refresh()
-  }, [router])
+  }
 
-  const handleNextVideo = useCallback(() => {
+  const handleNextVideo = () => {
     if (nextVideoId) {
       setCurrentVideoId(nextVideoId)
     }
-  }, [nextVideoId])
+  }
 
-  const handlePreviousVideo = useCallback(() => {
+  const handlePreviousVideo = () => {
     if (previousVideoId) {
       setCurrentVideoId(previousVideoId)
     }
-  }, [previousVideoId])
+  }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
@@ -89,7 +108,6 @@ export function CourseContentWrapper({ initialVideoId, courseData }: CourseConte
           currentVideoId={currentVideoId}
           previousVideoId={previousVideoId}
           nextVideoId={nextVideoId}
-          thumbnail={courseData.course.image}
           videoTitle={currentVideo?.title || ''}
           videoSubtitle={currentVideo?.subtitle || ''}
           videoDescription={currentVideo?.description || ''}
