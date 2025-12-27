@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { fetchWithAuth } from '@/lib/api'
+import { fetchWithAuth, APIError } from '@/lib/api'
 import { getAuthToken, removeAuthToken } from '@/lib/auth'
 import { IAPIResponse, IDashboardData } from '@/types/api'
 
@@ -20,28 +20,26 @@ export async function GET(request: NextRequest) {
       throw error
     }
     
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-    
-    const isAuthError = errorMessage.includes('401') || 
-                       errorMessage.includes('403') ||
-                       errorMessage.toLowerCase().includes('unauthorized') ||
-                       errorMessage.toLowerCase().includes('invalid token') ||
-                       errorMessage.toLowerCase().includes('session expired') ||
-                       errorMessage.toLowerCase().includes('token')
-    
-    if (isAuthError) {
-      await removeAuthToken()
+    if (error instanceof APIError) {
+      if (error.isAuthError()) {
+        await removeAuthToken().catch(() => {})
+        
+        const response = NextResponse.json(
+          { success: false, message: 'Session expired - Please login again', error: error.message },
+          { status: 401 }
+        )
+        
+        response.cookies.delete('auth_token')
+        return response
+      }
       
-      const response = NextResponse.json(
-        { success: false, message: 'Session expired - Please login again', error: errorMessage },
-        { status: 401 }
+      return NextResponse.json(
+        { success: false, message: 'API request failed', error: error.message },
+        { status: error.status }
       )
-      
-      response.cookies.delete('auth_token')
-      
-      return response
     }
     
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json(
       { success: false, message: 'Failed to fetch dashboard data', error: errorMessage },
       { status: 500 }

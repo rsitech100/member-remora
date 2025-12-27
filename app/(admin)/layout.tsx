@@ -1,35 +1,20 @@
-import { redirect } from 'next/navigation'
-import { getAuthToken, removeAuthToken } from '@/lib/auth'
-import { fetchWithAuth } from '@/lib/api'
-import { IAPIResponse, IDashboardData } from '@/types/api'
-import AdminLayoutView from '@/components/admin/AdminLayoutView'
+import { requireAdmin } from '@/lib/auth'
+import { Header } from '@/components/layout/Header'
+import { SessionChecker } from '@/components/auth/SessionChecker'
+import { Container } from '@/components/layout/Container'
 
-async function checkAdminAccess() {
-  const token = await getAuthToken()
-  if (!token) {
-    redirect('/login')
-  }
-
-  try {
-    const response = await fetchWithAuth<IAPIResponse<IDashboardData>>('/api/dashboard')
-    const user = response.data.user
-
-    if (user.role !== 'admin' && user.role !== 'superadmin') {
-      redirect('/dashboard')
-    }
-
-    return user
-  } catch (error) {
-    redirect('/api/logout')
-  }
-}
-
-export default async function AdminLayout({
+export default async function AdminLayoutWrapper({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const user = await checkAdminAccess()
+  const { user, dashboardData } = await requireAdmin()
 
-  return <AdminLayoutView user={user}>{children}</AdminLayoutView>
+  return (
+    <div className="min-h-screen bg-[#0a0e14]">
+      <SessionChecker />
+      <Header dashboardData={dashboardData || null} isAdmin={true} />
+      {children}
+    </div>
+  )
 }

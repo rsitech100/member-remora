@@ -1,4 +1,5 @@
-import { CoursePageView } from '@/components/course/CoursePageView'
+import { requireAuth } from '@/lib/auth'
+import { CoursePage as CoursePageComponent } from '@/components/user/course/CoursePage'
 
 export const metadata = {
   title: 'Course | Remora',
@@ -6,6 +7,8 @@ export const metadata = {
 }
 
 export default async function CoursePage({ params }: { params: Promise<{ id: string }> }) {
+  await requireAuth()
   const { id } = await params
-  return <CoursePageView id={id} />
+  
+  return <CoursePageComponent id={id} />
 }

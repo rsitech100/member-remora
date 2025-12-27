@@ -26,6 +26,7 @@ export function SessionChecker() {
           router.push('/login')
           return
         }
+
         if (response.ok) {
           const data = await response.json()
           if (!data.success || data.message?.toLowerCase().includes('unauthorized') || 
@@ -41,10 +42,9 @@ export function SessionChecker() {
       }
     }
 
-    // Initial check
     checkSession()
 
-    const intervalId = setInterval(checkSession, 30000)
+    const intervalId = setInterval(checkSession, 20000)
 
     return () => clearInterval(intervalId)
   }, [router])

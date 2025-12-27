@@ -1,8 +1,7 @@
-import LoginView from '@/components/login/LoginView'
-import { redirect } from 'next/navigation'
-import { isAuthenticated, getAuthToken, removeAuthToken } from '@/lib/auth'
-import { fetchWithAuth } from '@/lib/api'
-import { IAPIResponse, IDashboardData } from '@/types/api'
+﻿import { Suspense } from 'react'
+import Image from 'next/image'
+import { Auth } from '@/components/auth/Auth'
+import { Skeleton } from '@/components/ui/Skeleton'
 
 export const metadata = {
   title: 'Login | Member Remora',
@@ -11,23 +10,25 @@ export const metadata = {
 
 export const dynamic = 'force-dynamic'
 
-export default async function LoginPage() {
-  const authenticated = await isAuthenticated()
-  
-  if (authenticated) {
-    try {
-      const data = await fetchWithAuth<IAPIResponse<IDashboardData>>('/api/dashboard')
-      const role = data.data?.user?.role
-      
-      if (role === 'admin' || role === 'superadmin') {
-        redirect('/admin')
-      } else {
-        redirect('/dashboard')
-      }
-    } catch (error) {
-      redirect('/api/logout')
-    }
-  }
+export default function LoginPage() {
+  return (
+    <div className="min-h-screen relative overflow-hidden">
+      <div className="fixed inset-0 w-screen h-screen">
+        <Image
+          src="/images/bg.png"
+          alt="Background"
+          fill
+          className="object-cover object-top"
+          priority
+          quality={100}
+          sizes="100vw"
+        />
+        <div className="absolute inset-0" />
+      </div>
 
-  return <LoginView />
+      <Suspense fallback={<Skeleton />}>
+        <Auth />
+      </Suspense>
+    </div>
+  )
 }

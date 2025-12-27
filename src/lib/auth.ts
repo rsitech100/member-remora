@@ -1,30 +1,186 @@
 import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
+import type { IUser, IDashboardData, IAPIResponse } from '@/types/api'
 
 const AUTH_COOKIE_NAME = 'auth_token'
+const API_BASE_URL = process.env.API_BASE_URL || process.env.NEXT_PUBLIC_BASE_URL
+const COOKIE_MAX_AGE = 60 * 60 * 24 * 7 // 7 days
+
 
 export async function getAuthToken(): Promise<string | null> {
-  const cookieStore = await cookies()
-  const token = cookieStore.get(AUTH_COOKIE_NAME)
-  return token?.value || null
+  try {
+    const cookieStore = await cookies()
+    const token = cookieStore.get(AUTH_COOKIE_NAME)
+    return token?.value || null
+  } catch (error) {
+    console.error('[Auth] Failed to get auth token:', error)
+    return null
+  }
 }
 
 export async function setAuthToken(token: string): Promise<void> {
-  const cookieStore = await cookies()
-  cookieStore.set(AUTH_COOKIE_NAME, token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    maxAge: 60 * 60 * 24 * 7, // 7 days
-    path: '/',
-  })
+  try {
+    const cookieStore = await cookies()
+    cookieStore.set(AUTH_COOKIE_NAME, token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: COOKIE_MAX_AGE,
+      path: '/',
+    })
+  } catch (error) {
+    console.error('[Auth] Failed to set auth token:', error)
+    throw error
+  }
 }
 
 export async function removeAuthToken(): Promise<void> {
-  const cookieStore = await cookies()
-  cookieStore.delete(AUTH_COOKIE_NAME)
+  try {
+    const cookieStore = await cookies()
+    cookieStore.delete(AUTH_COOKIE_NAME)
+  } catch (error) {
+    console.error('[Auth] Failed to remove auth token:', error)
+    throw error
+  }
 }
 
-export async function isAuthenticated(): Promise<boolean> {
+export async function clientLogout(): Promise<void> {
+  try {
+    await fetch('/api/logout', { 
+      method: 'POST',
+      headers: {
+        'Cache-Control': 'no-cache',
+      },
+    })
+  } catch (error) {
+    console.error('[Auth] Logout API error:', error)
+  }
+  
+  if (typeof window !== 'undefined') {
+    window.location.href = '/login'
+  }
+}
+
+export async function handleAuthError(): Promise<void> {
+  await clientLogout()
+}
+
+export interface AuthResult {
+  user: IUser
+  dashboardData?: IDashboardData
+}
+
+export interface AuthCheckResult {
+  authenticated: boolean
+  user?: IUser
+  role?: string
+}
+
+async function fetchUserData(): Promise<IDashboardData | null> {
   const token = await getAuthToken()
-  return !!token
+  
+  if (!token) {
+    return null
+  }
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/dashboard`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      cache: 'no-store',
+    })
+
+    if (response.ok) {
+      const result = await response.json() as IAPIResponse<IDashboardData>
+      return result.data
+    }
+
+    return null
+  } catch (error) {
+    console.error('[Auth] Failed to fetch user data:', error)
+    return null
+  }
+}
+
+export async function requireAdmin(): Promise<AuthResult> {
+  const token = await getAuthToken()
+  
+  if (!token) {
+    redirect('/login')
+  }
+
+  const dashboardData = await fetchUserData()
+  
+  if (!dashboardData || !dashboardData.user) {
+    await removeAuthToken().catch(() => {})
+    redirect('/login')
+  }
+
+  const user = dashboardData.user
+
+  if (user.role !== 'admin' && user.role !== 'superadmin') {
+    redirect('/dashboard')
+  }
+
+  return { user, dashboardData }
+}
+
+export async function requireAuth(): Promise<AuthResult> {
+  const token = await getAuthToken()
+  
+  if (!token) {
+    redirect('/login')
+  }
+
+  const dashboardData = await fetchUserData()
+  
+  if (!dashboardData || !dashboardData.user) {
+    await removeAuthToken().catch(() => {})
+    redirect('/login')
+  }
+
+  return { user: dashboardData.user, dashboardData }
+}
+
+export async function requireGuest(): Promise<void> {
+  const token = await getAuthToken()
+  
+  if (token) {
+    const dashboardData = await fetchUserData()
+    
+    if (dashboardData && dashboardData.user) {
+      const user = dashboardData.user
+      
+      if (user.role === 'admin' || user.role === 'superadmin') {
+        redirect('/admin')
+      } else {
+        redirect('/dashboard')
+      }
+    } else {
+      await removeAuthToken().catch(() => {})
+    }
+  }
+}
+
+export async function checkAuth(): Promise<AuthCheckResult> {
+  const token = await getAuthToken()
+  
+  if (!token) {
+    return { authenticated: false }
+  }
+
+  const dashboardData = await fetchUserData()
+  
+  if (!dashboardData || !dashboardData.user) {
+    await removeAuthToken().catch(() => {})
+    return { authenticated: false }
+  }
+
+  return {
+    authenticated: true,
+    user: dashboardData.user,
+    role: dashboardData.user.role,
+  }
 }

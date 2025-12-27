@@ -1,10 +1,10 @@
-import AdminDashboardView from '@/components/admin/AdminDashboardView'
+import AdminPage from '@/components/admin/AdminPage'
 
 export const metadata = {
   title: 'Admin Panel | Remora',
   description: 'Admin Dashboard',
 }
 
-export default function AdminPage() {
-  return <AdminDashboardView />
+export default function AdminDashboardPage() {
+  return <AdminPage />
 }

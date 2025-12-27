@@ -3,6 +3,29 @@ import { redirect } from 'next/navigation'
 
 const API_BASE_URL = process.env.API_BASE_URL || process.env.NEXT_PUBLIC_BASE_URL
 
+export class APIError extends Error {
+  constructor(
+    public status: number,
+    public statusText: string,
+    public endpoint: string,
+    public responseBody?: string
+  ) {
+    super(`API Error ${status}: ${statusText}`)
+    this.name = 'APIError'
+  }
+
+  isAuthError(): boolean {
+    return (
+      this.status === 401 ||
+      this.status === 403 ||
+      this.responseBody?.toLowerCase().includes('unauthorized') ||
+      this.responseBody?.toLowerCase().includes('token') ||
+      this.responseBody?.toLowerCase().includes('session expired') ||
+      false
+    )
+  }
+}
+
 export async function fetchAPI<T>(
   endpoint: string,
   options: RequestInit = {}
@@ -23,33 +46,46 @@ export async function fetchAPI<T>(
     headers['Authorization'] = `Bearer ${token}`
   }
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    ...options,
-    headers,
-  })
+  try {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      ...options,
+      headers,
+      cache: 'no-store',
+    })
 
-  if (!response.ok) {
-    const errorText = await response.text().catch(() => '')
-    const isAuthError = response.status === 401 || 
-                       errorText.toLowerCase().includes('unauthorized') || 
-                       errorText.toLowerCase().includes('token') ||
-                       errorText.toLowerCase().includes('session expired')
-    
-    if (isAuthError) {
-      await removeAuthToken().catch(() => {})
-      if (typeof window !== 'undefined') {
-        await fetch('/api/logout', { method: 'POST' }).catch(() => {})
-        window.location.href = '/login'
-      } else {
-        redirect('/login')
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => '')
+      const apiError = new APIError(
+        response.status,
+        response.statusText,
+        endpoint,
+        errorText
+      )
+      
+      if (apiError.isAuthError()) {
+        await removeAuthToken().catch(() => {})
+        
+        if (typeof window !== 'undefined') {
+          await fetch('/api/logout', { method: 'POST' }).catch(() => {})
+          window.location.href = '/login'
+        } else {
+          redirect('/login')
+        }
       }
+      
+      console.error(`[API Error] ${response.status} ${endpoint}:`, errorText)
+      throw apiError
+    }
+
+    return response.json()
+  } catch (error) {
+    if (error instanceof APIError || (error && typeof error === 'object' && 'digest' in error)) {
+      throw error
     }
     
-    console.error(`API Error ${response.status} for ${endpoint}:`, errorText)
-    throw new Error(`API Error: ${response.status} - ${errorText || response.statusText}`)
+    console.error(`[Network Error] ${endpoint}:`, error)
+    throw new Error(`Network error: Unable to reach ${endpoint}`)
   }
-
-  return response.json()
 }
 
 export async function fetchWithAuth<T>(
