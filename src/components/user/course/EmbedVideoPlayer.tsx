@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, memo, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { Loading } from '@/components/ui/Loading'
 
 interface EmbedVideoPlayerProps {
@@ -10,48 +10,58 @@ interface EmbedVideoPlayerProps {
   hasError?: boolean
 }
 
-const EmbedVideoPlayerComponent = ({ 
+export function EmbedVideoPlayer({ 
   embedUrl,
   videoTitle,
   isLoading = false,
   hasError = false
-}: EmbedVideoPlayerProps) => {
+}: EmbedVideoPlayerProps) {
   const [iframeLoaded, setIframeLoaded] = useState(false)
   const [isBuffering, setIsBuffering] = useState(false)
 
-  const handleIframeLoad = useCallback(() => {
-    setIframeLoaded(true)
-  }, [])
-
-  const handleIframeError = useCallback(() => {
-    setIframeLoaded(true)
-  }, [])
-
-  const handleMessage = useCallback((event: MessageEvent) => {
-    if (!event.origin.includes('remoratrader.id')) return
-    
-    if (event.data.type === 'video-buffering') {
-      setIsBuffering(true)
-    } else if (event.data.type === 'video-playing' || event.data.type === 'video-canplay') {
-      setIsBuffering(false)
-    }
-  }, [])
-
   useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (!event.origin.includes('remoratrader.id')) return
+      
+      if (event.data.type === 'video-buffering') {
+        setIsBuffering(true)
+      } else if (event.data.type === 'video-playing') {
+        setIsBuffering(false)
+      } else if (event.data.type === 'video-canplay') {
+        setIsBuffering(false)
+      }
+    }
+
     window.addEventListener('message', handleMessage)
     return () => window.removeEventListener('message', handleMessage)
-  }, [handleMessage])
+  }, [])
 
-  const enhancedUrl = useMemo(() => {
-    if (!embedUrl || embedUrl.trim() === '') return ''
-    return `${embedUrl}${embedUrl.includes('?') ? '&' : '?'}autoplay=1&muted=0&controls=1`
-  }, [embedUrl])
+  const handleIframeLoad = () => {
+    setIframeLoaded(true)
+  }
 
-  if (isLoading || hasError || !enhancedUrl) {
+  const handleIframeError = () => {
+    setIframeLoaded(true)
+  }
+
+  if (isLoading) {
     return (
       <div className="relative w-full aspect-video bg-black rounded-lg overflow-hidden">
         <div className="absolute inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 z-10">
           <Loading />
+        </div>
+      </div>
+    )
+  }
+
+  if (hasError || !embedUrl || embedUrl.trim() === '') {
+    return (
+      <div className="relative w-full aspect-video bg-gray-900 rounded-lg flex items-center justify-center">
+        <div className="text-center text-white p-4">
+          <p className="text-lg mb-2">⚠️ Error loading video</p>
+          <p className="text-sm text-gray-400">
+            {!embedUrl ? 'No embed URL available' : 'Failed to load video player'}
+          </p>
         </div>
       </div>
     )
@@ -68,11 +78,10 @@ const EmbedVideoPlayerComponent = ({
         </div>
       )}
       <iframe
-        src={enhancedUrl}
+        src={embedUrl}
         title={videoTitle}
         className="w-full h-full"
-        allowFullScreen
-        allow="autoplay *; encrypted-media *; fullscreen *"
+        frameBorder="0"
         style={{ border: 'none', pointerEvents: 'auto' }}
         onLoad={handleIframeLoad}
         onError={handleIframeError}
@@ -80,5 +89,3 @@ const EmbedVideoPlayerComponent = ({
     </div>
   )
 }
-
-export const EmbedVideoPlayer = memo(EmbedVideoPlayerComponent)

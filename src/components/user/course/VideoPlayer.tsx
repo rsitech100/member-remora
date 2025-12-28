@@ -64,7 +64,6 @@ const VideoPlayerComponent = ({
         onVideoComplete()
       }
     } catch (error) {
-      console.error('Error marking video complete:', error)
       hasCompletedRef.current = false
     }
   }, [currentVideoId, onVideoComplete])
@@ -115,12 +114,9 @@ const VideoPlayerComponent = ({
   const handleLoad = useCallback(() => setIframeLoaded(true), [])
   const handleError = useCallback(() => setIframeLoaded(true), [])
 
-  // Enhanced embed URL
-  const videoUrl = embedUrl ? `${embedUrl}${embedUrl.includes('?') ? '&' : '?'}autoplay=1&muted=0&controls=1` : ''
 
   return (
     <div className="space-y-6">
-      {/* Video Player */}
       <div className="relative w-full aspect-video bg-black rounded-lg overflow-hidden">
         {(isLoading || !iframeLoaded || isBuffering) && (
           <div className="absolute inset-0 flex items-center justify-center bg-gray-900/75 z-10">
@@ -142,7 +138,7 @@ const VideoPlayerComponent = ({
           </div>
         ) : !isLoading && embedUrl ? (
           <iframe
-            src={videoUrl}
+            src={embedUrl}
             title={displayTitle}
             className="w-full h-full"
             allowFullScreen

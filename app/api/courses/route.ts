@@ -16,9 +16,7 @@ export async function GET(request: NextRequest) {
     const data = await fetchWithAuth<IAPIResponse<ICourse[]>>('/api/courses')
     return NextResponse.json(data)
   } catch (error) {
-    console.error('Courses API error:', error)
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-    console.error('Error details:', errorMessage)
     return NextResponse.json(
       { success: false, message: 'Failed to fetch courses', error: errorMessage },
       { status: 500 }

@@ -23,9 +23,7 @@ export async function GET(
     if (error && typeof error === 'object' && 'digest' in error && String(error.digest).includes('NEXT_REDIRECT')) {
       throw error
     }
-    console.error('Watch video API error:', error)
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-    console.error('Error details:', errorMessage)
     return NextResponse.json(
       { success: false, message: 'Failed to fetch video', error: errorMessage },
       { status: 500 }

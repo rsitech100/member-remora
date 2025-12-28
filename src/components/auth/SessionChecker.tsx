@@ -36,7 +36,6 @@ export function SessionChecker() {
           }
         }
       } catch (error) {
-        console.error('Session check error:', error)
         await fetch('/api/logout', { method: 'POST' }).catch(() => {})
         router.push('/login')
       }

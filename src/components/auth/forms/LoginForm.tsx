@@ -92,7 +92,6 @@ export function LoginForm({ onSuccess, onExpired }: LoginFormProps) {
         }
       }
     } catch (error) {
-      console.error('Login error:', error)
       setError('Invalid phone number. Please try again')
     } finally {
       setIsLoading(false)

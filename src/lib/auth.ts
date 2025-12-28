@@ -13,7 +13,6 @@ export async function getAuthToken(): Promise<string | null> {
     const token = cookieStore.get(AUTH_COOKIE_NAME)
     return token?.value || null
   } catch (error) {
-    console.error('[Auth] Failed to get auth token:', error)
     return null
   }
 }
@@ -29,7 +28,6 @@ export async function setAuthToken(token: string): Promise<void> {
       path: '/',
     })
   } catch (error) {
-    console.error('[Auth] Failed to set auth token:', error)
     throw error
   }
 }
@@ -39,7 +37,6 @@ export async function removeAuthToken(): Promise<void> {
     const cookieStore = await cookies()
     cookieStore.delete(AUTH_COOKIE_NAME)
   } catch (error) {
-    console.error('[Auth] Failed to remove auth token:', error)
     throw error
   }
 }
@@ -53,7 +50,7 @@ export async function clientLogout(): Promise<void> {
       },
     })
   } catch (error) {
-    console.error('[Auth] Logout API error:', error)
+    // Silently handle logout error
   }
   
   if (typeof window !== 'undefined') {
@@ -99,7 +96,6 @@ async function fetchUserData(): Promise<IDashboardData | null> {
 
     return null
   } catch (error) {
-    console.error('[Auth] Failed to fetch user data:', error)
     return null
   }
 }

@@ -60,7 +60,6 @@ export default function AdminVideoModal({ video, courseId, onClose, onSuccess }:
       }
       throw new Error(data.message || 'Upload failed')
     } catch (error) {
-      console.error('Video upload failed:', error)
       alert('Failed to upload video')
       return null
     } finally {
@@ -110,7 +109,6 @@ export default function AdminVideoModal({ video, courseId, onClose, onSuccess }:
         alert('Failed to save video: ' + data.message)
       }
     } catch (error) {   
-      console.error('Failed to save video:', error)
       alert('Failed to save video')
     } finally {
       setSaving(false)

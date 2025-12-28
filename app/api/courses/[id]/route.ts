@@ -23,7 +23,6 @@ export async function GET(
     if (error && typeof error === 'object' && 'digest' in error && String(error.digest).includes('NEXT_REDIRECT')) {
       throw error
     }
-    console.error('Course detail API error:', error)
     return NextResponse.json(
       { success: false, message: 'Failed to fetch course details' },
       { status: 500 }

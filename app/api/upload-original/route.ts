@@ -44,14 +44,12 @@ export async function POST(request: NextRequest) {
       const data = JSON.parse(responseText)
       return NextResponse.json(data)
     } catch (parseError) {
-      console.error('Failed to parse backend response:', responseText)
       return NextResponse.json(
         { success: false, message: 'Invalid response from backend', details: responseText },
         { status: 500 }
       )
     }
   } catch (error) {
-    console.error('Upload error:', error)
     const errorMessage = error instanceof Error ? error.message : 'Upload failed'
     return NextResponse.json(
       { success: false, message: errorMessage },

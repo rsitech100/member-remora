@@ -64,7 +64,6 @@ export function OTPForm({ phoneNumber, onSuccess }: OTPFormProps) {
         setOtp(Array(6).fill(''))
       }
     } catch (error) {
-      console.error('OTP verification error:', error)
       setError('Invalid OTP. Please try again')
       setOtp(Array(6).fill(''))
     } finally {

@@ -11,7 +11,6 @@ async function getCourseVideos(courseId: string) {
     const response = await fetchWithAuth<IAPIResponse<ICourseDetailData>>(`/api/courses/${courseId}`)
     return response.data
   } catch (error) {
-    console.error('Error fetching course videos:', error)
     return null
   }
 }
@@ -20,7 +19,22 @@ interface CourseProps {
   id: string
 }
 
-export async function CoursePage({ id }: CourseProps) {
+function CoursePageSkeleton() {
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+      <div className="lg:col-span-2">
+        <VideoPlayerSkeleton />
+      </div>
+      <div className="lg:col-span-1">
+        <div className="sticky top-24">
+          <CourseProgressSkeleton />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+async function CourseContent({ id }: { id: string }) {
   let courseData = await getCourseVideos(id)
   let courseId = id
   let videoId = id
@@ -44,23 +58,18 @@ export async function CoursePage({ id }: CourseProps) {
   }
 
   return (
+    <CourseContentWrapper 
+      initialVideoId={videoId}
+      courseData={courseData}
+    />
+  )
+}
+
+export async function CoursePage({ id }: CourseProps) {
+  return (
     <Container className="py-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <Suspense fallback={
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-          <div className="lg:col-span-2">
-            <VideoPlayerSkeleton />
-          </div>
-          <div className="lg:col-span-1">
-            <div className="sticky top-24">
-              <CourseProgressSkeleton />
-            </div>
-          </div>
-        </div>
-      }>
-        <CourseContentWrapper 
-          initialVideoId={videoId}
-          courseData={courseData}
-        />
+      <Suspense fallback={<CoursePageSkeleton />}>
+        <CourseContent id={id} />
       </Suspense>
     </Container>
   )

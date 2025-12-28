@@ -23,7 +23,7 @@ export default function AdminPage() {
         setCourses(data.data)
       }
     } catch (error) {
-      console.error('Failed to fetch courses:', error)
+      // Silent error handling
     } finally {
       setLoading(false)
     }

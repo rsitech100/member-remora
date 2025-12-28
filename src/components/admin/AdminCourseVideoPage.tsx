@@ -33,7 +33,7 @@ export default function AdminCourseVideoPage({ courseData: initialData }: AdminC
         })
       }
     } catch (error) {
-      console.error('Failed to refresh course data:', error)
+      // Silent error handling
     }
   }
 

@@ -31,7 +31,6 @@ export default function AdminVideoCard({ video, index, onRefresh }: AdminVideoCa
         alert('Failed to delete video: ' + data.message)
       }
     } catch (error) {
-      console.error('Failed to delete video:', error)
       alert('Failed to delete video')
     } finally {
       setDeleting(false)

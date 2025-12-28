@@ -11,12 +11,13 @@ interface CourseContentWrapperProps {
   courseData: ICourseDetailData
 }
 
-export function CourseContentWrapper({ initialVideoId, courseData }: CourseContentWrapperProps) {
+export function CourseContentWrapper({ initialVideoId, courseData: initialCourseData }: CourseContentWrapperProps) {
   const [currentVideoId, setCurrentVideoId] = useState(initialVideoId)
   const [videoData, setVideoData] = useState<IEmbedData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(false)
   const [isFetching, setIsFetching] = useState(false)
+  const [courseData, setCourseData] = useState(initialCourseData)
   const router = useRouter()
 
   const currentIndex = courseData.videos.findIndex(v => v.id.toString() === currentVideoId)
@@ -68,7 +69,6 @@ export function CourseContentWrapper({ initialVideoId, courseData }: CourseConte
           setError(true)
         }
       } catch (err) {
-        console.error('Error fetching video:', err)
         setError(true)
       } finally {
         setIsLoading(false)
@@ -84,6 +84,17 @@ export function CourseContentWrapper({ initialVideoId, courseData }: CourseConte
   }
   
   const handleVideoComplete = () => {
+    // Update local state to mark current video as completed
+    setCourseData(prevData => ({
+      ...prevData,
+      videos: prevData.videos.map(video => 
+        video.id.toString() === currentVideoId 
+          ? { ...video, is_completed: true }
+          : video
+      )
+    }))
+    
+    // Refresh to update server-side data
     router.refresh()
   }
 

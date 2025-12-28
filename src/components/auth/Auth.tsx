@@ -46,7 +46,6 @@ export function Auth() {
         router.push('/dashboard')
       }
     } catch (error) {
-      console.error('[Auth] Error checking user role:', error)
       router.push('/dashboard')
     }
   }

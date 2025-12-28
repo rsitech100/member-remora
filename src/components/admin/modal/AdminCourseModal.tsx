@@ -61,7 +61,6 @@ export default function AdminCourseModal({ course, onClose, onSuccess }: AdminCo
       }
       throw new Error(data.message || 'Upload failed')
     } catch (error) {
-      console.error('Image upload failed:', error)
       alert('Failed to upload image')
       return null
     } finally {
@@ -107,7 +106,6 @@ export default function AdminCourseModal({ course, onClose, onSuccess }: AdminCo
         alert('Failed to save course: ' + data.message)
       }
     } catch (error) {
-      console.error('Failed to save course:', error)
       alert('Failed to save course')
     } finally {
       setSaving(false)

@@ -19,7 +19,6 @@ export async function GET(
     }
 
     if (!API_URL) {
-      console.error('API_BASE_URL or NEXT_PUBLIC_BASE_URL is not configured')
       return NextResponse.json(
         { success: false, error: 'Configuration error', message: 'API URL not configured' },
         { status: 500 }
@@ -47,7 +46,6 @@ export async function GET(
       },
     })
   } catch (error) {
-    console.error('File proxy error:', error)
     return NextResponse.json(
       { success: false, message: 'Failed to fetch file' },
       { status: 500 }

@@ -33,7 +33,6 @@ export default function AdminCourseCard({ course, onEdit, onRefresh }: AdminCour
         alert('Failed to delete course: ' + data.message)
       }
     } catch (error) {
-      console.error('Failed to delete course:', error)
       alert('Failed to delete course')
     } finally {
       setDeleting(false)

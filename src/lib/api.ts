@@ -73,7 +73,6 @@ export async function fetchAPI<T>(
         }
       }
       
-      console.error(`[API Error] ${response.status} ${endpoint}:`, errorText)
       throw apiError
     }
 
@@ -83,7 +82,6 @@ export async function fetchAPI<T>(
       throw error
     }
     
-    console.error(`[Network Error] ${endpoint}:`, error)
     throw new Error(`Network error: Unable to reach ${endpoint}`)
   }
 }

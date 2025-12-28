@@ -19,7 +19,6 @@ export async function POST(request: NextRequest) {
     const apiUrl = process.env.API_BASE_URL || process.env.NEXT_PUBLIC_BASE_URL
     
     if (!apiUrl) {
-      console.error('API_BASE_URL or NEXT_PUBLIC_BASE_URL is not configured')
       return NextResponse.json(
         { success: false, error: 'Configuration error', message: 'API URL not configured' },
         { status: 500 }
@@ -52,7 +51,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(data, { status: response.status })
   } catch (error) {
-    console.error('Verify API error:', error)
     return NextResponse.json(
       { 
         success: false, 
