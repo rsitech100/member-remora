@@ -4,21 +4,27 @@ import type { NextRequest } from 'next/server'
 const publicPaths = ['/login', '/api/login', '/api/verify', '/api/logout']
 const protectedPaths = ['/dashboard', '/course', '/admin']
 
-export function proxy(request: NextRequest) {
+export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   const token = request.cookies.get('auth_token')?.value
 
   const isProtectedPath = protectedPaths.some(path => pathname.startsWith(path))
   const isPublicPath = publicPaths.some(path => pathname.startsWith(path))
 
+  if (pathname === '/') {
+    if (token) {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    } else {
+      return NextResponse.redirect(new URL('/login', request.url))
+    }
+  }
+
   if (pathname === '/login' && token) {
-    const dashboardUrl = new URL('/dashboard', request.url)
-    return NextResponse.redirect(dashboardUrl)
+    return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
   if (isProtectedPath && !token) {
-    const loginUrl = new URL('/login', request.url)
-    return NextResponse.redirect(loginUrl)
+    return NextResponse.redirect(new URL('/login', request.url))
   }
 
   return NextResponse.next()
