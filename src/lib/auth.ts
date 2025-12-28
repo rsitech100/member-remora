@@ -94,6 +94,11 @@ async function fetchUserData(): Promise<IDashboardData | null> {
       return result.data
     }
 
+    // If 401, 403, or 404 - token is invalid, remove it
+    if (response.status === 401 || response.status === 403 || response.status === 404) {
+      await removeAuthToken().catch(() => {})
+    }
+
     return null
   } catch (error) {
     return null
@@ -110,7 +115,7 @@ export async function requireAdmin(): Promise<AuthResult> {
   const dashboardData = await fetchUserData()
   
   if (!dashboardData || !dashboardData.user) {
-    await removeAuthToken().catch(() => {})
+    // Token already removed in fetchUserData if it was a 401/403/404
     redirect('/login')
   }
 
@@ -133,7 +138,7 @@ export async function requireAuth(): Promise<AuthResult> {
   const dashboardData = await fetchUserData()
   
   if (!dashboardData || !dashboardData.user) {
-    await removeAuthToken().catch(() => {})
+    // Token already removed in fetchUserData if it was a 401/403/404
     redirect('/login')
   }
 
