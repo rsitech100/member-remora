@@ -72,14 +72,14 @@ const VideoPlayerComponent = ({
     if (!event.origin.includes('remoratrader.id')) return
     
     switch (event.data.type) {
-      case 'video-buffering':
+      case 'buffering':
         setIsBuffering(true)
         break
-      case 'video-playing':
-      case 'video-canplay':
+      case 'playing':
+      case 'canplay':
         setIsBuffering(false)
         break
-      case 'video-timeupdate':
+      case 'timeupdate':
         if (event.data.currentTime) {
           watchedDurationRef.current = event.data.currentTime
         }
@@ -89,12 +89,12 @@ const VideoPlayerComponent = ({
         
         if (totalDurationRef.current > 0) {
           const progress = watchedDurationRef.current / totalDurationRef.current
-          if (progress >= 0.9) {
+          if (progress >= 0.7) {
             markVideoComplete()
           }
         }
         break
-      case 'video-ended':
+      case 'ended':
         markVideoComplete()
         break
     }
