@@ -21,7 +21,7 @@ export function EmbedVideoPlayer({
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      if (!event.origin.includes('remoratrader.id')) return
+      if (!event.origin.includes('remora')) return
       
       if (event.data.type === 'video-buffering') {
         setIsBuffering(true)
@@ -30,6 +30,7 @@ export function EmbedVideoPlayer({
       } else if (event.data.type === 'video-canplay') {
         setIsBuffering(false)
       }
+      
     }
 
     window.addEventListener('message', handleMessage)
