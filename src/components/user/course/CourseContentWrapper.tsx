@@ -83,7 +83,7 @@ export function CourseContentWrapper({ initialVideoId, courseData: initialCourse
     setCurrentVideoId(videoId)
   }
   
-  const handleVideoComplete = () => {
+  const handleVideoComplete = async () => {
     // Update local state to mark current video as completed
     setCourseData(prevData => ({
       ...prevData,
@@ -94,7 +94,19 @@ export function CourseContentWrapper({ initialVideoId, courseData: initialCourse
       )
     }))
     
-    // Refresh to update server-side data
+    try {
+      const response = await fetch(`/api/courses/${courseData.course.id}`)
+      const result: IAPIResponse<ICourseDetailData> = await response.json()
+      
+      if (result.success && result.data) {
+        setCourseData({
+          ...result.data,
+          videos: result.data.videos || []
+        })
+      }
+    } catch (error) {
+    }
+    
     router.refresh()
   }
 
