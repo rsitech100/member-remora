@@ -94,7 +94,12 @@ const VideoPlayerComponent = ({
           }
         }
         break
+      case 'video_ended':
+        console.log('Video Complete')
+        markVideoComplete()
+        break
       case 'ended':
+        console.log('Video Complete')
         markVideoComplete()
         break
     }

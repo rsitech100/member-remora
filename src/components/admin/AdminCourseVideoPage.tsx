@@ -32,7 +32,7 @@ export default function AdminCourseVideoPage({ courseData: initialData }: AdminC
           videos: data.data.videos || []
         })
       }
-    } catch (error) {
+    } catch (error) { 
       // Silent error handling
     }
   }
