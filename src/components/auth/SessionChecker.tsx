@@ -54,8 +54,6 @@ export function SessionChecker() {
               data.message?.toLowerCase().includes('session expired')) {
             await handleLogout()
           }
-        } else if (response.status >= 400) {
-          await handleLogout()
         }
       } catch (error) {
         console.error('Session check error:', error)

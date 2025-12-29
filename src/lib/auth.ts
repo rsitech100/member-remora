@@ -85,6 +85,8 @@ async function fetchUserData(): Promise<IDashboardData | null> {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
       },
       cache: 'no-store',
     })
@@ -144,12 +146,14 @@ export async function requireAuth(): Promise<AuthResult> {
     const dashboardData = await fetchUserData()
     
     if (!dashboardData || !dashboardData.user) {
+      // Token is invalid, remove it
       await removeAuthToken().catch(() => {})
       redirect('/login')
     }
 
     return { user: dashboardData.user, dashboardData }
   } catch (error) {
+    // Any error during auth check, clean up and redirect
     await removeAuthToken().catch(() => {})
     redirect('/login')
   }
@@ -159,20 +163,27 @@ export async function requireGuest(): Promise<void> {
   const token = await getAuthToken()
   
   if (token) {
-    const dashboardData = await fetchUserData()
-    
-    if (dashboardData && dashboardData.user) {
-      const user = dashboardData.user
+    try {
+      const dashboardData = await fetchUserData()
       
-      if (user.role === 'admin' || user.role === 'superadmin') {
-        redirect('/admin')
+      if (dashboardData && dashboardData.user) {
+        const user = dashboardData.user
+        
+        if (user.role === 'admin' || user.role === 'superadmin') {
+          redirect('/admin')
+        } else {
+          redirect('/dashboard')
+        }
       } else {
-        redirect('/dashboard')
+        // Token exists but is invalid, clean it up
+        await removeAuthToken().catch(() => {})
       }
-    } else {
+    } catch (error) {
+      // If there's any error validating token, clean it up
       await removeAuthToken().catch(() => {})
     }
   }
+  // If no token or invalid token (cleaned up), allow access to guest page
 }
 
 export async function checkAuth(): Promise<AuthCheckResult> {
