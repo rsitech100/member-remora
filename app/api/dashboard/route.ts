@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     }
 
     const data = await fetchWithAuth<IAPIResponse<IDashboardData>>('/api/dashboard')
-    console.log('[Dashboard API] Success, user:', data.data?.user?.name || 'Unknown')
+    console.log('[Dashboard API] Success, user:', data.data?.user?.first_name || 'Unknown')
     return NextResponse.json(data)
   } catch (error) {
     if (error && typeof error === 'object' && 'digest' in error && String(error.digest).includes('NEXT_REDIRECT')) {

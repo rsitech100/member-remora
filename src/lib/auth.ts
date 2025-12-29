@@ -101,7 +101,7 @@ async function fetchUserData(): Promise<IDashboardData | null> {
       console.log('[fetchUserData] Success:', {
         success: result.success,
         hasUser: !!result.data?.user,
-        userName: result.data?.user?.name,
+        userName: result.data?.user?.first_name,
         userRole: result.data?.user?.role
       })
       return result.data
