@@ -68,8 +68,7 @@ export async function fetchAPI<T>(
         if (typeof window !== 'undefined') {
           await fetch('/api/logout', { method: 'POST' }).catch(() => {})
           window.location.href = '/login'
-        } else {
-          redirect('/login')
+          throw apiError
         }
       }
       

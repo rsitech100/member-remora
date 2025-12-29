@@ -112,20 +112,25 @@ export async function requireAdmin(): Promise<AuthResult> {
     redirect('/login')
   }
 
-  const dashboardData = await fetchUserData()
-  
-  if (!dashboardData || !dashboardData.user) {
-    // Token already removed in fetchUserData if it was a 401/403/404
+  try {
+    const dashboardData = await fetchUserData()
+    
+    if (!dashboardData || !dashboardData.user) {
+      await removeAuthToken().catch(() => {})
+      redirect('/login')
+    }
+
+    const user = dashboardData.user
+
+    if (user.role !== 'admin' && user.role !== 'superadmin') {
+      redirect('/dashboard')
+    }
+
+    return { user, dashboardData }
+  } catch (error) {
+    await removeAuthToken().catch(() => {})
     redirect('/login')
   }
-
-  const user = dashboardData.user
-
-  if (user.role !== 'admin' && user.role !== 'superadmin') {
-    redirect('/dashboard')
-  }
-
-  return { user, dashboardData }
 }
 
 export async function requireAuth(): Promise<AuthResult> {
@@ -135,14 +140,19 @@ export async function requireAuth(): Promise<AuthResult> {
     redirect('/login')
   }
 
-  const dashboardData = await fetchUserData()
-  
-  if (!dashboardData || !dashboardData.user) {
-    // Token already removed in fetchUserData if it was a 401/403/404
+  try {
+    const dashboardData = await fetchUserData()
+    
+    if (!dashboardData || !dashboardData.user) {
+      await removeAuthToken().catch(() => {})
+      redirect('/login')
+    }
+
+    return { user: dashboardData.user, dashboardData }
+  } catch (error) {
+    await removeAuthToken().catch(() => {})
     redirect('/login')
   }
-
-  return { user: dashboardData.user, dashboardData }
 }
 
 export async function requireGuest(): Promise<void> {
