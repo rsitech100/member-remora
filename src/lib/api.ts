@@ -47,20 +47,14 @@ export async function fetchAPI<T>(
   }
 
   try {
-    console.log('[fetchAPI] Calling:', endpoint, 'with token:', !!token)
-    
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       ...options,
       headers,
       cache: 'no-store',
     })
 
-    console.log('[fetchAPI] Response:', endpoint, response.status, response.statusText)
-
     if (!response.ok) {
       const errorText = await response.text().catch(() => '')
-      console.log('[fetchAPI] Error response body:', errorText)
-      
       const apiError = new APIError(
         response.status,
         response.statusText,
@@ -69,11 +63,9 @@ export async function fetchAPI<T>(
       )
       
       if (apiError.isAuthError()) {
-        console.log('[fetchAPI] Auth error detected, cleaning up token')
         await removeAuthToken().catch(() => {})
         
         if (typeof window !== 'undefined') {
-          console.log('[fetchAPI] Client-side, redirecting to login')
           await fetch('/api/logout', { method: 'POST' }).catch(() => {})
           window.location.href = '/login'
           throw apiError
@@ -83,15 +75,12 @@ export async function fetchAPI<T>(
       throw apiError
     }
 
-    const data = await response.json()
-    console.log('[fetchAPI] Success:', endpoint, { success: data.success, hasData: !!data.data })
-    return data
+    return response.json()
   } catch (error) {
     if (error instanceof APIError || (error && typeof error === 'object' && 'digest' in error)) {
       throw error
     }
     
-    console.log('[fetchAPI] Network error:', endpoint, error)
     throw new Error(`Network error: Unable to reach ${endpoint}`)
   }
 }

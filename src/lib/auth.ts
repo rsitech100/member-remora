@@ -77,11 +77,8 @@ async function fetchUserData(): Promise<IDashboardData | null> {
   const token = await getAuthToken()
   
   if (!token) {
-    console.log('[fetchUserData] No token found')
     return null
   }
-
-  console.log('[fetchUserData] Token exists, fetching from:', API_BASE_URL)
 
   try {
     const response = await fetch(`${API_BASE_URL}/api/dashboard`, {
@@ -94,36 +91,18 @@ async function fetchUserData(): Promise<IDashboardData | null> {
       cache: 'no-store',
     })
 
-    console.log('[fetchUserData] Response status:', response.status, response.statusText)
-
     if (response.ok) {
       const result = await response.json() as IAPIResponse<IDashboardData>
-      console.log('[fetchUserData] Success:', {
-        success: result.success,
-        hasUser: !!result.data?.user,
-        userName: result.data?.user?.first_name,
-        userRole: result.data?.user?.role
-      })
       return result.data
     }
 
-    // Log error response body
-    const errorText = await response.text().catch(() => 'Unable to read response')
-    console.log('[fetchUserData] Error response:', {
-      status: response.status,
-      statusText: response.statusText,
-      body: errorText
-    })
-
     // If 401, 403, or 404 - token is invalid, remove it
     if (response.status === 401 || response.status === 403 || response.status === 404) {
-      console.log('[fetchUserData] Invalid token detected, removing...')
       await removeAuthToken().catch(() => {})
     }
 
     return null
   } catch (error) {
-    console.log('[fetchUserData] Exception:', error instanceof Error ? error.message : error)
     return null
   }
 }
