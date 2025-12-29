@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 import "./globals.css";
+import { ToastProvider } from "@/components/ui/ToastProvider";
 
 const outfit = Outfit({
   variable: "--font-outfit",
@@ -9,6 +10,7 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || process.env.API_BASE_URL || ""),
   title: "Member Remora | Trading Platform",
   description: "Belajar cara profit jutaan di saham",
   icons: {
@@ -39,7 +41,9 @@ export default function RootLayout({
       <body
         className={`${outfit.variable} antialiased font-sans`}
       >
-        {children}
+        <ToastProvider>
+          {children}
+        </ToastProvider>
       </body>
     </html>
   );

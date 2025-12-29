@@ -24,7 +24,7 @@ export function CourseCardSmall({
 }: CourseCardSmallProps) {
   return (
     <Link 
-      href={`/course/${id}`}
+      href={`/course/${encodeURIComponent(title)}`}
       className="block relative flex-shrink-0 w-[340px] bg-[#2C2C38] rounded-xl overflow-hidden cursor-pointer hover:bg-[#353543] transition-all p-3"
     >
       <div className="relative w-full h-[180px] rounded-lg overflow-hidden mb-3">

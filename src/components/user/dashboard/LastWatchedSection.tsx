@@ -35,6 +35,7 @@ export async function LastWatchedSection() {
       totalVideos={`${lastWatchedCourse.completed_videos}/${lastWatchedCourse.total_videos} Videos`}
       language="Indonesia"
       courseId={lastWatchedCourse.course_id}
+      courseTitle={lastWatchedCourse.title}
     />
   )
 }

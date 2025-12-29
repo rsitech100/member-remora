@@ -22,7 +22,7 @@ export function CourseCard({
 }: CourseCardProps) {
   return (
     <Link 
-      href={`/course/${id}`}
+      href={`/course/${encodeURIComponent(title)}`}
       className="block relative bg-[#22222C] rounded-xl overflow-hidden hover:bg-[#2a2a36] transition-colors cursor-pointer group"
     >
       <div className="flex flex-col sm:flex-row gap-4 p-4">

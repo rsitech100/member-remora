@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Icon } from '@/components/ui/Icon'
 import Image from 'next/image'
+import { useToast } from '@/components/ui/ToastProvider'
 
 interface AdminCourseModalProps {
   course: ICourse | null
@@ -15,6 +16,7 @@ interface AdminCourseModalProps {
 }
 
 export default function AdminCourseModal({ course, onClose, onSuccess }: AdminCourseModalProps) {
+  const { showToast } = useToast()
   const [formData, setFormData] = useState({
     title: course?.title || '',
     subtitle: course?.subtitle || '',
@@ -61,7 +63,7 @@ export default function AdminCourseModal({ course, onClose, onSuccess }: AdminCo
       }
       throw new Error(data.message || 'Upload failed')
     } catch (error) {
-      alert('Failed to upload image')
+      showToast('Failed to upload image', 'error')
       return null
     } finally {
       setUploading(false)
@@ -101,12 +103,13 @@ export default function AdminCourseModal({ course, onClose, onSuccess }: AdminCo
 
       const data = await response.json()
       if (data.success) {
+        showToast('Course saved successfully', 'success')
         onSuccess()
       } else {
-        alert('Failed to save course: ' + data.message)
+        showToast('Failed to save course: ' + data.message, 'error')
       }
     } catch (error) {
-      alert('Failed to save course')
+      showToast('Failed to save course', 'error')
     } finally {
       setSaving(false)
     }

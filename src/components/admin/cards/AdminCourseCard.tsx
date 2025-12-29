@@ -5,6 +5,8 @@ import { ICourse } from '@/types/api'
 import { Icon } from '@/components/ui/Icon'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useToast } from '@/components/ui/ToastProvider'
+import { ConfirmModal } from '@/components/ui/ConfirmModal'
 
 interface AdminCourseCardProps {
   course: ICourse
@@ -14,11 +16,11 @@ interface AdminCourseCardProps {
 
 export default function AdminCourseCard({ course, onEdit, onRefresh }: AdminCourseCardProps) {
   const [deleting, setDeleting] = useState(false)
+  const [showConfirm, setShowConfirm] = useState(false)
+  const { showToast } = useToast()
 
   const handleDelete = async () => {
-    if (!confirm('Are you sure you want to delete this course? This will also delete all associated videos.')) {
-      return
-    }
+    setShowConfirm(false)
 
     try {
       setDeleting(true)
@@ -28,12 +30,13 @@ export default function AdminCourseCard({ course, onEdit, onRefresh }: AdminCour
       const data = await response.json()
 
       if (data.success) {
+        showToast('Course deleted successfully', 'success')
         onRefresh()
       } else {
-        alert('Failed to delete course: ' + data.message)
+        showToast('Failed to delete course: ' + data.message, 'error')
       }
     } catch (error) {
-      alert('Failed to delete course')
+      showToast('Failed to delete course', 'error')
     } finally {
       setDeleting(false)
     }
@@ -78,7 +81,7 @@ export default function AdminCourseCard({ course, onEdit, onRefresh }: AdminCour
         {/* Actions */}
         <div className="flex gap-2 pt-2">
           <Link
-            href={`/admin/courses/${course.id}`}
+            href={`/admin/courses/${encodeURIComponent(course.title)}`}
             className="flex-1 bg-[#2A9E8B] hover:bg-[#248276] text-white text-sm font-medium py-2 rounded-lg text-center transition-colors"
           >
             Manage Videos
@@ -91,7 +94,7 @@ export default function AdminCourseCard({ course, onEdit, onRefresh }: AdminCour
             <Icon name="edit" className="w-4 h-4" />
           </button>
           <button
-            onClick={handleDelete}
+            onClick={() => setShowConfirm(true)}
             disabled={deleting}
             className="px-4 py-2 bg-red-900/20 hover:bg-red-900/30 text-red-400 rounded-lg transition-colors disabled:opacity-50"
             title="Delete Course"
@@ -100,6 +103,17 @@ export default function AdminCourseCard({ course, onEdit, onRefresh }: AdminCour
           </button>
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={showConfirm}
+        title="Delete Course"
+        message="Are you sure you want to delete this course? This will also delete all associated videos. This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
+        onConfirm={handleDelete}
+        onCancel={() => setShowConfirm(false)}
+      />
     </div>
   )
 }

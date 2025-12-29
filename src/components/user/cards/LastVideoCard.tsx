@@ -11,6 +11,7 @@ interface LastVideoCardProps {
   totalVideos: string
   language: string
   courseId: number
+  courseTitle: string
 }
 
 export function LastVideoCard({
@@ -22,13 +23,14 @@ export function LastVideoCard({
   duration,
   totalVideos,
   language,
-  courseId
+  courseId,
+  courseTitle
 }: LastVideoCardProps) {
   return (
     <div>
       <h2 className="text-[#2A9E8B] text-2xl font-semibold mb-4">Your Last Video</h2>
       
-      <Link href={`/course/${courseId}`} className="block">
+      <Link href={`/course/${encodeURIComponent(courseTitle)}`} className="block">
         <div className="relative w-full h-48 overflow-hidden">
         <Image
           src="/images/dummy-image.png"

@@ -6,6 +6,7 @@ import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Icon } from '@/components/ui/Icon'
+import { useToast } from '@/components/ui/ToastProvider'
 
 interface AdminVideoModalProps {
   video: IVideo | null
@@ -15,6 +16,7 @@ interface AdminVideoModalProps {
 }
 
 export default function AdminVideoModal({ video, courseId, onClose, onSuccess }: AdminVideoModalProps) {
+  const { showToast } = useToast()
   const [formData, setFormData] = useState({
     title: video?.title || '',
     subtitle: video?.subtitle || '',
@@ -60,7 +62,7 @@ export default function AdminVideoModal({ video, courseId, onClose, onSuccess }:
       }
       throw new Error(data.message || 'Upload failed')
     } catch (error) {
-      alert('Failed to upload video')
+      showToast('Failed to upload video', 'error')
       return null
     } finally {
       setUploading(false)
@@ -71,14 +73,13 @@ export default function AdminVideoModal({ video, courseId, onClose, onSuccess }:
     e.preventDefault()
 
     if (!isEditing && !videoFile) {
-      alert('Please select a video file')
+      showToast('Please select a video file', 'warning')
       return
     }
 
     try {
       setSaving(true)
 
-      // Upload video if a new one was selected
       let videoUrl = video?.original_video || ''
       if (videoFile) {
         const uploadedUrl = await uploadVideo()
@@ -104,12 +105,13 @@ export default function AdminVideoModal({ video, courseId, onClose, onSuccess }:
 
       const data = await response.json()
       if (data.success) {
+        showToast('Video saved successfully', 'success')
         onSuccess()
       } else {
-        alert('Failed to save video: ' + data.message)
+        showToast('Failed to save video: ' + data.message, 'error')
       }
     } catch (error) {   
-      alert('Failed to save video')
+      showToast('Failed to save video', 'error')
     } finally {
       setSaving(false)
     }

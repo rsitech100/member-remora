@@ -20,17 +20,18 @@ export function CourseContentWrapper({ initialVideoId, courseData: initialCourse
   const [courseData, setCourseData] = useState(initialCourseData)
   const router = useRouter()
 
-  const currentIndex = courseData.videos.findIndex(v => v.id.toString() === currentVideoId)
-  const currentVideo = courseData.videos[currentIndex]
+  const videos = courseData?.videos || []
+  const currentIndex = videos.findIndex(v => v.id.toString() === currentVideoId)
+  const currentVideo = videos[currentIndex]
   
   const previousVideoId = currentIndex > 0 
-    ? courseData.videos[currentIndex - 1].id.toString() 
+    ? videos[currentIndex - 1].id.toString() 
     : null
     
   const nextVideoId = currentIndex >= 0 && 
-    currentIndex < courseData.videos.length - 1 && 
+    currentIndex < videos.length - 1 && 
     currentVideo?.is_completed
-    ? courseData.videos[currentIndex + 1].id.toString()
+    ? videos[currentIndex + 1].id.toString()
     : null
 
   useEffect(() => {
@@ -145,7 +146,7 @@ export function CourseContentWrapper({ initialVideoId, courseData: initialCourse
       <div className="lg:col-span-1 animate-in fade-in slide-in-from-right-8 duration-500 delay-150">
         <div className="sticky top-24">
           <VideoProgressList 
-            courseVideos={courseData.videos}
+            courseVideos={videos}
             currentVideoId={currentVideoId}
             courseTitle={courseData.course.title}
             onVideoClick={handleVideoChange}

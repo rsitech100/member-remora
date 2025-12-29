@@ -9,9 +9,10 @@ interface ModalProps {
   children: ReactNode
   className?: string
   showCloseButton?: boolean
+  variant?: 'default' | 'confirm'
 }
 
-export function Modal({ isOpen, onClose, children, className, showCloseButton = true }: ModalProps) {
+export function Modal({ isOpen, onClose, children, className, showCloseButton = true, variant = 'default' }: ModalProps) {
   if (!isOpen) return null
 
   return (
@@ -22,7 +23,7 @@ export function Modal({ isOpen, onClose, children, className, showCloseButton = 
       
       <div className={cn(
         'relative bg-[#0a1a1f] rounded-2xl shadow-2xl',
-        'max-w-5xl w-full max-h-[90vh] overflow-hidden',
+        variant === 'default' ? 'max-w-5xl w-full max-h-[90vh] overflow-hidden' : 'max-w-5xl max-h-[90vh] overflow-hidden',
         'animate-fade-in',
         className
       )}>

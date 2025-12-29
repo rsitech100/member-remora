@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { IVideo } from '@/types/api'
 import { Icon } from '@/components/ui/Icon'
+import { useToast } from '@/components/ui/ToastProvider'
+import { ConfirmModal } from '@/components/ui/ConfirmModal'
 
 interface AdminVideoCardProps {
   video: IVideo
@@ -12,11 +14,11 @@ interface AdminVideoCardProps {
 
 export default function AdminVideoCard({ video, index, onRefresh }: AdminVideoCardProps) {
   const [deleting, setDeleting] = useState(false)
+  const [showConfirm, setShowConfirm] = useState(false)
+  const { showToast } = useToast()
 
   const handleDelete = async () => {
-    if (!confirm('Are you sure you want to delete this video?')) {
-      return
-    }
+    setShowConfirm(false)
 
     try {
       setDeleting(true)
@@ -26,12 +28,13 @@ export default function AdminVideoCard({ video, index, onRefresh }: AdminVideoCa
       const data = await response.json()
 
       if (data.success) {
+        showToast('Video deleted successfully', 'success')
         onRefresh()
       } else {
-        alert('Failed to delete video: ' + data.message)
+        showToast('Failed to delete video: ' + data.message, 'error')
       }
     } catch (error) {
-      alert('Failed to delete video')
+      showToast('Failed to delete video', 'error')
     } finally {
       setDeleting(false)
     }
@@ -111,7 +114,7 @@ export default function AdminVideoCard({ video, index, onRefresh }: AdminVideoCa
           {/* Actions */}
           <div className="flex gap-2">
             <button
-              onClick={handleDelete}
+              onClick={() => setShowConfirm(true)}
               disabled={deleting}
               className="px-4 py-2 bg-red-900/20 hover:bg-red-900/30 text-red-400 text-sm rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
             >
@@ -121,6 +124,17 @@ export default function AdminVideoCard({ video, index, onRefresh }: AdminVideoCa
           </div>
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={showConfirm}
+        title="Delete Video"
+        message="Are you sure you want to delete this video? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
+        onConfirm={handleDelete}
+        onCancel={() => setShowConfirm(false)}
+      />
     </div>
   )
 }
