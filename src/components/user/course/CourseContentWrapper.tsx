@@ -28,9 +28,7 @@ export function CourseContentWrapper({ initialVideoId, courseData: initialCourse
     ? videos[currentIndex - 1].id.toString() 
     : null
     
-  const nextVideoId = currentIndex >= 0 && 
-    currentIndex < videos.length - 1 && 
-    currentVideo?.is_completed
+  const nextVideoId = currentIndex >= 0 && currentIndex < videos.length - 1
     ? videos[currentIndex + 1].id.toString()
     : null
 
