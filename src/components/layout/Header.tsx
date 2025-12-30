@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { RemoraLogo } from '@/components/ui/Icon'
 import { UserProfileButton } from '@/components/ui/UserProfileButton'
 import { MobileMenuButton } from '@/components/auth/button/MobileMenuButton'
@@ -59,17 +60,17 @@ export function Header({ dashboardData, isAdmin = false }: HeaderProps) {
           <MobileMenuButton userName={userName} userInitial={userInitial} expirationDate={expirationDate} />
         </div>
 
-        <div className="flex items-center gap-2 md:hidden absolute left-1/2 transform -translate-x-1/2">
+        <Link href={isAdmin ? '/admin' : '/dashboard'} className="flex items-center gap-2 md:hidden absolute left-1/2 transform -translate-x-1/2 hover:opacity-80 transition-opacity">
           <RemoraLogo width={35} height={35} className="brightness-0 invert" />
           <div className="text-white text-base">{displayTitle}</div>
-        </div>
+        </Link>
 
-        <div className="hidden md:flex items-center gap-3 px-4">
+        <Link href={isAdmin ? '/admin' : '/dashboard'} className="hidden md:flex items-center gap-3 px-4 hover:opacity-80 transition-opacity">
           <RemoraLogo width={35} height={35} className="brightness-0 invert" />
           <div>
             <div className="text-white text-lg">{displayTitle}</div>
           </div>
-        </div>
+        </Link>
 
         <div className="hidden md:flex items-center gap-6">
           {!isAdmin && (

@@ -10,8 +10,12 @@ async function getCourses() {
     redirect('/login')
   }
   
-  const response = await fetchWithAuth<IAPIResponse<ICourse[]>>('/api/courses')
-  return response.data
+  try {
+    const response = await fetchWithAuth<IAPIResponse<ICourse[]>>('/api/courses')
+    return response.data
+  } catch (error) {
+    redirect('/login')
+  }
 }
 
 export async function CourseCarouselSection() {

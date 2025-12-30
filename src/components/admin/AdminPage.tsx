@@ -56,17 +56,17 @@ export default function AdminPage() {
   return (
     <Container className="py-8">
       <div className="space-y-6">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-white">Course Management</h1>
-            <p className="text-gray-400 mt-1">Manage your courses and videos</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-white">Course Management</h1>
+            <p className="text-gray-400 mt-1 text-sm sm:text-base">Manage your courses and videos</p>
           </div>
           <Button
             onClick={handleCreateCourse}
-            className="bg-[#2A9E8B] hover:bg-[#248276] text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-colors"
+            className="bg-[#2A9E8B] hover:bg-[#248276] text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg flex items-center justify-center gap-2 transition-colors w-full sm:w-auto"
           >
             <Icon name="plus" className="w-5 h-5" />
-            Create Course
+            <span>Create Course</span>
           </Button>
         </div>
 

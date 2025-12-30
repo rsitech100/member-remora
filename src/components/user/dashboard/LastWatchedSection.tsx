@@ -10,8 +10,12 @@ async function getDashboardData() {
     redirect('/login')
   }
   
-  const response = await fetchWithAuth<IAPIResponse<IDashboardData>>('/api/dashboard')
-  return response.data
+  try {
+    const response = await fetchWithAuth<IAPIResponse<IDashboardData>>('/api/dashboard')
+    return response.data
+  } catch (error) {
+    redirect('/login')
+  }
 }
 
 export async function LastWatchedSection() {

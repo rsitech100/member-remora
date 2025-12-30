@@ -4,7 +4,17 @@ import { cookies } from 'next/headers'
 export async function GET(request: NextRequest) {
   try {
     const cookieStore = await cookies()
+    
     cookieStore.delete('auth_token')
+    
+    cookieStore.set('auth_token', '', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 0,
+      path: '/',
+      expires: new Date(0),
+    })
     
     return NextResponse.redirect(new URL('/login', request.url))
   } catch (error) {

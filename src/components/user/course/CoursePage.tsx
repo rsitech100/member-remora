@@ -11,7 +11,7 @@ async function getCourseVideos(courseId: string) {
     const response = await fetchWithAuth<IAPIResponse<ICourseDetailData>>(`/api/courses/${courseId}`)
     return response.data
   } catch (error) {
-    return null
+    redirect('/login')
   }
 }
 

@@ -1,11 +1,22 @@
 'use client'
 
 export function LogoutButton() {
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/logout', { 
+        method: 'POST',
+        headers: {
+          'Cache-Control': 'no-cache',
+        },
+      })
+    } catch (error) {
+    }
+    window.location.href = '/login'
+  }
+  
   return (
     <button
-      onClick={() => {
-        window.location.href = '/api/logout'
-      }}
+      onClick={handleLogout}
       className="flex items-center gap-2 px-4 py-2 bg-[#2A9E8B] hover:bg-[#238174] text-white rounded-lg transition-colors shadow-lg"
     >
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

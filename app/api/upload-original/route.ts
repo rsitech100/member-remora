@@ -4,7 +4,13 @@ import { getAuthToken } from '@/lib/auth'
 const API_BASE_URL = process.env.API_BASE_URL || process.env.NEXT_PUBLIC_BASE_URL
 
 export const dynamic = 'force-dynamic'
-// Remove maxDuration to allow long uploads
+
+export const config = {
+  api: {
+    bodyParser: false,
+    responseLimit: false,
+  },
+}
 
 export async function POST(request: NextRequest) {
   try {

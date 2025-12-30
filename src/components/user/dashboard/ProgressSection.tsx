@@ -11,13 +11,12 @@ async function getDashboardData() {
     redirect('/login')
   }
   
-  const response = await fetchWithAuth<IAPIResponse<IDashboardData>>('/api/dashboard')
-  
-  if (response.data.user.role === 'admin' || response.data.user.role === 'superadmin') {
-    redirect('/admin')
+  try {
+    const response = await fetchWithAuth<IAPIResponse<IDashboardData>>('/api/dashboard')
+    return response.data
+  } catch (error) {
+    redirect('/login')
   }
-  
-  return response.data
 }
 
 interface ProgressSectionProps {

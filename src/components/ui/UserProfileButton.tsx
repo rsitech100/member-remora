@@ -24,8 +24,17 @@ export function UserProfileButton({ userName, userInitial }: UserProfileButtonPr
     }
   }, [isOpen])
 
-  const handleLogout = () => {
-    window.location.href = '/api/logout'
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/logout', { 
+        method: 'POST',
+        headers: {
+          'Cache-Control': 'no-cache',
+        },
+      })
+    } catch (error) {
+    }
+    window.location.href = '/login'
   }
 
   return (

@@ -64,12 +64,6 @@ export async function fetchAPI<T>(
       
       if (apiError.isAuthError()) {
         await removeAuthToken().catch(() => {})
-        
-        if (typeof window !== 'undefined') {
-          await fetch('/api/logout', { method: 'POST' }).catch(() => {})
-          window.location.href = '/login'
-          throw apiError
-        }
       }
       
       throw apiError

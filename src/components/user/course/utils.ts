@@ -12,9 +12,7 @@ export function getVideoNavigation(
     currentVideo,
     previousVideoId: currentIndex > 0 ? videos[currentIndex - 1].id.toString() : null,
     nextVideoId:
-      currentIndex >= 0 &&
-      currentIndex < videos.length - 1 &&
-      currentVideo?.is_completed
+      currentIndex >= 0 && currentIndex < videos.length - 1
         ? videos[currentIndex + 1].id.toString()
         : null,
   }
@@ -25,14 +23,12 @@ export function transformVideosForProgress(
   currentVideoId: string,
   courseTitle: string
 ) {
-  const firstIncompleteIndex = videos.findIndex(video => !video.is_completed)
-
-  return videos.map((video, index) => {
+  return videos.map((video) => {
     const isCurrentVideo = video.id.toString() === currentVideoId
     const status: 'completed' | 'now_watching' | 'not_started' =
       isCurrentVideo ? 'now_watching' : video.is_completed ? 'completed' : 'not_started'
 
-    const isAccessible = video.is_completed || index === firstIncompleteIndex || index === 0
+    const isAccessible = true
 
     return {
       id: video.id.toString(),

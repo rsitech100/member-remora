@@ -45,7 +45,6 @@ export function CourseContentWrapper({ initialVideoId, courseData: initialCourse
       try {
         const response = await fetch(`/api/embed/${currentVideoId}`)
         
-        // Handle authentication errors
         if (response.status === 401 || response.status === 403) {
           await fetch('/api/logout', { method: 'POST' }).catch(() => {})
           window.location.href = '/login'
@@ -54,7 +53,6 @@ export function CourseContentWrapper({ initialVideoId, courseData: initialCourse
         
         const result: IAPIResponse<IEmbedData> = await response.json()
         
-        // Check for auth errors in response body
         if (!result.success && result.message) {
           const msg = result.message.toLowerCase()
           if (msg.includes('unauthorized') || msg.includes('token') || msg.includes('expired')) {
@@ -85,7 +83,6 @@ export function CourseContentWrapper({ initialVideoId, courseData: initialCourse
   }
   
   const handleVideoComplete = async () => {
-    // Update local state to mark current video as completed
     setCourseData(prevData => ({
       ...prevData,
       videos: prevData.videos.map(video => 

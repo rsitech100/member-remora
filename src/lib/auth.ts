@@ -6,7 +6,6 @@ const AUTH_COOKIE_NAME = 'auth_token'
 const API_BASE_URL = process.env.API_BASE_URL || process.env.NEXT_PUBLIC_BASE_URL
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 7 // 7 days
 
-
 export async function getAuthToken(): Promise<string | null> {
   try {
     const cookieStore = await cookies()
@@ -37,7 +36,7 @@ export async function removeAuthToken(): Promise<void> {
     const cookieStore = await cookies()
     cookieStore.delete(AUTH_COOKIE_NAME)
   } catch (error) {
-    throw error
+    // Silently fail
   }
 }
 
@@ -56,10 +55,6 @@ export async function clientLogout(): Promise<void> {
   if (typeof window !== 'undefined') {
     window.location.href = '/login'
   }
-}
-
-export async function handleAuthError(): Promise<void> {
-  await clientLogout()
 }
 
 export interface AuthResult {
@@ -81,28 +76,36 @@ async function fetchUserData(): Promise<IDashboardData | null> {
   }
 
   try {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 5000) // 5 second timeout
+    
     const response = await fetch(`${API_BASE_URL}/api/dashboard`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
         'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
       },
       cache: 'no-store',
+      signal: controller.signal,
     })
+
+    clearTimeout(timeoutId)
 
     if (response.ok) {
       const result = await response.json() as IAPIResponse<IDashboardData>
       return result.data
     }
 
-    // If 401, 403, or 404 - token is invalid, remove it
-    if (response.status === 401 || response.status === 403 || response.status === 404) {
-      await removeAuthToken().catch(() => {})
+    // If 401, 403 - token is invalid
+    if (response.status === 401 || response.status === 403) {
+      await removeAuthToken()
+      return null
     }
 
     return null
   } catch (error) {
+    // On any error, assume token is invalid
+    await removeAuthToken()
     return null
   }
 }
@@ -114,25 +117,20 @@ export async function requireAdmin(): Promise<AuthResult> {
     redirect('/login')
   }
 
-  try {
-    const dashboardData = await fetchUserData()
-    
-    if (!dashboardData || !dashboardData.user) {
-      await removeAuthToken().catch(() => {})
-      redirect('/login')
-    }
-
-    const user = dashboardData.user
-
-    if (user.role !== 'admin' && user.role !== 'superadmin') {
-      redirect('/dashboard')
-    }
-
-    return { user, dashboardData }
-  } catch (error) {
-    await removeAuthToken().catch(() => {})
+  const dashboardData = await fetchUserData()
+  
+  if (!dashboardData?.user) {
     redirect('/login')
   }
+
+  const { user } = dashboardData
+
+  // Check if user is admin
+  if (user.role !== 'admin' && user.role !== 'superadmin') {
+    redirect('/dashboard')
+  }
+
+  return { user, dashboardData }
 }
 
 export async function requireAuth(): Promise<AuthResult> {
@@ -142,48 +140,46 @@ export async function requireAuth(): Promise<AuthResult> {
     redirect('/login')
   }
 
-  try {
-    const dashboardData = await fetchUserData()
-    
-    if (!dashboardData || !dashboardData.user) {
-      // Token is invalid, remove it
-      await removeAuthToken().catch(() => {})
-      redirect('/login')
-    }
-
-    return { user: dashboardData.user, dashboardData }
-  } catch (error) {
-    // Any error during auth check, clean up and redirect
-    await removeAuthToken().catch(() => {})
+  const dashboardData = await fetchUserData()
+  
+  if (!dashboardData?.user) {
     redirect('/login')
   }
+
+  const { user } = dashboardData
+  
+  // Check if user is admin and redirect appropriately
+  if (user.role === 'admin' || user.role === 'superadmin') {
+    redirect('/admin')
+  }
+
+  return { user, dashboardData }
 }
 
 export async function requireGuest(): Promise<void> {
   const token = await getAuthToken()
   
-  if (token) {
-    try {
-      const dashboardData = await fetchUserData()
-      
-      if (dashboardData && dashboardData.user) {
-        const user = dashboardData.user
-        
-        if (user.role === 'admin' || user.role === 'superadmin') {
-          redirect('/admin')
-        } else {
-          redirect('/dashboard')
-        }
-      } else {
-        // Token exists but is invalid, clean it up
-        await removeAuthToken().catch(() => {})
-      }
-    } catch (error) {
-      // If there's any error validating token, clean it up
-      await removeAuthToken().catch(() => {})
-    }
+  if (!token) {
+    // No token, allow access to guest pages
+    return
   }
-  // If no token or invalid token (cleaned up), allow access to guest page
+
+  // Has token, validate it
+  const dashboardData = await fetchUserData()
+  
+  if (!dashboardData?.user) {
+    // Token was invalid and cleaned up, allow access
+    return
+  }
+
+  // Valid user exists, redirect based on role
+  const { user } = dashboardData
+  
+  if (user.role === 'admin' || user.role === 'superadmin') {
+    redirect('/admin')
+  } else {
+    redirect('/dashboard')
+  }
 }
 
 export async function checkAuth(): Promise<AuthCheckResult> {
@@ -195,8 +191,7 @@ export async function checkAuth(): Promise<AuthCheckResult> {
 
   const dashboardData = await fetchUserData()
   
-  if (!dashboardData || !dashboardData.user) {
-    await removeAuthToken().catch(() => {})
+  if (!dashboardData?.user) {
     return { authenticated: false }
   }
 

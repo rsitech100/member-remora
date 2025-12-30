@@ -63,9 +63,9 @@ export default function AdminCourseVideoPage({ courseData: initialData }: AdminC
           Back to Courses
         </Link>
 
-      <div className="bg-[#1a1a1a] rounded-xl p-6 border border-gray-800">
-        <div className="flex gap-6">
-          <div className="relative w-48 h-32 rounded-lg overflow-hidden bg-gray-800 flex-shrink-0">
+      <div className="bg-[#1a1a1a] rounded-xl p-4 sm:p-6 border border-gray-800">
+        <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
+          <div className="relative w-full sm:w-48 h-40 sm:h-32 rounded-lg overflow-hidden bg-gray-800 flex-shrink-0">
             {courseData.course.image ? (
               <Image
                 src={courseData.course.image}
@@ -81,29 +81,29 @@ export default function AdminCourseVideoPage({ courseData: initialData }: AdminC
           </div>
 
           <div className="flex-1">
-            <h1 className="text-3xl font-bold text-white mb-2">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2">
               {courseData.course.title}
             </h1>
-            <p className="text-lg text-gray-400 mb-2">{courseData.course.subtitle}</p>
-            <p className="text-gray-500">{courseData.course.description}</p>
+            <p className="text-base sm:text-lg text-gray-400 mb-2">{courseData.course.subtitle}</p>
+            <p className="text-sm sm:text-base text-gray-500 line-clamp-3 sm:line-clamp-none">{courseData.course.description}</p>
           </div>
         </div>
       </div>
 
       <div className="space-y-4">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
           <div>
-            <h2 className="text-2xl font-bold text-white">Videos</h2>
-            <p className="text-gray-400 mt-1">
+            <h2 className="text-xl sm:text-2xl font-bold text-white">Videos</h2>
+            <p className="text-gray-400 mt-1 text-sm sm:text-base">
               {courseData.videos.length} video{courseData.videos.length !== 1 ? 's' : ''}
             </p>
           </div>
           <Button
             onClick={handleAddVideo}
-            className="bg-[#2A9E8B] hover:bg-[#248276] text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-colors"
+            className="bg-[#2A9E8B] hover:bg-[#248276] text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg flex items-center justify-center gap-2 transition-colors w-full sm:w-auto"
           >
             <Icon name="plus" className="w-5 h-5" />
-            Add Video
+            <span>Add Video</span>
           </Button>
         </div>
 

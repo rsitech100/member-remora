@@ -79,28 +79,30 @@ export default function AdminCourseCard({ course, onEdit, onRefresh }: AdminCour
         </div>
 
         {/* Actions */}
-        <div className="flex gap-2 pt-2">
+        <div className="flex flex-col sm:flex-row gap-2 pt-2">
           <Link
             href={`/admin/courses/${encodeURIComponent(course.title)}`}
             className="flex-1 bg-[#2A9E8B] hover:bg-[#248276] text-white text-sm font-medium py-2 rounded-lg text-center transition-colors"
           >
             Manage Videos
           </Link>
-          <button
-            onClick={() => onEdit(course)}
-            className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors"
-            title="Edit Course"
-          >
-            <Icon name="edit" className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => setShowConfirm(true)}
-            disabled={deleting}
-            className="px-4 py-2 bg-red-900/20 hover:bg-red-900/30 text-red-400 rounded-lg transition-colors disabled:opacity-50"
-            title="Delete Course"
-          >
-            <Icon name="trash" className="w-4 h-4" />
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => onEdit(course)}
+              className="flex-1 sm:flex-none px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors"
+              title="Edit Course"
+            >
+              <Icon name="edit" className="w-4 h-4 mx-auto" />
+            </button>
+            <button
+              onClick={() => setShowConfirm(true)}
+              disabled={deleting}
+              className="flex-1 sm:flex-none px-4 py-2 bg-red-900/20 hover:bg-red-900/30 text-red-400 rounded-lg transition-colors disabled:opacity-50"
+              title="Delete Course"
+            >
+              <Icon name="trash" className="w-4 h-4 mx-auto" />
+            </button>
+          </div>
         </div>
       </div>
 

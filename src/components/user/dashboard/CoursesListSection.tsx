@@ -10,8 +10,12 @@ async function getDashboardData() {
     redirect('/login')
   }
   
-  const response = await fetchWithAuth<IAPIResponse<IDashboardData>>('/api/dashboard')
-  return response.data
+  try {
+    const response = await fetchWithAuth<IAPIResponse<IDashboardData>>('/api/dashboard')
+    return response.data
+  } catch (error) {
+    redirect('/login')
+  }
 }
 
 async function getCourses() {
@@ -20,8 +24,12 @@ async function getCourses() {
     redirect('/login')
   }
   
-  const response = await fetchWithAuth<IAPIResponse<ICourse[]>>('/api/courses')
-  return response.data
+  try {
+    const response = await fetchWithAuth<IAPIResponse<ICourse[]>>('/api/courses')
+    return response.data
+  } catch (error) {
+    redirect('/login')
+  }
 }
 
 export async function CoursesListSection() {
@@ -34,8 +42,26 @@ export async function CoursesListSection() {
 
   const dashboardCourses = dashboardData.courses || []
 
+  const lastWatchedCourse = dashboardCourses.find(dc => dc.last_watched_video)
+
   const coursesToDisplay = allCourses.map(course => {
     const dashboardCourse = dashboardCourses.find(dc => dc.course_id === course.id)
+    const isLastWatched = lastWatchedCourse?.course_id === course.id
+    
+    let status: 'completed' | 'now_watching' | 'in_progress' | 'not_started' = 'not_started'
+    
+    if (dashboardCourse) {
+      if (dashboardCourse.status === 'completed') {
+        status = 'completed'
+      } else if (isLastWatched && dashboardCourse.completed_videos > 0) {
+        status = 'now_watching'
+      } else if (dashboardCourse.completed_videos > 0) {
+        status = 'in_progress'
+      } else {
+        status = 'not_started'
+      }
+    }
+    
     return {
       id: course.id.toString(),
       title: course.title,
@@ -43,7 +69,7 @@ export async function CoursesListSection() {
       thumbnail: course.image || '/images/dummy-image.png',
       duration: dashboardCourse?.progress || `${course.videos?.length || 0} Videos`,
       instructor: course.subtitle,
-      completed: dashboardCourse?.status === 'completed',
+      status,
     }
   })
 

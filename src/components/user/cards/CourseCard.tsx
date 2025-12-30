@@ -8,7 +8,7 @@ interface CourseCardProps {
   thumbnail: string
   duration: string
   instructor: string
-  completed?: boolean
+  status?: 'completed' | 'now_watching' | 'in_progress' | 'not_started'
 }
 
 export function CourseCard({
@@ -18,7 +18,7 @@ export function CourseCard({
   thumbnail,
   duration,
   instructor,
-  completed = false,
+  status = 'not_started',
 }: CourseCardProps) {
   return (
     <Link 
@@ -61,14 +61,24 @@ export function CourseCard({
         </div>
       </div>
 
-      {completed && (
+      {status === 'completed' && (
         <div className="absolute bottom-0 right-0 px-4 py-1.5 bg-gray-500 text-white text-xs font-medium rounded-tl-lg rounded-bl-lg">
           Completed
         </div>
       )}
-      {!completed && (
+      {status === 'now_watching' && (
         <div className="absolute bottom-0 right-0 px-4 py-1.5 bg-[#2A9E8B] text-white text-xs font-medium rounded-tl-lg rounded-bl-lg">
           Now Watching
+        </div>
+      )}
+      {status === 'in_progress' && (
+        <div className="absolute bottom-0 right-0 px-4 py-1.5 bg-[#FF9800] text-white text-xs font-medium rounded-tl-lg rounded-bl-lg">
+          In Progress
+        </div>
+      )}
+      {status === 'not_started' && (
+        <div className="absolute bottom-0 right-0 px-4 py-1.5 bg-[#555566] text-white text-xs font-medium rounded-tl-lg rounded-bl-lg">
+          Not Started
         </div>
       )}
     </Link>

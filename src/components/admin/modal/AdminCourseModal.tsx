@@ -117,9 +117,9 @@ export default function AdminCourseModal({ course, onClose, onSuccess }: AdminCo
 
   return (
     <Modal isOpen onClose={onClose}>
-      <div className="bg-[#1a1a1a] rounded-xl p-6 w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-white">
+      <div className="bg-[#1a1a1a] rounded-xl p-4 sm:p-6 w-full max-h-[90vh] overflow-y-auto">
+        <div className="flex justify-between items-center mb-4 sm:mb-6">
+          <h2 className="text-xl sm:text-2xl font-bold text-white">
             {isEditing ? 'Edit Course' : 'Create Course'}
           </h2>
           <button
@@ -154,6 +154,9 @@ export default function AdminCourseModal({ course, onClose, onSuccess }: AdminCo
                 <Icon name="image" className="w-5 h-5" />
                 {imagePreview ? 'Change Image' : 'Upload Image'}
               </button>
+              <p className="text-xs text-gray-500">
+                Recommended: 16:9 aspect ratio (e.g., 1920x1080 pixels).
+              </p>
               <input
                 ref={fileInputRef}
                 type="file"
@@ -174,8 +177,12 @@ export default function AdminCourseModal({ course, onClose, onSuccess }: AdminCo
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               placeholder="Enter course title"
               required
+              maxLength={255}
               className="w-full"
             />
+            <div className="text-xs text-gray-500 mt-1">
+              {formData.title.length}/255 characters
+            </div>
           </div>
 
           {/* Subtitle */}
@@ -188,8 +195,12 @@ export default function AdminCourseModal({ course, onClose, onSuccess }: AdminCo
               onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
               placeholder="Enter course subtitle"
               required
+              maxLength={255}
               className="w-full"
             />
+            <div className="text-xs text-gray-500 mt-1">
+              {formData.subtitle.length}/255 characters
+            </div>
           </div>
 
           {/* Description */}

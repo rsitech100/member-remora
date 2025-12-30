@@ -119,9 +119,9 @@ export default function AdminVideoModal({ video, courseId, onClose, onSuccess }:
 
   return (
     <Modal isOpen onClose={onClose}>
-      <div className="bg-[#1a1a1a] rounded-xl p-6 w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-white">
+      <div className="bg-[#1a1a1a] rounded-xl p-4 sm:p-6 w-full max-h-[90vh] overflow-y-auto">
+        <div className="flex justify-between items-center mb-4 sm:mb-6">
+          <h2 className="text-xl sm:text-2xl font-bold text-white">
             {isEditing ? 'Edit Video' : 'Add Video'}
           </h2>
           <button
@@ -197,8 +197,12 @@ export default function AdminVideoModal({ video, courseId, onClose, onSuccess }:
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               placeholder="Enter video title"
               required
+              maxLength={255}
               className="w-full"
             />
+            <div className="text-xs text-gray-500 mt-1">
+              {formData.title.length}/255 characters
+            </div>
           </div>
 
           {/* Subtitle */}
@@ -210,8 +214,12 @@ export default function AdminVideoModal({ video, courseId, onClose, onSuccess }:
               value={formData.subtitle}
               onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
               placeholder="Enter video subtitle (optional)"
+              maxLength={255}
               className="w-full"
             />
+            <div className="text-xs text-gray-500 mt-1">
+              {formData.subtitle.length}/255 characters
+            </div>
           </div>
 
           {/* Description */}
@@ -229,7 +237,7 @@ export default function AdminVideoModal({ video, courseId, onClose, onSuccess }:
           </div>
 
           {/* Status and Order */}
-          <div className="grid grid-cols-2 gap-4">
+          {/* <div className="grid grid-cols-2 gap-4"> */}
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
                 Status
@@ -239,11 +247,11 @@ export default function AdminVideoModal({ video, courseId, onClose, onSuccess }:
                 onChange={(e) => setFormData({ ...formData, status: e.target.value as 'active' | 'inactive' })}
                 className="w-full bg-[#2a2a2a] border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#2A9E8B] transition-colors"
               >
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
+                <option value="active">Public</option>
+                <option value="inactive">Private</option>
               </select>
             </div>
-            <div>
+            {/* <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
                 Order (optional)
               </label>
@@ -257,8 +265,8 @@ export default function AdminVideoModal({ video, courseId, onClose, onSuccess }:
                 placeholder="Leave empty for auto-order"
                 className="w-full"
               />
-            </div>
-          </div>
+            </div> */}
+          {/* </div> */}
 
           {/* Actions */}
           <div className="flex gap-3 pt-4">
