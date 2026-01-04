@@ -45,7 +45,7 @@ export default function AdminCourseCard({ course, onEdit, onRefresh }: AdminCour
   return (
     <div className="bg-[#1a1a1a] rounded-xl overflow-hidden border border-gray-800 hover:border-[#2A9E8B] transition-all group">
       {/* Course Image */}
-      <div className="relative h-40 bg-gray-800">
+      <div className="relative h-50 bg-gray-800">
         {course.image ? (
           <Image
             src={course.image}
@@ -81,7 +81,7 @@ export default function AdminCourseCard({ course, onEdit, onRefresh }: AdminCour
         {/* Actions */}
         <div className="flex flex-col sm:flex-row gap-2 pt-2">
           <Link
-            href={`/admin/courses/${encodeURIComponent(course.title)}`}
+            href={`/admin/courses/${course.title.toLowerCase().replace(/\s+/g, '-')}`}
             className="flex-1 bg-[#2A9E8B] hover:bg-[#248276] text-white text-sm font-medium py-2 rounded-lg text-center transition-colors"
           >
             Manage Videos

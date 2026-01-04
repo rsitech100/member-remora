@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { fetchWithAuth } from '@/lib/api'
 import { getAuthToken } from '@/lib/auth'
-import { IAPIResponse, ICourseDetailData } from '@/types/api'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET(
+export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -19,18 +18,17 @@ export async function GET(
     }
 
     const { id } = await params
-    const data = await fetchWithAuth<IAPIResponse<ICourseDetailData>>(`/api/courses/${id}`)
-    return NextResponse.json(data, {
-      headers: {
-        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
-      },
+    const data = await fetchWithAuth(`/api/videos/${id}/convert-hls`, {
+      method: 'POST',
     })
+    
+    return NextResponse.json(data)
   } catch (error) {
     if (error && typeof error === 'object' && 'digest' in error && String(error.digest).includes('NEXT_REDIRECT')) {
       throw error
     }
     return NextResponse.json(
-      { success: false, message: 'Failed to fetch course details' },
+      { success: false, message: 'Failed to convert video to HLS' },
       { status: 500 }
     )
   }

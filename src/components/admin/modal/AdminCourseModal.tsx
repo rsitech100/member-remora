@@ -6,8 +6,10 @@ import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Icon } from '@/components/ui/Icon'
-import Image from 'next/image'
+import { Loading } from '@/components/ui/Loading'
+import { ProgressBar } from '@/components/ui/ProgressBar'
 import { useToast } from '@/components/ui/ToastProvider'
+import Image from 'next/image'
 
 interface AdminCourseModalProps {
   course: ICourse | null
@@ -27,11 +29,12 @@ export default function AdminCourseModal({ course, onClose, onSuccess }: AdminCo
   const [imagePreview, setImagePreview] = useState(course?.image || '')
   const [uploading, setUploading] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [uploadedImageUrl, setUploadedImageUrl] = useState<string>(course?.image || '')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const isEditing = !!course
 
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
       setImageFile(file)
@@ -40,16 +43,16 @@ export default function AdminCourseModal({ course, onClose, onSuccess }: AdminCo
         setImagePreview(reader.result as string)
       }
       reader.readAsDataURL(file)
+      
+      await uploadImage(file)
     }
   }
 
-  const uploadImage = async (): Promise<string | null> => {
-    if (!imageFile) return formData.image
-
+  const uploadImage = async (file: File): Promise<string | null> => {
     try {
       setUploading(true)
       const uploadFormData = new FormData()
-      uploadFormData.append('file', imageFile)
+      uploadFormData.append('file', file)
 
       const response = await fetch('/api/upload-original', {
         method: 'POST',
@@ -59,11 +62,22 @@ export default function AdminCourseModal({ course, onClose, onSuccess }: AdminCo
       const data = await response.json()
       if (data.success && data.data?.file_url) {
         const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || ''
-        return `${baseUrl}${data.data.file_url}`
+        const imageUrl = `${baseUrl}${data.data.file_url}`
+        setUploadedImageUrl(imageUrl)
+        showToast('Image uploaded successfully', 'success')
+        return imageUrl
       }
-      throw new Error(data.message || 'Upload failed')
+      
+      setImageFile(null)
+      setImagePreview('')
+      const errorMsg = data.message || 'Upload failed'
+      showToast(errorMsg, 'error')
+      return null
     } catch (error) {
-      showToast('Failed to upload image', 'error')
+      setImageFile(null)
+      setImagePreview('')
+      const errorMsg = error instanceof Error ? error.message : 'Failed to upload image'
+      showToast(errorMsg, 'error')
       return null
     } finally {
       setUploading(false)
@@ -73,21 +87,19 @@ export default function AdminCourseModal({ course, onClose, onSuccess }: AdminCo
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
+    if (uploading) {
+      showToast('Please wait for upload to complete', 'warning')
+      return
+    }
+
     try {
       setSaving(true)
-
-      let imageUrl = formData.image
-      if (imageFile) {
-        const uploadedUrl = await uploadImage()
-        if (!uploadedUrl) return
-        imageUrl = uploadedUrl
-      }
 
       const payload = {
         title: formData.title,
         subtitle: formData.subtitle,
         description: formData.description,
-        image: imageUrl,
+        image: uploadedImageUrl,
       }
 
       const url = isEditing
@@ -144,12 +156,21 @@ export default function AdminCourseModal({ course, onClose, onSuccess }: AdminCo
                     fill
                     className="object-cover"
                   />
+                  {uploading && (
+                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                      <div className="text-center">
+                        <Loading size="lg" />
+                        <div className="text-white text-sm mt-2">Uploading...</div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full py-3 px-4 border-2 border-dashed border-gray-700 hover:border-[#2A9E8B] rounded-lg text-gray-400 hover:text-white transition-colors flex items-center justify-center gap-2"
+                disabled={uploading}
+                className="w-full py-3 px-4 border-2 border-dashed border-gray-700 hover:border-[#2A9E8B] rounded-lg text-gray-400 hover:text-white transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Icon name="image" className="w-5 h-5" />
                 {imagePreview ? 'Change Image' : 'Upload Image'}
@@ -216,6 +237,9 @@ export default function AdminCourseModal({ course, onClose, onSuccess }: AdminCo
               rows={4}
               className="w-full bg-[#2a2a2a] border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-[#2A9E8B] transition-colors"
             />
+            <div className="text-xs text-gray-500 mt-1">
+              {formData.description.length}/1000 characters
+            </div>
           </div>
 
           {/* Actions */}

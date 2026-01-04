@@ -6,6 +6,7 @@ import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Icon } from '@/components/ui/Icon'
+import { ProgressBar } from '@/components/ui/ProgressBar'
 import { useToast } from '@/components/ui/ToastProvider'
 
 interface AdminVideoModalProps {
@@ -27,46 +28,111 @@ export default function AdminVideoModal({ video, courseId, onClose, onSuccess }:
   const [videoFile, setVideoFile] = useState<File | null>(null)
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
+  const [uploadSpeed, setUploadSpeed] = useState<string>('')
+  const [uploadedBytes, setUploadedBytes] = useState<number>(0)
+  const [totalBytes, setTotalBytes] = useState<number>(0)
   const [saving, setSaving] = useState(false)
+  const [uploadedVideoUrl, setUploadedVideoUrl] = useState<string>(video?.original_video || '')
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const uploadStartTimeRef = useRef<number>(0)
 
   const isEditing = !!video
 
-  const handleVideoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleVideoSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
       setVideoFile(file)
+      await uploadVideo(file)
     }
   }
 
-  const uploadVideo = async (): Promise<string | null> => {
-    if (!videoFile) return video?.original_video || null
+  const uploadVideo = async (file: File): Promise<string | null> => {
+    return new Promise((resolve) => {
+      try {
+        setUploading(true)
+        setUploadProgress(0)
+        setUploadSpeed('')
+        setUploadedBytes(0)
+        setTotalBytes(file.size)
+        uploadStartTimeRef.current = Date.now()
 
-    try {
-      setUploading(true)
-      setUploadProgress(0)
+        const uploadFormData = new FormData()
+        uploadFormData.append('file', file)
 
-      const uploadFormData = new FormData()
-      uploadFormData.append('file', videoFile)
+        const xhr = new XMLHttpRequest()
 
-      const response = await fetch('/api/upload-original', {
-        method: 'POST',
-        body: uploadFormData,
-      })
+        xhr.upload.addEventListener('progress', (e) => {
+          if (e.lengthComputable) {
+            const percentComplete = Math.round((e.loaded / e.total) * 100)
+            setUploadProgress(percentComplete)
+            setUploadedBytes(e.loaded)
+            setTotalBytes(e.total)
+            
+            const elapsedTime = (Date.now() - uploadStartTimeRef.current) / 1000 // in seconds
+            if (elapsedTime > 0) {
+              const speedBps = e.loaded / elapsedTime 
+              const speedMbps = speedBps / (1024 * 1024) 
+              setUploadSpeed(speedMbps.toFixed(2))
+            }
+          }
+        })
 
-      const data = await response.json()
-      setUploadProgress(100)
+        xhr.addEventListener('load', () => {
+          if (xhr.status === 200) {
+            try {
+              const data = JSON.parse(xhr.responseText)
+              if (data.success && data.data?.file_url) {
+                setUploadedVideoUrl(data.data.file_url)
+                showToast('Video uploaded successfully', 'success')
+                resolve(data.data.file_url)
+              } else {
+                setVideoFile(null)
+                const errorMsg = data.message || 'Upload failed'
+                showToast(errorMsg, 'error')
+                resolve(null)
+              }
+            } catch (error) {
+              setVideoFile(null)
+              showToast('Failed to process upload response', 'error')
+              resolve(null)
+            }
+          } else {
+            try {
+              const data = JSON.parse(xhr.responseText)
+              const errorMsg = data.message || `Upload failed with status: ${xhr.status}`
+              setVideoFile(null)
+              showToast(errorMsg, 'error')
+            } catch {
+              setVideoFile(null)
+              showToast(`Upload failed with status: ${xhr.status}`, 'error')
+            }
+            resolve(null)
+          }
+          setUploading(false)
+        })
 
-      if (data.success && data.data?.file_url) {
-        return data.data.file_url
+        xhr.addEventListener('error', () => {
+          setVideoFile(null)
+          showToast('Network error during upload', 'error')
+          setUploading(false)
+          resolve(null)
+        })
+
+        xhr.addEventListener('abort', () => {
+          setVideoFile(null)
+          showToast('Upload cancelled', 'warning')
+          setUploading(false)
+          resolve(null)
+        })
+
+        xhr.open('POST', '/api/upload-original')
+        xhr.send(uploadFormData)
+      } catch (error) {
+        showToast('Failed to upload video', 'error')
+        setUploading(false)
+        resolve(null)
       }
-      throw new Error(data.message || 'Upload failed')
-    } catch (error) {
-      showToast('Failed to upload video', 'error')
-      return null
-    } finally {
-      setUploading(false)
-    }
+    })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -77,22 +143,20 @@ export default function AdminVideoModal({ video, courseId, onClose, onSuccess }:
       return
     }
 
+    if (uploading) {
+      showToast('Please wait for upload to complete', 'warning')
+      return
+    }
+
     try {
       setSaving(true)
-
-      let videoUrl = video?.original_video || ''
-      if (videoFile) {
-        const uploadedUrl = await uploadVideo()
-        if (!uploadedUrl) return
-        videoUrl = uploadedUrl
-      }
 
       const payload = {
         course_id: courseId,
         title: formData.title,
         subtitle: formData.subtitle,
         description: formData.description,
-        original_video: videoUrl,
+        original_video: uploadedVideoUrl,
         status: formData.status,
         order: formData.order,
       }
@@ -153,15 +217,19 @@ export default function AdminVideoModal({ video, courseId, onClose, onSuccess }:
                       </div>
                     </div>
                     {uploading && (
-                      <div className="mt-3">
-                        <div className="w-full bg-gray-700 rounded-full h-2">
-                          <div
-                            className="bg-[#2A9E8B] h-2 rounded-full transition-all"
-                            style={{ width: `${uploadProgress}%` }}
-                          />
-                        </div>
-                        <div className="text-xs text-gray-400 mt-1">
-                          Uploading... {uploadProgress}%
+                      <div className="mt-3 space-y-2">
+                        <ProgressBar
+                          progress={uploadProgress}
+                          label="Uploading"
+                          size="md"
+                        />
+                        <div className="flex justify-between text-xs text-gray-400">
+                          <span>
+                            {(uploadedBytes / (1024 * 1024)).toFixed(2)} MB / {(totalBytes / (1024 * 1024)).toFixed(2)} MB
+                          </span>
+                          {uploadSpeed && (
+                            <span>{uploadSpeed} MB/s</span>
+                          )}
                         </div>
                       </div>
                     )}
@@ -235,7 +303,9 @@ export default function AdminVideoModal({ video, courseId, onClose, onSuccess }:
               className="w-full bg-[#2a2a2a] border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-[#2A9E8B] transition-colors"
             />
           </div>
-
+          <div className="text-xs text-gray-500 mt-1">
+              {formData.description.length}/1000 characters
+          </div>
           {/* Status and Order */}
           {/* <div className="grid grid-cols-2 gap-4"> */}
             <div>

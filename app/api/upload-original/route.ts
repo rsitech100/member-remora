@@ -4,13 +4,7 @@ import { getAuthToken } from '@/lib/auth'
 const API_BASE_URL = process.env.API_BASE_URL || process.env.NEXT_PUBLIC_BASE_URL
 
 export const dynamic = 'force-dynamic'
-
-export const config = {
-  api: {
-    bodyParser: false,
-    responseLimit: false,
-  },
-}
+export const maxDuration = 300000 
 
 export async function POST(request: NextRequest) {
   try {
@@ -32,7 +26,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create a new FormData to send to backend
     const backendFormData = new FormData()
     backendFormData.append('file', file)
 
@@ -48,10 +41,18 @@ export async function POST(request: NextRequest) {
     
     try {
       const data = JSON.parse(responseText)
-      return NextResponse.json(data)
+      
+      if (!response.ok && data.success !== false) {
+        return NextResponse.json(
+          { success: false, message: data.message || 'Upload failed' },
+          { status: response.status }
+        )
+      }
+      
+      return NextResponse.json(data, { status: response.status })
     } catch (parseError) {
       return NextResponse.json(
-        { success: false, message: 'Invalid response from backend', details: responseText },
+        { success: false, message: responseText || 'Upload failed' },
         { status: 500 }
       )
     }

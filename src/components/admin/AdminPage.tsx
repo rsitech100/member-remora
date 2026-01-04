@@ -17,7 +17,9 @@ export default function AdminPage() {
   const fetchCourses = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/courses')
+      const response = await fetch('/api/courses', {
+        cache: 'no-store'
+      })
       const data = await response.json()
       if (data.success) {
         setCourses(data.data)

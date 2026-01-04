@@ -15,6 +15,7 @@ interface AdminVideoCardProps {
 export default function AdminVideoCard({ video, index, onRefresh }: AdminVideoCardProps) {
   const [deleting, setDeleting] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
+  const [watermarking, setWatermarking] = useState(false)
   const { showToast } = useToast()
 
   const handleDelete = async () => {
@@ -37,6 +38,27 @@ export default function AdminVideoCard({ video, index, onRefresh }: AdminVideoCa
       showToast('Failed to delete video', 'error')
     } finally {
       setDeleting(false)
+    }
+  }
+
+  const handleWatermark = async () => {
+    try {
+      setWatermarking(true)
+      const response = await fetch(`/api/admin/videos/${video.id}/convert-hls`, {
+        method: 'POST',
+      })
+      const data = await response.json()
+
+      if (data.success) {
+        showToast('Please wait 10-15 minutes to apply the watermarks, depends on your video size', 'success')
+        onRefresh()
+      } else {
+        showToast('Failed to add watermark: ' + data.message, 'error')
+      }
+    } catch (error) {
+      showToast('Failed to add watermark', 'error')
+    } finally {
+      setWatermarking(false)
     }
   }
 
@@ -139,6 +161,16 @@ export default function AdminVideoCard({ video, index, onRefresh }: AdminVideoCa
 
           {/* Actions */}
           <div className="flex gap-2">
+            {video.hls_status === 'pending' && (
+              <button
+                onClick={handleWatermark}
+                disabled={watermarking}
+                className="px-4 py-2 bg-[#2A9E8B]/20 hover:bg-[#2A9E8B]/30 text-[#2A9E8B] text-sm rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                <Icon name="droplet" className="w-4 h-4" />
+                {watermarking ? 'Adding...' : 'Add Watermark'}
+              </button>
+            )}
             <button
               onClick={() => setShowConfirm(true)}
               disabled={deleting}

@@ -3,6 +3,8 @@ import { fetchWithAuth } from '@/lib/api'
 import { getAuthToken } from '@/lib/auth'
 import { IAPIResponse, ICourse } from '@/types/api'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
     const token = await getAuthToken()
@@ -14,7 +16,11 @@ export async function GET(request: NextRequest) {
     }
 
     const data = await fetchWithAuth<IAPIResponse<ICourse[]>>('/api/courses')
-    return NextResponse.json(data)
+    return NextResponse.json(data, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+      },
+    })
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json(

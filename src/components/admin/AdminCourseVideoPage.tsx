@@ -24,7 +24,9 @@ export default function AdminCourseVideoPage({ courseData: initialData }: AdminC
 
   const refreshCourseData = async () => {
     try {
-      const response = await fetch(`/api/courses/${courseData.course.id}`)
+      const response = await fetch(`/api/courses/${courseData.course.id}`, {
+        cache: 'no-store'
+      })
       const data = await response.json()
       if (data.success) {
         setCourseData({
