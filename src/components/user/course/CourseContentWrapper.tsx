@@ -41,9 +41,7 @@ export function CourseContentWrapper({ initialVideoId, courseData: initialCourse
       setError(false)
       
       try {
-        const response = await fetch(`/api/embed/${currentVideoId}`, {
-          cache: 'no-store'
-        })
+        const response = await fetch(`/api/embed/${currentVideoId}`)
         
         if (response.status === 401 || response.status === 403) {
           await fetch('/api/logout', { method: 'POST' }).catch(() => {})
