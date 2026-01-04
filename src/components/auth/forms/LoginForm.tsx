@@ -114,9 +114,9 @@ export function LoginForm({ onSuccess, onExpired }: LoginFormProps) {
         error={error}
       />
 
-      <LoginButton type="submit" isLoading={isLoading}>
+      {/* <LoginButton type="submit" isLoading={isLoading}>
         Login
-      </LoginButton>
+      </LoginButton> */}
     </form>
   )
 }
