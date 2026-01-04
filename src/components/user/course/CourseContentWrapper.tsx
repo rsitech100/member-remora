@@ -90,6 +90,8 @@ export function CourseContentWrapper({ initialVideoId, courseData: initialCourse
       )
     }))
     
+    await new Promise(resolve => setTimeout(resolve, 500))
+    
     try {
       const response = await fetch(`/api/courses/${courseData.course.id}`)
       const result: IAPIResponse<ICourseDetailData> = await response.json()
