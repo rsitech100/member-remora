@@ -64,6 +64,32 @@ export default function AdminVideoCard({ video, index, onRefresh }: AdminVideoCa
     }
   }
 
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'active':
+        return 'public'
+      case 'inactive':
+        return 'private'
+      default:
+        return status
+    }
+  }
+
+  const getHLSStatusText = (status: string) => {
+    switch (status) {
+      case 'ready':
+        return 'Video Ready'
+      case 'pending':
+        return 'Video Pending'
+      case 'processing':
+        return 'Video Processing'
+      case 'failed':
+        return 'Video Failed'
+      default:
+        return status
+    }
+  }
+
   return (
     <div className="bg-[#1a1a1a] rounded-xl p-4 border border-gray-800 hover:border-[#2A9E8B] transition-all">
       <div className="flex gap-4">
@@ -91,7 +117,7 @@ export default function AdminVideoCard({ video, index, onRefresh }: AdminVideoCa
                   video.status
                 )}`}
               >
-                {video.status}
+                {getStatusText(video.status)}
               </span>
               {video.hls_status && (
                 <span
@@ -99,7 +125,7 @@ export default function AdminVideoCard({ video, index, onRefresh }: AdminVideoCa
                     video.hls_status
                   )}`}
                 >
-                  HLS: {video.hls_status}
+                  {getHLSStatusText(video.hls_status)}
                 </span>
               )}
             </div>
