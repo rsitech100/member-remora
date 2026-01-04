@@ -41,7 +41,9 @@ export function CourseContentWrapper({ initialVideoId, courseData: initialCourse
       setError(false)
       
       try {
-        const response = await fetch(`/api/embed/${currentVideoId}`)
+        const response = await fetch(`/api/embed/${currentVideoId}`, {
+          cache: 'no-store'
+        })
         
         if (response.status === 401 || response.status === 403) {
           await fetch('/api/logout', { method: 'POST' }).catch(() => {})
@@ -93,7 +95,9 @@ export function CourseContentWrapper({ initialVideoId, courseData: initialCourse
     await new Promise(resolve => setTimeout(resolve, 500))
     
     try {
-      const response = await fetch(`/api/courses/${courseData.course.id}`)
+      const response = await fetch(`/api/courses/${courseData.course.id}`, {
+        cache: 'no-store'
+      })
       const result: IAPIResponse<ICourseDetailData> = await response.json()
       
       if (result.success && result.data) {
