@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import { generateCourseSlug } from '@/lib/utils'
 
 interface CourseCardSmallProps {
   id: string
@@ -22,9 +23,11 @@ export function CourseCardSmall({
   completed = false,
   status
 }: CourseCardSmallProps) {
+  const courseSlug = generateCourseSlug(title)
+  
   return (
     <Link 
-      href={`/course/${encodeURIComponent(title)}`}
+      href={`/course/${courseSlug}`}
       className="block relative flex-shrink-0 w-[340px] bg-[#2C2C38] rounded-xl overflow-hidden cursor-pointer hover:bg-[#353543] transition-all p-3"
     >
       <div className="relative w-full h-[180px] rounded-lg overflow-hidden mb-3">

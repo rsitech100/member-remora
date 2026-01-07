@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { ICourse } from '@/types/api'
 import AdminCourseList from './lists/AdminCourseList'
 import AdminCourseModal from './modal/AdminCourseModal'
@@ -8,9 +8,13 @@ import { Button } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/Icon'
 import { Container } from '@/components/layout/Container'
 
-export default function AdminPage() {
-  const [courses, setCourses] = useState<ICourse[]>([])
-  const [loading, setLoading] = useState(true)
+interface AdminPageProps {
+  initialCourses: ICourse[]
+}
+
+export default function AdminPage({ initialCourses }: AdminPageProps) {
+  const [courses, setCourses] = useState<ICourse[]>(initialCourses)
+  const [loading, setLoading] = useState(false)
   const [showModal, setShowModal] = useState(false)
   const [selectedCourse, setSelectedCourse] = useState<ICourse | null>(null)
 
@@ -30,10 +34,6 @@ export default function AdminPage() {
       setLoading(false)
     }
   }
-
-  useEffect(() => {
-    fetchCourses()
-  }, [])
 
   const handleCreateCourse = () => {
     setSelectedCourse(null)

@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import { generateCourseSlug } from '@/lib/utils'
 
 interface LastVideoCardProps {
   title: string
@@ -26,11 +27,13 @@ export function LastVideoCard({
   courseId,
   courseTitle
 }: LastVideoCardProps) {
+  const courseSlug = generateCourseSlug(courseTitle)
+  
   return (
     <div>
       <h2 className="text-[#2A9E8B] text-2xl font-semibold mb-4">Your Last Video</h2>
       
-      <Link href={`/course/${encodeURIComponent(courseTitle)}`} className="block">
+      <Link href={`/course/${courseSlug}`} className="block">
         <div className="relative w-full h-48 overflow-hidden">
         <Image
           src="/images/dummy-image.png"

@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
 import { redirect } from 'next/navigation'
 import { fetchWithAuth } from '@/lib/api'
-import { IAPIResponse, ICourseDetailData } from '@/types/api'
+import { IAPIResponse, ICourseDetailData, IEmbedData } from '@/types/api'
 import { Container } from '@/components/layout/Container'
 import { CourseContentWrapper } from './CourseContentWrapper'
 import { VideoPlayerSkeleton, CourseProgressSkeleton } from '@/components/ui/Skeleton'
@@ -12,6 +12,15 @@ async function getCourseVideos(courseId: string) {
     return response.data
   } catch (error) {
     redirect('/login')
+  }
+}
+
+async function getVideoEmbed(videoId: string) {
+  try {
+    const response = await fetchWithAuth<IAPIResponse<IEmbedData>>(`/api/embed/${videoId}`)
+    return response.data
+  } catch (error) {
+    return null
   }
 }
 
@@ -57,10 +66,13 @@ async function CourseContent({ id }: { id: string }) {
     redirect('/dashboard')
   }
 
+  const initialVideoData = await getVideoEmbed(videoId)
+
   return (
     <CourseContentWrapper 
       initialVideoId={videoId}
       courseData={courseData}
+      initialVideoData={initialVideoData}
     />
   )
 }

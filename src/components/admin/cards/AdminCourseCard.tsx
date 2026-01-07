@@ -7,6 +7,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useToast } from '@/components/ui/ToastProvider'
 import { ConfirmModal } from '@/components/ui/ConfirmModal'
+import { generateCourseSlug } from '@/lib/utils'
 
 interface AdminCourseCardProps {
   course: ICourse
@@ -81,7 +82,7 @@ export default function AdminCourseCard({ course, onEdit, onRefresh }: AdminCour
         {/* Actions */}
         <div className="flex flex-col sm:flex-row gap-2 pt-2">
           <Link
-            href={`/admin/courses/${course.title.toLowerCase().replace(/\s+/g, '-')}`}
+            href={`/admin/courses/${generateCourseSlug(course.title)}`}
             className="flex-1 bg-[#2A9E8B] hover:bg-[#248276] text-white text-sm font-medium py-2 rounded-lg text-center transition-colors"
           >
             Manage Videos

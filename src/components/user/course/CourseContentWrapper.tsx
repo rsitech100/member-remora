@@ -9,12 +9,13 @@ import { ICourseDetailData, IEmbedData, IAPIResponse } from '@/types/api'
 interface CourseContentWrapperProps {
   initialVideoId: string
   courseData: ICourseDetailData
+  initialVideoData: IEmbedData | null
 }
 
-export function CourseContentWrapper({ initialVideoId, courseData: initialCourseData }: CourseContentWrapperProps) {
+export function CourseContentWrapper({ initialVideoId, courseData: initialCourseData, initialVideoData }: CourseContentWrapperProps) {
   const [currentVideoId, setCurrentVideoId] = useState(initialVideoId)
-  const [videoData, setVideoData] = useState<IEmbedData | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [videoData, setVideoData] = useState<IEmbedData | null>(initialVideoData)
+  const [isLoading, setIsLoading] = useState(!initialVideoData)
   const [error, setError] = useState(false)
   const [isFetching, setIsFetching] = useState(false)
   const [courseData, setCourseData] = useState(initialCourseData)
@@ -34,6 +35,10 @@ export function CourseContentWrapper({ initialVideoId, courseData: initialCourse
 
   useEffect(() => {
     async function fetchVideo() {
+      if (currentVideoId === initialVideoId && videoData) {
+        return
+      }
+      
       if (isFetching) return
       
       setIsFetching(true)
