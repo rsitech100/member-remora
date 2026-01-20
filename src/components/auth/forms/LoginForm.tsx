@@ -99,7 +99,7 @@ export function LoginForm({ onSuccess, onExpired }: LoginFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+    <form /* onSubmit={handleSubmit} */ className="flex flex-col gap-6">
       <LoginInput
         placeholder="Phone Number"
         value={phoneNumber}
