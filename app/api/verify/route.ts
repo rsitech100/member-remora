@@ -36,19 +36,19 @@ export async function POST(request: NextRequest) {
     const data = await response.json()
 
     if (data.success && data.data?.token) {
-      console.log('Verify API - Setting cookie with token:', data.data.token.substring(0, 20) + '...')
       
       const res = NextResponse.json(data, { status: response.status })
       
+      const isSecure = process.env.NODE_ENV === 'production' && process.env.COOKIE_SECURE !== 'false'
+      
       res.cookies.set('auth_token', data.data.token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: isSecure,
         sameSite: 'lax',
         maxAge: 60 * 60 * 24 * 7,
         path: '/',
       })
 
-      console.log('Verify API - Cookie set successfully')
       return res
     }
 

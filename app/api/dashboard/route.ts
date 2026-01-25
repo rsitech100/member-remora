@@ -7,9 +7,6 @@ export async function GET(request: NextRequest) {
   try {
     const token = await getAuthToken()
     
-    console.log('Dashboard API - Token check:', token ? 'Token found' : 'No token')
-    console.log('Dashboard API - Cookies:', request.cookies.getAll())
-    
     if (!token) {
       return NextResponse.json(
         { success: false, message: 'Unauthorized - No token found' },
