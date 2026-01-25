@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
       
       const res = NextResponse.json(data, { status: response.status })
       
-      const isSecure = process.env.NODE_ENV === 'production' && process.env.COOKIE_SECURE !== 'false'
+      const isSecure = request.url.startsWith('https://')
       
       res.cookies.set('auth_token', data.data.token, {
         httpOnly: true,
