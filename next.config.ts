@@ -9,11 +9,16 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: '*',
       },
+      {
+        protocol: 'http',
+        hostname: '*',
+      },
     ],
   },
   experimental: {
     serverActions: {
       bodySizeLimit: '30000mb',
+      allowedOrigins: ['*'],
     },
     proxyClientMaxBodySize: 30000 * 1024 * 1024, // 30GB in bytes
   },
