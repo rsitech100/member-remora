@@ -28,6 +28,7 @@ export function Auth() {
   const handleOTPSuccess = async () => {
     try {
       const response = await fetch('/api/dashboard', {
+        credentials: 'include',
         headers: {
           'Cache-Control': 'no-cache',
         },

@@ -48,6 +48,7 @@ export function OTPForm({ phoneNumber, onSuccess }: OTPFormProps) {
     try {
       const response = await fetch('/api/verify', {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           phone_number: phoneNumber, 
