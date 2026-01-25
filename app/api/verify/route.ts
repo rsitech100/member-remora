@@ -36,6 +36,8 @@ export async function POST(request: NextRequest) {
     const data = await response.json()
 
     if (data.success && data.data?.token) {
+      console.log('Verify API - Setting cookie with token:', data.data.token.substring(0, 20) + '...')
+      
       const res = NextResponse.json(data, { status: response.status })
       
       res.cookies.set('auth_token', data.data.token, {
@@ -46,6 +48,7 @@ export async function POST(request: NextRequest) {
         path: '/',
       })
 
+      console.log('Verify API - Cookie set successfully')
       return res
     }
 
