@@ -28,6 +28,14 @@ export async function setAuthToken(token: string): Promise<void> {
       maxAge: COOKIE_MAX_AGE,
       path: '/',
     })
+    
+    cookieStore.set('auth_token_client', token, {
+      httpOnly: false,
+      secure: isSecure,
+      sameSite: 'lax',
+      maxAge: COOKIE_MAX_AGE,
+      path: '/',
+    })
   } catch (error) {
     throw error
   }
@@ -37,6 +45,7 @@ export async function removeAuthToken(): Promise<void> {
   try {
     const cookieStore = await cookies()
     cookieStore.delete(AUTH_COOKIE_NAME)
+    cookieStore.delete('auth_token_client')
   } catch (error) {
     // Silently fail
   }

@@ -9,6 +9,18 @@ import { Icon } from '@/components/ui/Icon'
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { useToast } from '@/components/ui/ToastProvider'
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || ''
+
+function getAuthToken(): string | null {
+  if (typeof document === 'undefined') return null
+  const cookies = document.cookie.split('; ')
+  let authCookie = cookies.find(c => c.startsWith('auth_token_client='))
+  if (!authCookie) {
+    authCookie = cookies.find(c => c.startsWith('auth_token='))
+  }
+  return authCookie ? authCookie.split('=')[1] : null
+}
+
 interface AdminVideoModalProps {
   video: IVideo | null
   courseId: number
@@ -125,7 +137,16 @@ export default function AdminVideoModal({ video, courseId, onClose, onSuccess }:
           resolve(null)
         })
 
-        xhr.open('POST', '/api/upload-original')
+        const token = getAuthToken()
+        if (!token) {
+          showToast('Please log out and log back in to enable direct uploads', 'warning')
+          setUploading(false)
+          resolve(null)
+          return
+        }
+
+        xhr.open('POST', `${API_BASE_URL}/api/upload-large`)
+        xhr.setRequestHeader('Authorization', `Bearer ${token}`)
         xhr.send(uploadFormData)
       } catch (error) {
         showToast('Failed to upload video', 'error')

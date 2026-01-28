@@ -48,6 +48,14 @@ export async function POST(request: NextRequest) {
         maxAge: 60 * 60 * 24 * 7,
         path: '/',
       })
+      
+      res.cookies.set('auth_token_client', data.data.token, {
+        httpOnly: false,
+        secure: isSecure,
+        sameSite: 'lax',
+        maxAge: 60 * 60 * 24 * 7,
+        path: '/',
+      })
 
       return res
     }
