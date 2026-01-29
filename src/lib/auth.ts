@@ -22,14 +22,6 @@ export async function setAuthToken(token: string): Promise<void> {
     const isSecure = process.env.COOKIE_SECURE === 'true' || false
     
     cookieStore.set(AUTH_COOKIE_NAME, token, {
-      httpOnly: true,
-      secure: isSecure,
-      sameSite: 'lax',
-      maxAge: COOKIE_MAX_AGE,
-      path: '/',
-    })
-    
-    cookieStore.set('auth_token_client', token, {
       httpOnly: false,
       secure: isSecure,
       sameSite: 'lax',
@@ -45,9 +37,7 @@ export async function removeAuthToken(): Promise<void> {
   try {
     const cookieStore = await cookies()
     cookieStore.delete(AUTH_COOKIE_NAME)
-    cookieStore.delete('auth_token_client')
   } catch (error) {
-    // Silently fail
   }
 }
 
@@ -159,7 +149,6 @@ export async function requireAuth(): Promise<AuthResult> {
 
   const { user } = dashboardData
   
-  // Check if user is admin and redirect appropriately
   if (user.role === 'admin' || user.role === 'superadmin') {
     redirect('/admin')
   }
@@ -171,19 +160,15 @@ export async function requireGuest(): Promise<void> {
   const token = await getAuthToken()
   
   if (!token) {
-    // No token, allow access to guest pages
     return
   }
 
-  // Has token, validate it
   const dashboardData = await fetchUserData()
   
   if (!dashboardData?.user) {
-    // Token was invalid and cleaned up, allow access
     return
   }
 
-  // Valid user exists, redirect based on role
   const { user } = dashboardData
   
   if (user.role === 'admin' || user.role === 'superadmin') {

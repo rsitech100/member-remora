@@ -42,14 +42,6 @@ export async function POST(request: NextRequest) {
       const isSecure = request.url.startsWith('https://')
       
       res.cookies.set('auth_token', data.data.token, {
-        httpOnly: true,
-        secure: isSecure,
-        sameSite: 'lax',
-        maxAge: 60 * 60 * 24 * 7,
-        path: '/',
-      })
-      
-      res.cookies.set('auth_token_client', data.data.token, {
         httpOnly: false,
         secure: isSecure,
         sameSite: 'lax',

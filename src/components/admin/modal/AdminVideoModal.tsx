@@ -9,15 +9,10 @@ import { Icon } from '@/components/ui/Icon'
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { useToast } from '@/components/ui/ToastProvider'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || ''
-
 function getAuthToken(): string | null {
   if (typeof document === 'undefined') return null
   const cookies = document.cookie.split('; ')
-  let authCookie = cookies.find(c => c.startsWith('auth_token_client='))
-  if (!authCookie) {
-    authCookie = cookies.find(c => c.startsWith('auth_token='))
-  }
+  const authCookie = cookies.find(c => c.startsWith('auth_token='))
   return authCookie ? authCookie.split('=')[1] : null
 }
 
@@ -139,13 +134,13 @@ export default function AdminVideoModal({ video, courseId, onClose, onSuccess }:
 
         const token = getAuthToken()
         if (!token) {
-          showToast('Please log out and log back in to enable direct uploads', 'warning')
+          showToast('Session expired. Please log in again.', 'error')
           setUploading(false)
           resolve(null)
           return
         }
 
-        xhr.open('POST', `${API_BASE_URL}/api/upload-large`)
+        xhr.open('POST', 'http://76.13.17.107:8080/api/upload-large')
         xhr.setRequestHeader('Authorization', `Bearer ${token}`)
         xhr.send(uploadFormData)
       } catch (error) {
@@ -276,7 +271,6 @@ export default function AdminVideoModal({ video, courseId, onClose, onSuccess }:
             </div>
           )}
 
-          {/* Title */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
               Video Title *
@@ -294,7 +288,6 @@ export default function AdminVideoModal({ video, courseId, onClose, onSuccess }:
             </div>
           </div>
 
-          {/* Subtitle */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
               Subtitle
@@ -311,7 +304,6 @@ export default function AdminVideoModal({ video, courseId, onClose, onSuccess }:
             </div>
           </div>
 
-          {/* Description */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
               Description
@@ -327,8 +319,6 @@ export default function AdminVideoModal({ video, courseId, onClose, onSuccess }:
           <div className="text-xs text-gray-500 mt-1">
               {formData.description.length}/1000 characters
           </div>
-          {/* Status and Order */}
-          {/* <div className="grid grid-cols-2 gap-4"> */}
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
                 Status
