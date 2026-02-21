@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useTransition } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useTransition, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { LoginModal } from '@/components/auth/modal/LoginModal'
 import { OTPModal } from '@/components/auth/modal/OTPModal'
 import { ExpiredModal } from '@/components/auth/modal/ExpiredModal'
@@ -11,6 +11,14 @@ export function Auth() {
   const [phoneNumber, setPhoneNumber] = useState('')
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
+  const searchParams = useSearchParams()
+
+  useEffect(() => {
+    const expired = searchParams.get('expired')
+    if (expired === 'true') {
+      setStep('expired')
+    }
+  }, [searchParams])
 
   const handleLoginSuccess = (phone: string) => {
     startTransition(() => {
@@ -25,7 +33,7 @@ export function Auth() {
     })
   }
 
-  const handleOTPSuccess = async () => {
+  const redirectToDashboard = async () => {
     try {
       const response = await fetch('/api/dashboard', {
         credentials: 'include',
@@ -34,10 +42,10 @@ export function Auth() {
         },
       })
       const data = await response.json()
-      
+
       if (data.success && data.data?.user?.role) {
         const role = data.data.user.role
-        
+
         if (role === 'admin' || role === 'superadmin') {
           router.push('/admin')
         } else {
@@ -51,9 +59,23 @@ export function Auth() {
     }
   }
 
+  const handleOTPSuccess = async () => {
+    await redirectToDashboard()
+  }
+
+  const handleDiscordSuccess = async () => {
+    await redirectToDashboard()
+  }
+
   const handleClose = () => {
     startTransition(() => {
       setStep('login')
+      if (typeof window !== 'undefined') {
+        const url = new URL(window.location.href)
+        url.searchParams.delete('error')
+        url.searchParams.delete('expired')
+        window.history.replaceState({}, '', url.pathname)
+      }
     })
   }
 
@@ -64,6 +86,7 @@ export function Auth() {
         onClose={handleClose}
         onSuccess={handleLoginSuccess}
         onExpired={handleLoginExpired}
+        onDiscordSuccess={handleDiscordSuccess}
       />
       
       <OTPModal

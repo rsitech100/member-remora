@@ -7,4 +7,5 @@ export interface IOTPForm {
 }
 
 export type TAuthStep = 'login' | 'otp' | 'expired'
+export type TLoginMethod = 'otp' | 'discord'
 export * from './api'
