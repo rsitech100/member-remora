@@ -63,9 +63,7 @@ export function DiscordLoginForm({ onSuccess, onError }: DiscordLoginFormProps) 
                   body: JSON.stringify({ token: event.data.token }),
                 })
                 const data = await response.json()
-                console.log('Token set in cookies:', data)
               } catch (error) {
-                console.error('Failed to set token in cookies:', error)
               }
             }
             onSuccess()
