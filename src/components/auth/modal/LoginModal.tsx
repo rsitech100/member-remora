@@ -32,10 +32,6 @@ export function LoginModal({ isOpen, onClose, onSuccess, onExpired, onDiscordSuc
     if (activeMethod === 'discord' && loginConfig.discord.enabled) {
       return (
         <div className="flex flex-col gap-4">
-          <DiscordLoginForm
-            onSuccess={onDiscordSuccess}
-            onError={(error) => setDiscordError(error)}
-          />
           {discordError && (
             <div className="flex items-center gap-2 text-red-500 text-sm animate-fade-in">
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -45,6 +41,10 @@ export function LoginModal({ isOpen, onClose, onSuccess, onExpired, onDiscordSuc
               <span>{discordError}</span>
             </div>
           )}
+          <DiscordLoginForm
+            onSuccess={onDiscordSuccess}
+            onError={(error) => setDiscordError(error)}
+          />
         </div>
       )
     }

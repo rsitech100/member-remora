@@ -30,8 +30,8 @@ function DiscordCallbackContent() {
         return
       }
 
-      const code = searchParams.get('code') //mandi anjing
-      const state = searchParams.get('state') //memek anjing
+      const code = searchParams.get('code') 
+      const state = searchParams.get('state')
 
       if (!code || !state) {
         setStatus('error')
