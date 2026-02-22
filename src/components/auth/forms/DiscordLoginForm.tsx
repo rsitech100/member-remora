@@ -14,7 +14,7 @@ export function DiscordLoginForm({ onSuccess, onError }: DiscordLoginFormProps) 
     setIsLoading(true)
 
     try {
-      const response = await fetch('/api/auth/discord')
+      const response = await fetch('/api/auth/discord?redirect_uri=' + encodeURIComponent(window.location.origin + '/auth/discord/callback'))
       const data = await response.json()
 
       if (!data.success || !data.data?.auth_url) {
@@ -44,7 +44,7 @@ export function DiscordLoginForm({ onSuccess, onError }: DiscordLoginFormProps) 
         return
       }
 
-      const handleMessage = (event: MessageEvent) => {
+      const handleMessage = async (event: MessageEvent) => {
         if (event.origin !== window.location.origin) return
 
         if (event.data?.type === 'discord-oauth-callback') {
@@ -53,6 +53,21 @@ export function DiscordLoginForm({ onSuccess, onError }: DiscordLoginFormProps) 
           popup.close()
 
           if (event.data.success) {
+            if (event.data.token) {
+              try {
+                const response = await fetch('/api/auth/set-token', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({ token: event.data.token }),
+                })
+                const data = await response.json()
+                console.log('Token set in cookies:', data)
+              } catch (error) {
+                console.error('Failed to set token in cookies:', error)
+              }
+            }
             onSuccess()
           } else {
             onError(event.data.error || 'Discord authentication failed')
@@ -81,7 +96,7 @@ export function DiscordLoginForm({ onSuccess, onError }: DiscordLoginFormProps) 
       <button
         onClick={handleDiscordLogin}
         disabled={isLoading}
-        className="w-full px-6 py-3.5 rounded-lg font-medium bg-[#5865F2] hover:bg-[#4752C4] text-white transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed group"
+        className="w-full px-6 py-3.5 rounded-lg font-medium bg-[#2A9E8B] hover:bg-[#248276] text-white transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed group"
       >
         {isLoading ? (
           <>

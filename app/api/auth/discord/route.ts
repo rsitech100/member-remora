@@ -11,7 +11,14 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const response = await fetch(`${apiUrl}/api/auth/discord`, {
+    const { searchParams } = new URL(request.url)
+    const redirectUri = searchParams.get('redirect_uri')
+    
+    const backendUrl = redirectUri 
+      ? `${apiUrl}/api/auth/discord?redirect_uri=${encodeURIComponent(redirectUri)}`
+      : `${apiUrl}/api/auth/discord`
+
+    const response = await fetch(backendUrl, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

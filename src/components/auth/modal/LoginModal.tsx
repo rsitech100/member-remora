@@ -109,13 +109,15 @@ export function LoginModal({ isOpen, onClose, onSuccess, onExpired, onDiscordSuc
           </div>
         </div>
 
-        <div className="flex-1 px-6 pb-8 relative mt-12 z-10 mb-12">
+        <div className="flex-1 px-6 pb-8 relative mt-12 z-10 mb-12 flex flex-col">
           <h1 className="text-4xl font-semibold text-[#2A9E8B] text-center mb-8">
             Mulai Perjalanan<br />Tradingmu
           </h1>
 
-          {renderLoginContent()}
-          {renderMethodSwitcher()}
+          <div className="mt-auto flex flex-col gap-4">
+            {renderLoginContent()}
+            {renderMethodSwitcher()}
+          </div>
         </div>
       </div>
 
@@ -135,13 +137,15 @@ export function LoginModal({ isOpen, onClose, onSuccess, onExpired, onDiscordSuc
         <div className="p-8 md:p-12 md:order-1 animate-slide-right relative">
           <RemoraLogo className="absolute top-8 left-8 md:top-12 md:left-12 animate-fade-in" width={50} height={50} />
           
-          <div className="flex flex-col gap-8 pt-16 md:pt-20">
+          <div className="flex flex-col h-full pt-20 md:pt-22">
             <h1 className="text-3xl md:text-5xl text-[#2A9E8B] animate-slide-up" style={{ animationDelay: '0.1s' }}>
               Mulai Perjalanan<br />Tradingmu
             </h1>
 
-            {renderLoginContent()}
-            {renderMethodSwitcher()}
+            <div className="mt-auto flex flex-col gap-6">
+              {renderLoginContent()}
+              {renderMethodSwitcher()}
+            </div>
           </div>
         </div>
       </div>

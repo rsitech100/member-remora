@@ -11,8 +11,27 @@ function DiscordCallbackContent() {
 
   useEffect(() => {
     const handleCallback = async () => {
-      const code = searchParams.get('code')
-      const state = searchParams.get('state')
+      const hash = window.location.hash.substring(1)
+      const hashParams = new URLSearchParams(hash)
+      const token = hashParams.get('token')
+
+      if (token) {
+        setStatus('success')
+        setMessage('Login successful! Redirecting...')
+        postMessageToOpener(true, '', token)
+        return
+      }
+
+      const error = hashParams.get('error')
+      if (error) {
+        setStatus('error')
+        setMessage(decodeURIComponent(error))
+        postMessageToOpener(false, decodeURIComponent(error))
+        return
+      }
+
+      const code = searchParams.get('code') //mandi anjing
+      const state = searchParams.get('state') //memek anjing
 
       if (!code || !state) {
         setStatus('error')
@@ -30,7 +49,7 @@ function DiscordCallbackContent() {
         if (data.success && data.data?.token) {
           setStatus('success')
           setMessage('Login successful! Redirecting...')
-          postMessageToOpener(true)
+          postMessageToOpener(true, '', data.data.token)
         } else {
           const errorMsg = data.message || 'Discord authentication failed'
           setStatus('error')
@@ -47,23 +66,22 @@ function DiscordCallbackContent() {
     handleCallback()
   }, [searchParams])
 
-  function postMessageToOpener(success: boolean, error?: string) {
+  function postMessageToOpener(success: boolean, error?: string, token?: string) {
     if (window.opener) {
       window.opener.postMessage(
         {
           type: 'discord-oauth-callback',
           success,
           error,
+          token,
         },
         window.location.origin
       )
 
-      // Auto-close popup after a brief delay
       setTimeout(() => {
         window.close()
       }, 1500)
     } else {
-      // If no opener (direct navigation), redirect to dashboard
       if (success) {
         setTimeout(() => {
           window.location.href = '/dashboard'
