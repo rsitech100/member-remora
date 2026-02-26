@@ -68,7 +68,7 @@ export function DiscordLoginForm({ onSuccess, onError }: DiscordLoginFormProps) 
             }
             onSuccess()
           } else {
-            onError('Failed to login. Please try again.')
+            onError('User not registered.')
             setIsLoading(false)
           }
         }
