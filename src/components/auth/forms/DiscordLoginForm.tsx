@@ -68,7 +68,7 @@ export function DiscordLoginForm({ onSuccess, onError }: DiscordLoginFormProps) 
             }
             onSuccess()
           } else {
-            onError(event.data.error || 'Discord authentication failed')
+            onError('Failed to login. Please try again.')
             setIsLoading(false)
           }
         }
