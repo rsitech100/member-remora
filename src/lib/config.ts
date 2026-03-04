@@ -7,3 +7,8 @@ export function getClientAdminRedirectUrl(token: string): string {
   if (!appConfig.adminAppUrl) return '/admin'
   return `${appConfig.adminAppUrl}/api/auth/set-token-redirect?token=${encodeURIComponent(token)}&redirect=/admin`
 }
+
+export function getMemberLoginUrl(): string {
+  if (!appConfig.memberAppUrl) return '/login'
+  return `${appConfig.memberAppUrl}/login`
+}

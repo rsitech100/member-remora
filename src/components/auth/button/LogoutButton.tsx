@@ -1,5 +1,7 @@
 'use client'
 
+import { getMemberLoginUrl } from '@/lib/config'
+
 export function LogoutButton() {
   const handleLogout = async () => {
     try {
@@ -11,7 +13,9 @@ export function LogoutButton() {
       })
     } catch (error) {
     }
-    window.location.href = '/login'
+    // Clear cookie client-side as well (cookie is not httpOnly)
+    document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+    window.location.href = getMemberLoginUrl()
   }
   
   return (

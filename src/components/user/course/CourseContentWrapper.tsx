@@ -50,7 +50,9 @@ export function CourseContentWrapper({ initialVideoId, courseData: initialCourse
         
         if (response.status === 401 || response.status === 403) {
           await fetch('/api/logout', { method: 'POST' }).catch(() => {})
-          window.location.href = '/login'
+          document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+          const memberUrl = process.env.NEXT_PUBLIC_MEMBER_APP_URL
+          window.location.href = memberUrl ? `${memberUrl}/login` : '/login'
           return
         }
         
@@ -60,7 +62,9 @@ export function CourseContentWrapper({ initialVideoId, courseData: initialCourse
           const msg = result.message.toLowerCase()
           if (msg.includes('unauthorized') || msg.includes('token') || msg.includes('expired')) {
             await fetch('/api/logout', { method: 'POST' }).catch(() => {})
-            window.location.href = '/login'
+            document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+            const memberUrl2 = process.env.NEXT_PUBLIC_MEMBER_APP_URL
+            window.location.href = memberUrl2 ? `${memberUrl2}/login` : '/login'
             return
           }
         }

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import { getMemberLoginUrl } from '@/lib/config'
 
 interface MobileMenuButtonProps {
   userName?: string
@@ -52,8 +53,12 @@ export function MobileMenuButton({ userName = 'Guest', userInitial = 'G', expira
 
           <div className="border-t border-[#2A9E8B]/20">
             <button
-              onClick={() => {
-                window.location.href = '/api/logout'
+              onClick={async () => {
+                try {
+                  await fetch('/api/logout', { method: 'POST' })
+                } catch {}
+                document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+                window.location.href = getMemberLoginUrl()
               }}
               className="flex items-center gap-3 px-4 py-3 hover:bg-[#2A9E8B]/20 transition-all duration-300 w-full group"
             >

@@ -7,8 +7,9 @@ export async function GET(request: NextRequest) {
     
     cookieStore.delete('auth_token')
     
+    // Clear with httpOnly false (matching how it was set)
     cookieStore.set('auth_token', '', {
-      httpOnly: true,
+      httpOnly: false,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 0,
@@ -16,18 +17,25 @@ export async function GET(request: NextRequest) {
       expires: new Date(0),
     })
     
-    return NextResponse.redirect(new URL('/login', request.url))
+    const memberUrl = process.env.NEXT_PUBLIC_MEMBER_APP_URL
+    const loginUrl = memberUrl ? `${memberUrl}/login` : new URL('/login', request.url).toString()
+    return NextResponse.redirect(loginUrl)
   } catch (error) {
-    return NextResponse.redirect(new URL('/login', request.url))
+    const memberUrl = process.env.NEXT_PUBLIC_MEMBER_APP_URL
+    const loginUrl = memberUrl ? `${memberUrl}/login` : new URL('/login', request.url).toString()
+    return NextResponse.redirect(loginUrl)
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
     const cookieStore = await cookies()
+
+    cookieStore.delete('auth_token')
     
+    // Clear with httpOnly false (matching how it was set)
     cookieStore.set('auth_token', '', {
-      httpOnly: true,
+      httpOnly: false,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 0,

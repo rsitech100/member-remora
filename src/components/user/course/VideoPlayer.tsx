@@ -56,7 +56,9 @@ const VideoPlayerComponent = ({
       // Handle authentication errors
       if (response.status === 401 || response.status === 403) {
         await fetch('/api/logout', { method: 'POST' }).catch(() => {})
-        window.location.href = '/login'
+        document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+        const memberUrl = process.env.NEXT_PUBLIC_MEMBER_APP_URL
+        window.location.href = memberUrl ? `${memberUrl}/login` : '/login'
         return
       }
       

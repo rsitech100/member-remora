@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import { getMemberLoginUrl } from '@/lib/config'
 
 export function SessionChecker() {
   const router = useRouter()
@@ -20,7 +21,8 @@ export function SessionChecker() {
       try {
         await fetch('/api/logout', { method: 'POST' }).catch(() => {})
       } finally {
-        window.location.href = '/login'
+        document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+        window.location.href = getMemberLoginUrl()
       }
     }
 

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import { getMemberLoginUrl } from '@/lib/config'
 
 interface UserProfileButtonProps {
   userName: string
@@ -34,7 +35,9 @@ export function UserProfileButton({ userName, userInitial }: UserProfileButtonPr
       })
     } catch (error) {
     }
-    window.location.href = '/login'
+    // Clear cookie client-side as well (cookie is not httpOnly)
+    document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+    window.location.href = getMemberLoginUrl()
   }
 
   return (

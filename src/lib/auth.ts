@@ -67,7 +67,9 @@ export async function clientLogout(): Promise<void> {
   }
   
   if (typeof window !== 'undefined') {
-    window.location.href = '/login'
+    document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+    const memberUrl = process.env.NEXT_PUBLIC_MEMBER_APP_URL
+    window.location.href = memberUrl ? `${memberUrl}/login` : '/login'
   }
 }
 
