@@ -5,19 +5,6 @@ import type { IUser, IDashboardData, IAPIResponse } from '@/types/api'
 const AUTH_COOKIE_NAME = 'auth_token'
 const API_BASE_URL = process.env.API_BASE_URL || process.env.NEXT_PUBLIC_BASE_URL
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 7 // 7 days
-const ADMIN_APP_URL = process.env.NEXT_PUBLIC_ADMIN_APP_URL || ''
-const MEMBER_APP_URL = process.env.NEXT_PUBLIC_MEMBER_APP_URL || ''
-
-
-export function getAdminRedirectUrl(token: string): string {
-  if (!ADMIN_APP_URL) return '/admin'
-  return `${ADMIN_APP_URL}/api/auth/set-token-redirect?token=${encodeURIComponent(token)}&redirect=/admin`
-}
-
-
-export function isAdminApp(): boolean {
-  return !ADMIN_APP_URL || ADMIN_APP_URL === MEMBER_APP_URL
-}
 
 export async function getAuthToken(): Promise<string | null> {
   try {
@@ -163,10 +150,6 @@ export async function requireAuth(): Promise<AuthResult> {
   const { user } = dashboardData
   
   if (user.role === 'admin' || user.role === 'superadmin') {
-    const token = await getAuthToken()
-    if (token && ADMIN_APP_URL) {
-      redirect(getAdminRedirectUrl(token))
-    }
     redirect('/admin')
   }
 
@@ -189,10 +172,6 @@ export async function requireGuest(): Promise<void> {
   const { user } = dashboardData
   
   if (user.role === 'admin' || user.role === 'superadmin') {
-    const token = await getAuthToken()
-    if (token && ADMIN_APP_URL) {
-      redirect(getAdminRedirectUrl(token))
-    }
     redirect('/admin')
   } else {
     redirect('/dashboard')

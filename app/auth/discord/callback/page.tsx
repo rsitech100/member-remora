@@ -66,7 +66,7 @@ function DiscordCallbackContent() {
     handleCallback()
   }, [searchParams])
 
-  async function postMessageToOpener(success: boolean, error?: string, token?: string) {
+  function postMessageToOpener(success: boolean, error?: string, token?: string) {
     if (window.opener) {
       window.opener.postMessage(
         {
@@ -82,24 +82,7 @@ function DiscordCallbackContent() {
         window.close()
       }, 1500)
     } else {
-      if (success && token) {
-        const adminAppUrl = process.env.NEXT_PUBLIC_ADMIN_APP_URL
-        if (adminAppUrl) {
-          try {
-            const res = await fetch('/api/dashboard', {
-              credentials: 'include',
-              headers: { 'Cache-Control': 'no-cache' },
-            })
-            const data = await res.json()
-            if (data.success && (data.data?.user?.role === 'admin' || data.data?.user?.role === 'superadmin')) {
-              setTimeout(() => {
-                window.location.href = `${adminAppUrl}/api/auth/set-token-redirect?token=${encodeURIComponent(token)}&redirect=/admin`
-              }, 1000)
-              return
-            }
-          } catch {
-          }
-        }
+      if (success) {
         setTimeout(() => {
           window.location.href = '/dashboard'
         }, 1000)

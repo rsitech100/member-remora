@@ -47,18 +47,6 @@ export function Auth() {
         const role = data.data.user.role
 
         if (role === 'admin' || role === 'superadmin') {
-          const adminAppUrl = process.env.NEXT_PUBLIC_ADMIN_APP_URL
-          if (adminAppUrl) {
-            const token = document.cookie
-              .split('; ')
-              .find(row => row.startsWith('auth_token='))
-              ?.split('=')[1]
-            
-            if (token) {
-              window.location.href = `${adminAppUrl}/api/auth/set-token-redirect?token=${encodeURIComponent(token)}&redirect=/admin`
-              return
-            }
-          }
           router.push('/admin')
         } else {
           router.push('/dashboard')
