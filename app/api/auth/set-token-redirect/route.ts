@@ -9,9 +9,12 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  const isSecure = request.url.startsWith('https://')
+  const host = request.headers.get('host') || request.headers.get('x-forwarded-host')
+  const proto = request.headers.get('x-forwarded-proto') || (request.url.startsWith('https://') ? 'https' : 'http')
+  const baseUrl = host ? `${proto}://${host}` : request.url
+  const isSecure = proto === 'https'
 
-  const response = NextResponse.redirect(new URL(redirectTo, request.url))
+  const response = NextResponse.redirect(new URL(redirectTo, baseUrl))
 
   response.cookies.set('auth_token', token, {
     httpOnly: false,
