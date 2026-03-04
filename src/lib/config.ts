@@ -10,5 +10,5 @@ export function getClientAdminRedirectUrl(token: string): string {
 
 export function getMemberLoginUrl(): string {
   if (!appConfig.memberAppUrl) return '/login'
-  return `${appConfig.memberAppUrl}/login`
+  return `${appConfig.memberAppUrl}/api/logout`
 }

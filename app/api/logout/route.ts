@@ -18,12 +18,23 @@ export async function GET(request: NextRequest) {
     })
     
     const memberUrl = process.env.NEXT_PUBLIC_MEMBER_APP_URL
-    const loginUrl = memberUrl ? `${memberUrl}/login` : new URL('/login', request.url).toString()
-    return NextResponse.redirect(loginUrl)
+    const adminUrl = process.env.NEXT_PUBLIC_ADMIN_APP_URL
+    
+    const host = request.headers.get('host') || ''
+    const isMemberApp = !memberUrl || memberUrl.includes(host)
+    
+    if (!isMemberApp && memberUrl) {
+      return NextResponse.redirect(`${memberUrl}/api/logout`)
+    }
+    
+    const proto = request.headers.get('x-forwarded-proto') || (request.url.startsWith('https://') ? 'https' : 'http')
+    const baseUrl = host ? `${proto}://${host}` : request.url
+    return NextResponse.redirect(new URL('/login', baseUrl))
   } catch (error) {
-    const memberUrl = process.env.NEXT_PUBLIC_MEMBER_APP_URL
-    const loginUrl = memberUrl ? `${memberUrl}/login` : new URL('/login', request.url).toString()
-    return NextResponse.redirect(loginUrl)
+    const host = request.headers.get('host') || ''
+    const proto = request.headers.get('x-forwarded-proto') || (request.url.startsWith('https://') ? 'https' : 'http')
+    const baseUrl = host ? `${proto}://${host}` : request.url
+    return NextResponse.redirect(new URL('/login', baseUrl))
   }
 }
 
