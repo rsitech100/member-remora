@@ -12,7 +12,7 @@ export const loginConfig: Record<LoginMethod, LoginMethodConfig> = {
     id: 'otp',
     label: 'Phone Number',
     description: 'Login with your phone number and OTP verification via WhatsApp',
-    enabled:false,  
+    enabled:true,  
   },
   discord: {
     id: 'discord',
