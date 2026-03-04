@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { RemoraLogo } from '@/components/ui/Icon'
+import { appConfig } from '@/lib/config'
 
 function DiscordCallbackContent() {
   const searchParams = useSearchParams()
@@ -83,8 +84,7 @@ function DiscordCallbackContent() {
       }, 1500)
     } else {
       if (success && token) {
-        const adminAppUrl = process.env.NEXT_PUBLIC_ADMIN_APP_URL
-        if (adminAppUrl) {
+        if (appConfig.adminAppUrl) {
           try {
             const res = await fetch('/api/dashboard', {
               credentials: 'include',
@@ -93,7 +93,7 @@ function DiscordCallbackContent() {
             const data = await res.json()
             if (data.success && (data.data?.user?.role === 'admin' || data.data?.user?.role === 'superadmin')) {
               setTimeout(() => {
-                window.location.href = `${adminAppUrl}/api/auth/set-token-redirect?token=${encodeURIComponent(token)}&redirect=/admin`
+                window.location.href = `${appConfig.adminAppUrl}/api/auth/set-token-redirect?token=${encodeURIComponent(token)}&redirect=/admin`
               }, 1000)
               return
             }
