@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { LoginModal } from '@/components/auth/modal/LoginModal'
 import { OTPModal } from '@/components/auth/modal/OTPModal'
 import { ExpiredModal } from '@/components/auth/modal/ExpiredModal'
+import { getClientAdminRedirectUrl, appConfig } from '@/lib/config'
 
 export function Auth() {
   const [step, setStep] = useState<'login' | 'otp' | 'expired'>('login')
@@ -47,6 +48,17 @@ export function Auth() {
         const role = data.data.user.role
 
         if (role === 'admin' || role === 'superadmin') {
+          if (appConfig.adminAppUrl) {
+            const token = document.cookie
+              .split('; ')
+              .find(row => row.startsWith('auth_token='))
+              ?.split('=')[1]
+            
+            if (token) {
+              window.location.href = getClientAdminRedirectUrl(token)
+              return
+            }
+          }
           router.push('/admin')
         } else {
           router.push('/dashboard')
