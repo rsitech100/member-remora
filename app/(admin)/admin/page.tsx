@@ -1,5 +1,6 @@
 import AdminPage from '@/components/admin/AdminPage'
 import { fetchWithAuth } from '@/lib/api'
+import { requireAdmin } from '@/lib/auth'
 import { IAPIResponse, ICourse } from '@/types/api'
 import { redirect } from 'next/navigation'
 
@@ -21,6 +22,7 @@ async function getCourses() {
 }
 
 export default async function AdminDashboardPage() {
+  const { user } = await requireAdmin()
   const courses = await getCourses()
-  return <AdminPage initialCourses={courses} />
+  return <AdminPage initialCourses={courses} initialEmail={user.email} />
 }
