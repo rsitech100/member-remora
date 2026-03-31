@@ -106,7 +106,7 @@ export default function UpdateEmailModal({ adminEmail, onClose, onSuccess }: Upd
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
-              Existing Email
+              Existing Email *
             </label>
             <Input
               type="email"
