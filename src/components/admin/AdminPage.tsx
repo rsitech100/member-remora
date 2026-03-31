@@ -20,7 +20,6 @@ export default function AdminPage({ initialCourses, initialEmail = '' }: AdminPa
   const [showModal, setShowModal] = useState(false)
   const [showEmailModal, setShowEmailModal] = useState(false)
   const [selectedCourse, setSelectedCourse] = useState<ICourse | null>(null)
-  const [currentEmail, setCurrentEmail] = useState(initialEmail)
 
   const fetchCourses = async () => {
     try {
@@ -59,8 +58,7 @@ export default function AdminPage({ initialCourses, initialEmail = '' }: AdminPa
     handleCloseModal()
   }
 
-  const handleEmailUpdateSuccess = (updatedEmail: string) => {
-    setCurrentEmail(updatedEmail)
+  const handleEmailUpdateSuccess = () => {
     setShowEmailModal(false)
   }
 
@@ -118,7 +116,7 @@ export default function AdminPage({ initialCourses, initialEmail = '' }: AdminPa
 
         {showEmailModal && (
           <UpdateEmailModal
-            currentEmail={currentEmail}
+            adminEmail={initialEmail}
             onClose={() => setShowEmailModal(false)}
             onSuccess={handleEmailUpdateSuccess}
           />

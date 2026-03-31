@@ -7,22 +7,39 @@ import { Input } from '@/components/ui/Input'
 import { useToast } from '@/components/ui/ToastProvider'
 
 interface UpdateEmailModalProps {
-  currentEmail: string
+  adminEmail: string
   onClose: () => void
-  onSuccess: (updatedEmail: string) => void
+  onSuccess: () => void
 }
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-export default function UpdateEmailModal({ currentEmail, onClose, onSuccess }: UpdateEmailModalProps) {
+export default function UpdateEmailModal({ adminEmail, onClose, onSuccess }: UpdateEmailModalProps) {
   const { showToast } = useToast()
+  const [existingEmail, setExistingEmail] = useState('')
   const [newEmail, setNewEmail] = useState('')
   const [saving, setSaving] = useState(false)
 
+  const trimmedExistingEmail = useMemo(() => existingEmail.trim(), [existingEmail])
   const trimmedNewEmail = useMemo(() => newEmail.trim(), [newEmail])
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+
+    if (!trimmedExistingEmail) {
+      showToast('Please enter existing email address', 'error')
+      return
+    }
+
+    if (!emailRegex.test(trimmedExistingEmail)) {
+      showToast('Please enter a valid existing email address', 'error')
+      return
+    }
+
+    if (trimmedExistingEmail.toLowerCase() === adminEmail.toLowerCase()) {
+      showToast('Existing email cannot be admin email', 'error')
+      return
+    }
 
     if (!trimmedNewEmail) {
       showToast('Please enter your new email address', 'error')
@@ -34,8 +51,8 @@ export default function UpdateEmailModal({ currentEmail, onClose, onSuccess }: U
       return
     }
 
-    if (trimmedNewEmail.toLowerCase() === currentEmail.toLowerCase()) {
-      showToast('New email must be different from current email', 'error')
+    if (trimmedNewEmail.toLowerCase() === trimmedExistingEmail.toLowerCase()) {
+      showToast('New email must be different from existing email', 'error')
       return
     }
 
@@ -48,7 +65,7 @@ export default function UpdateEmailModal({ currentEmail, onClose, onSuccess }: U
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          current_email: currentEmail,
+          current_email: trimmedExistingEmail,
           new_email: trimmedNewEmail,
         }),
       })
@@ -61,7 +78,7 @@ export default function UpdateEmailModal({ currentEmail, onClose, onSuccess }: U
       }
 
       showToast('Email updated successfully', 'success')
-      onSuccess(trimmedNewEmail)
+      onSuccess()
     } catch (error) {
       showToast('Failed to update email', 'error')
     } finally {
@@ -92,9 +109,11 @@ export default function UpdateEmailModal({ currentEmail, onClose, onSuccess }: U
               Existing Email
             </label>
             <Input
-              value={currentEmail || '-'}
-              readOnly
-              disabled
+              type="email"
+              value={existingEmail}
+              onChange={(event) => setExistingEmail(event.target.value)}
+              placeholder="Enter existing email"
+              required
               className="w-full"
             />
           </div>
