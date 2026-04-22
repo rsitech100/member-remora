@@ -18,7 +18,7 @@ export async function GET(
 
     const { id } = await params
     
-    const data = await fetchWithAuth<IAPIResponse<IEmbedData>>(`/api/embed/${id}`)
+    const data = await fetchWithAuth<IAPIResponse<IEmbedData>>(`/api/v2/user/video/${id}/play`)
     
     return NextResponse.json(data)
   } catch (error) {

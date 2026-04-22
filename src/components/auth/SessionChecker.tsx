@@ -57,8 +57,7 @@ export function SessionChecker() {
             await handleLogout()
           }
         }
-      } catch (error) {
-        console.error('Session check error:', error)
+      } catch {
       }
     }
 

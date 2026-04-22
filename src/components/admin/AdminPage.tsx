@@ -24,7 +24,7 @@ export default function AdminPage({ initialCourses, initialEmail = '' }: AdminPa
   const fetchCourses = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/courses', {
+      const response = await fetch('/api/admin/courses', {
         cache: 'no-store'
       })
       const data = await response.json()

@@ -9,6 +9,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const token = await getAuthToken()
     if (!token) {
       return NextResponse.json(
@@ -17,8 +18,7 @@ export async function POST(
       )
     }
 
-    const { id } = await params
-    const data = await fetchWithAuth(`/api/videos/${id}/convert-hls`, {
+    const data = await fetchWithAuth(`/api/v2/admin/video/${id}/otp`, {
       method: 'POST',
     })
     

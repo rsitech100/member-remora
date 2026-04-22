@@ -26,13 +26,14 @@ export default function AdminVideoCard({ video, index, onRefresh }: AdminVideoCa
       const response = await fetch(`/api/admin/videos/${video.id}`, {
         method: 'DELETE',
       })
-      const data = await response.json()
+      const data = await response.json().catch(() => null)
+      const isSuccess = response.ok && (data === null || data?.success === true)
 
-      if (data.success) {
+      if (isSuccess) {
         showToast('Video deleted successfully', 'success')
         onRefresh()
       } else {
-        showToast('Failed to delete video: ' + data.message, 'error')
+        showToast('Failed to delete video: ' + (data?.message || 'Unknown error'), 'error')
       }
     } catch (error) {
       showToast('Failed to delete video', 'error')
@@ -116,7 +117,7 @@ export default function AdminVideoCard({ video, index, onRefresh }: AdminVideoCa
     <div className="bg-[#1a1a1a] rounded-xl p-4 border border-gray-800 hover:border-[#2A9E8B] transition-all">
       <div className="flex gap-4">
         {/* Video Number */}
-        <div className="flex-shrink-0 w-12 h-12 bg-[#2A9E8B]/10 rounded-lg flex items-center justify-center">
+        <div className="shrink-0 w-12 h-12 bg-[#2A9E8B]/10 rounded-lg flex items-center justify-center">
           <span className="text-[#2A9E8B] font-bold text-lg">{index + 1}</span>
         </div>
 
@@ -133,7 +134,7 @@ export default function AdminVideoCard({ video, index, onRefresh }: AdminVideoCa
             </div>
 
             {/* Status Badges */}
-            <div className="flex gap-2 flex-shrink-0">
+            <div className="flex gap-2 shrink-0">
               <span
                 className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(
                   video.status

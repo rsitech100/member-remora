@@ -28,13 +28,14 @@ export default function AdminCourseCard({ course, onEdit, onRefresh }: AdminCour
       const response = await fetch(`/api/admin/courses/${course.id}`, {
         method: 'DELETE',
       })
-      const data = await response.json()
+      const data = await response.json().catch(() => null)
+      const isSuccess = response.ok && (data === null || data?.success === true)
 
-      if (data.success) {
+      if (isSuccess) {
         showToast('Course deleted successfully', 'success')
         onRefresh()
       } else {
-        showToast('Failed to delete course: ' + data.message, 'error')
+        showToast('Failed to delete course: ' + (data?.message || 'Unknown error'), 'error')
       }
     } catch (error) {
       showToast('Failed to delete course', 'error')
@@ -45,7 +46,6 @@ export default function AdminCourseCard({ course, onEdit, onRefresh }: AdminCour
 
   return (
     <div className="bg-[#1a1a1a] rounded-xl overflow-hidden border border-gray-800 hover:border-[#2A9E8B] transition-all group">
-      {/* Course Image */}
       <div className="relative h-50 bg-gray-800">
         {course.image ? (
           <Image
@@ -61,7 +61,6 @@ export default function AdminCourseCard({ course, onEdit, onRefresh }: AdminCour
         )}
       </div>
 
-      {/* Course Info */}
       <div className="p-4 space-y-3">
         <div>
           <h3 className="text-lg font-semibold text-white line-clamp-1">
@@ -70,7 +69,7 @@ export default function AdminCourseCard({ course, onEdit, onRefresh }: AdminCour
           <p className="text-sm text-gray-400 line-clamp-1">{course.subtitle}</p>
         </div>
 
-        <p className="text-sm text-gray-500 line-clamp-2 min-h-[40px]">
+        <p className="text-sm text-gray-500 line-clamp-2 min-h-10">
           {course.description}
         </p>
 
@@ -79,10 +78,9 @@ export default function AdminCourseCard({ course, onEdit, onRefresh }: AdminCour
           <span>{course.videos?.length || 0} videos</span>
         </div>
 
-        {/* Actions */}
         <div className="flex flex-col sm:flex-row gap-2 pt-2">
           <Link
-            href={`/admin/courses/${generateCourseSlug(course.title)}`}
+            href={`/admin/courses/${course.id}-${generateCourseSlug(course.title)}`}
             className="flex-1 bg-[#2A9E8B] hover:bg-[#248276] text-white text-sm font-medium py-2 rounded-lg text-center transition-colors"
           >
             Manage Videos

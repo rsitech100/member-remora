@@ -105,7 +105,7 @@ export default function AdminCourseModal({ course, onClose, onSuccess }: AdminCo
       const url = isEditing
         ? `/api/admin/courses/${course.id}`
         : '/api/admin/courses'
-      const method = isEditing ? 'PUT' : 'POST'
+      const method = isEditing ? 'PATCH' : 'POST'
 
       const response = await fetch(url, {
         method,

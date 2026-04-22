@@ -14,25 +14,55 @@ interface AdminCourseVideoPageProps {
   courseData: ICourseDetailData
 }
 
+type AdminCourseDetailResponse =
+  | ICourseDetailData
+  | {
+      id: number
+      title: string
+      subtitle?: string
+      description?: string
+      image?: string
+      thumbnail_url?: string
+      videos?: IVideo[]
+    }
+
+function isNestedCourseData(data: AdminCourseDetailResponse): data is ICourseDetailData {
+  return typeof data === 'object' && data !== null && 'course' in data
+}
+
+function normalizeCourseData(data: AdminCourseDetailResponse): ICourseDetailData {
+  if (isNestedCourseData(data)) {
+    return {
+      ...data,
+      videos: data.videos || [],
+    }
+  }
+
+  return {
+    course: {
+      id: data.id,
+      title: data.title,
+      subtitle: data.subtitle || '',
+      description: data.description || '',
+      image: data.image || data.thumbnail_url || '',
+    },
+    videos: data.videos || [],
+  }
+}
+
 export default function AdminCourseVideoPage({ courseData: initialData }: AdminCourseVideoPageProps) {
-  const [courseData, setCourseData] = useState({
-    ...initialData,
-    videos: initialData.videos || []
-  })
+  const [courseData, setCourseData] = useState(normalizeCourseData(initialData))
   const [showVideoModal, setShowVideoModal] = useState(false)
   const [selectedVideo, setSelectedVideo] = useState<IVideo | null>(null)
 
   const refreshCourseData = async () => {
     try {
-      const response = await fetch(`/api/courses/${courseData.course.id}`, {
+      const response = await fetch(`/api/admin/courses/${courseData.course.id}`, {
         cache: 'no-store'
       })
       const data = await response.json()
       if (data.success) {
-        setCourseData({
-          ...data.data,
-          videos: data.data.videos || []
-        })
+        setCourseData(normalizeCourseData(data.data))
       }
     } catch (error) { 
       // Silent error handling

@@ -53,13 +53,21 @@ export async function fetchAPI<T>(
       cache: 'no-store',
     })
 
+    const responseText = await response.text().catch(() => '')
+
+    let responseJson: unknown = null
+    try {
+      responseJson = responseText ? JSON.parse(responseText) : null
+    } catch {
+      responseJson = responseText
+    }
+
     if (!response.ok) {
-      const errorText = await response.text().catch(() => '')
       const apiError = new APIError(
         response.status,
         response.statusText,
         endpoint,
-        errorText
+        responseText
       )
       
       if (apiError.isAuthError()) {
@@ -69,7 +77,7 @@ export async function fetchAPI<T>(
       throw apiError
     }
 
-    return response.json()
+    return responseJson as T
   } catch (error) {
     if (error instanceof APIError || (error && typeof error === 'object' && 'digest' in error)) {
       throw error

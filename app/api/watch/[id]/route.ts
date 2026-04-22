@@ -17,7 +17,7 @@ export async function GET(
     }
 
     const { id } = await params
-    const data = await fetchWithAuth<IAPIResponse<IWatchVideoData>>(`/api/watch/${id}`)
+    const data = await fetchWithAuth<IAPIResponse<IWatchVideoData>>(`/api/v2/user/video/${id}`)
     return NextResponse.json(data)
   } catch (error) {
     if (error && typeof error === 'object' && 'digest' in error && String(error.digest).includes('NEXT_REDIRECT')) {

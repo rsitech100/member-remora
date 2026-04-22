@@ -9,11 +9,12 @@ import { Icon } from '@/components/ui/Icon'
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { useToast } from '@/components/ui/ToastProvider'
 
-function getAuthToken(): string | null {
-  if (typeof document === 'undefined') return null
-  const cookies = document.cookie.split('; ')
-  const authCookie = cookies.find(c => c.startsWith('auth_token='))
-  return authCookie ? authCookie.split('=')[1] : null
+type UploadSessionData = {
+  video_id: number
+  upload_link: string
+  s3_client_payload: Record<string, unknown>
+  expires_in?: number
+  vdocipher_video_id?: string
 }
 
 interface AdminVideoModalProps {
@@ -25,6 +26,7 @@ interface AdminVideoModalProps {
 
 export default function AdminVideoModal({ video, courseId, onClose, onSuccess }: AdminVideoModalProps) {
   const { showToast } = useToast()
+  const MAX_UPLOAD_SIZE_BYTES = 5 * 1024 * 1024 * 1024
   const [formData, setFormData] = useState({
     title: video?.title || '',
     subtitle: video?.subtitle || '',
@@ -39,21 +41,58 @@ export default function AdminVideoModal({ video, courseId, onClose, onSuccess }:
   const [uploadedBytes, setUploadedBytes] = useState<number>(0)
   const [totalBytes, setTotalBytes] = useState<number>(0)
   const [saving, setSaving] = useState(false)
-  const [uploadedVideoUrl, setUploadedVideoUrl] = useState<string>(video?.original_video || '')
   const fileInputRef = useRef<HTMLInputElement>(null)
   const uploadStartTimeRef = useRef<number>(0)
 
   const isEditing = !!video
 
-  const handleVideoSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleVideoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
+      if (file.size > MAX_UPLOAD_SIZE_BYTES) {
+        showToast('Maksimum ukuran video 5GB untuk upload browser VdoCipher', 'warning')
+        setVideoFile(null)
+        e.target.value = ''
+        return
+      }
+
       setVideoFile(file)
-      await uploadVideo(file)
+      setUploadProgress(0)
+      setUploadSpeed('')
+      setUploadedBytes(0)
+      setTotalBytes(file.size)
     }
   }
 
-  const uploadVideo = async (file: File): Promise<string | null> => {
+  const initiateUploadSession = async (): Promise<UploadSessionData | null> => {
+    const payload = {
+      course_id: courseId,
+      title: formData.title,
+      subtitle: formData.subtitle,
+      description: formData.description,
+      thumbnail_url: '',
+      order: formData.order,
+    }
+
+    const response = await fetch(`/api/admin/videos?course_id=${courseId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+
+    const data = await response.json()
+    if (!response.ok || !data.success || !data.data?.upload_link || !data.data?.video_id) {
+      throw new Error(data.message || 'Failed to initialize video upload')
+    }
+
+    return data.data as UploadSessionData
+  }
+
+  const uploadVideoToVdoCipher = async (
+    file: File,
+    uploadLink: string,
+    s3ClientPayload: Record<string, unknown>
+  ): Promise<boolean> => {
     return new Promise((resolve) => {
       try {
         setUploading(true)
@@ -64,6 +103,17 @@ export default function AdminVideoModal({ video, courseId, onClose, onSuccess }:
         uploadStartTimeRef.current = Date.now()
 
         const uploadFormData = new FormData()
+        Object.entries(s3ClientPayload).forEach(([key, value]) => {
+          if (value === null || value === undefined) return
+
+          if (typeof value === 'object') {
+            uploadFormData.append(key, JSON.stringify(value))
+            return
+          }
+
+          uploadFormData.append(key, String(value))
+        })
+
         uploadFormData.append('file', file)
 
         const xhr = new XMLHttpRequest()
@@ -85,70 +135,39 @@ export default function AdminVideoModal({ video, courseId, onClose, onSuccess }:
         })
 
         xhr.addEventListener('load', () => {
-          if (xhr.status === 200) {
-            try {
-              const data = JSON.parse(xhr.responseText)
-              if (data.success && data.data?.file_url) {
-                setUploadedVideoUrl(data.data.file_url)
-                showToast('Video uploaded successfully', 'success')
-                resolve(data.data.file_url)
-              } else {
-                setVideoFile(null)
-                const errorMsg = data.message || 'Upload failed'
-                showToast(errorMsg, 'error')
-                resolve(null)
-              }
-            } catch (error) {
-              setVideoFile(null)
-              showToast('Failed to process upload response', 'error')
-              resolve(null)
-            }
+          if (xhr.status >= 200 && xhr.status < 300) {
+            resolve(true)
           } else {
-            try {
-              const data = JSON.parse(xhr.responseText)
-              const errorMsg = data.message || `Upload failed with status: ${xhr.status}`
-              setVideoFile(null)
-              showToast(errorMsg, 'error')
-            } catch {
-              setVideoFile(null)
-              showToast(`Upload failed with status: ${xhr.status}`, 'error')
-            }
-            resolve(null)
+            resolve(false)
           }
           setUploading(false)
         })
 
         xhr.addEventListener('error', () => {
-          setVideoFile(null)
-          showToast('Network error during upload', 'error')
           setUploading(false)
-          resolve(null)
+          resolve(false)
         })
 
         xhr.addEventListener('abort', () => {
-          setVideoFile(null)
-          showToast('Upload cancelled', 'warning')
           setUploading(false)
-          resolve(null)
+          resolve(false)
         })
 
-        const token = getAuthToken()
-        if (!token) {
-          showToast('Session expired. Please log in again.', 'error')
-          setUploading(false)
-          resolve(null)
-          return
-        }
-
-        xhr.open('POST', 'http://76.13.17.107:8080/api/upload-large')
-        xhr.setRequestHeader('Authorization', `Bearer ${token}`)
+        xhr.open('POST', uploadLink)
         xhr.send(uploadFormData)
       } catch (error) {
-        showToast('Failed to upload video', 'error')
         setUploading(false)
-        resolve(null)
+        resolve(false)
       }
     })
+  }
+
+  const syncVideoState = async (videoId: number) => {
+    try {
+      await fetch(`/api/admin/videos/${videoId}`, { cache: 'no-store' })
+    } catch {
+      // Silent sync attempt
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -167,33 +186,65 @@ export default function AdminVideoModal({ video, courseId, onClose, onSuccess }:
     try {
       setSaving(true)
 
-      const payload = {
-        course_id: courseId,
-        title: formData.title,
-        subtitle: formData.subtitle,
-        description: formData.description,
-        original_video: uploadedVideoUrl,
-        status: formData.status,
-        order: formData.order,
-      }
+      if (isEditing) {
+        const payload = {
+          course_id: courseId,
+          title: formData.title,
+          subtitle: formData.subtitle,
+          description: formData.description,
+          status: formData.status,
+          order: formData.order,
+        }
 
-      const response = await fetch('/api/admin/videos', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      })
+        const response = await fetch(`/api/admin/videos/${video.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        })
 
-      const data = await response.json()
-      if (data.success) {
-        showToast('Video saved successfully', 'success')
+        const data = await response.json()
+        if (!data.success) {
+          showToast('Failed to save video: ' + data.message, 'error')
+          return
+        }
+
+        showToast('Video updated successfully', 'success')
         onSuccess()
-      } else {
-        showToast('Failed to save video: ' + data.message, 'error')
+        return
       }
+
+      if (!videoFile) {
+        showToast('Please select a video file', 'warning')
+        return
+      }
+
+      const session = await initiateUploadSession()
+      if (!session) {
+        showToast('Failed to initialize video upload', 'error')
+        return
+      }
+
+      const uploaded = await uploadVideoToVdoCipher(
+        videoFile,
+        session.upload_link,
+        session.s3_client_payload
+      )
+
+      if (!uploaded) {
+        showToast('Failed to upload video file to VdoCipher', 'error')
+        return
+      }
+
+      await syncVideoState(session.video_id)
+
+      showToast('Video uploaded successfully. Processing may take a few minutes.', 'success')
+      onSuccess()
     } catch (error) {   
-      showToast('Failed to save video', 'error')
+      const errorMessage = error instanceof Error ? error.message : 'Failed to save video'
+      showToast(errorMessage, 'error')
     } finally {
       setSaving(false)
+      setUploading(false)
     }
   }
 

@@ -105,6 +105,7 @@ export function CourseContentWrapper({ initialVideoId, courseData: initialCourse
       const response = await fetch(`/api/courses/${courseData.course.id}`, {
         cache: 'no-store'
       })
+
       const result: IAPIResponse<ICourseDetailData> = await response.json()
       
       if (result.success && result.data) {

@@ -14,7 +14,7 @@ export const revalidate = 0
 
 async function getCourses() {
   try {
-    const response = await fetchWithAuth<IAPIResponse<ICourse[]>>('/api/courses')
+    const response = await fetchWithAuth<IAPIResponse<ICourse[]>>('/api/v2/admin/course')
     return response.data
   } catch (error) {
     redirect('/login')
