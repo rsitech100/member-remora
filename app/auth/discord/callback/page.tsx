@@ -9,6 +9,48 @@ function DiscordCallbackContent() {
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
   const [message, setMessage] = useState('Authenticating with Discord...')
 
+  async function postMessageToOpener(success: boolean, error?: string, token?: string) {
+    if (window.opener) {
+      window.opener.postMessage(
+        {
+          type: 'discord-oauth-callback',
+          success,
+          error,
+          token,
+        },
+        window.location.origin
+      )
+
+      setTimeout(() => {
+        window.close()
+      }, 1500)
+    } else {
+      if (success && token) {
+        try {
+          const res = await fetch('/api/dashboard', {
+            credentials: 'include',
+            headers: { 'Cache-Control': 'no-cache' },
+          })
+          const data = await res.json()
+          if (data.success && (data.data?.user?.role === 'admin' || data.data?.user?.role === 'superadmin')) {
+            setTimeout(() => {
+              window.location.href = '/admin'
+            }, 1000)
+            return
+          }
+        } catch {
+        }
+        setTimeout(() => {
+          window.location.href = '/dashboard'
+        }, 1000)
+      } else {
+        setTimeout(() => {
+          window.location.href = '/login'
+        }, 2000)
+      }
+    }
+  }
+
   useEffect(() => {
     const handleCallback = async () => {
       const hash = window.location.hash.substring(1)
@@ -56,7 +98,7 @@ function DiscordCallbackContent() {
           setMessage(errorMsg)
           postMessageToOpener(false, errorMsg)
         }
-      } catch (error) {
+      } catch {
         setStatus('error')
         setMessage('Failed to complete authentication')
         postMessageToOpener(false, 'Failed to complete authentication')
@@ -65,48 +107,6 @@ function DiscordCallbackContent() {
 
     handleCallback()
   }, [searchParams])
-
-  async function postMessageToOpener(success: boolean, error?: string, token?: string) {
-    if (window.opener) {
-      window.opener.postMessage(
-        {
-          type: 'discord-oauth-callback',
-          success,
-          error,
-          token,
-        },
-        window.location.origin
-      )
-
-      setTimeout(() => {
-        window.close()
-      }, 1500)
-    } else {
-      if (success && token) {
-        try {
-          const res = await fetch('/api/dashboard', {
-            credentials: 'include',
-            headers: { 'Cache-Control': 'no-cache' },
-          })
-          const data = await res.json()
-          if (data.success && (data.data?.user?.role === 'admin' || data.data?.user?.role === 'superadmin')) {
-            setTimeout(() => {
-              window.location.href = '/admin'
-            }, 1000)
-            return
-          }
-        } catch {
-        }
-        setTimeout(() => {
-          window.location.href = '/dashboard'
-        }, 1000)
-      } else {
-        setTimeout(() => {
-          window.location.href = '/login'
-        }, 2000)
-      }
-    }
-  }
 
   return (
     <div className="min-h-screen bg-[#0a0e14] flex items-center justify-center p-4">

@@ -8,14 +8,7 @@ import { Input } from '@/components/ui/Input'
 import { Icon } from '@/components/ui/Icon'
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { useToast } from '@/components/ui/ToastProvider'
-
-type UploadSessionData = {
-  video_id: number
-  upload_link: string
-  s3_client_payload: Record<string, unknown>
-  expires_in?: number
-  vdocipher_video_id?: string
-}
+import { adminInitVideoUploadSession, adminSyncVideoState, adminUpdateVideo, type UploadSessionData } from '@/actions/admin'
 
 interface AdminVideoModalProps {
   video: IVideo | null
@@ -74,18 +67,12 @@ export default function AdminVideoModal({ video, courseId, onClose, onSuccess }:
       order: formData.order,
     }
 
-    const response = await fetch(`/api/admin/videos?course_id=${courseId}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    })
-
-    const data = await response.json()
-    if (!response.ok || !data.success || !data.data?.upload_link || !data.data?.video_id) {
-      throw new Error(data.message || 'Failed to initialize video upload')
+    const result = await adminInitVideoUploadSession(courseId, payload)
+    if (!result.ok) {
+      throw new Error(result.message || 'Failed to initialize video upload')
     }
 
-    return data.data as UploadSessionData
+    return result.data
   }
 
   const uploadVideoToVdoCipher = async (
@@ -155,7 +142,7 @@ export default function AdminVideoModal({ video, courseId, onClose, onSuccess }:
 
         xhr.open('POST', uploadLink)
         xhr.send(uploadFormData)
-      } catch (error) {
+      } catch {
         setUploading(false)
         resolve(false)
       }
@@ -164,7 +151,7 @@ export default function AdminVideoModal({ video, courseId, onClose, onSuccess }:
 
   const syncVideoState = async (videoId: number) => {
     try {
-      await fetch(`/api/admin/videos/${videoId}`, { cache: 'no-store' })
+      await adminSyncVideoState(videoId)
     } catch {
       // Silent sync attempt
     }
@@ -196,15 +183,9 @@ export default function AdminVideoModal({ video, courseId, onClose, onSuccess }:
           order: formData.order,
         }
 
-        const response = await fetch(`/api/admin/videos/${video.id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        })
-
-        const data = await response.json()
-        if (!data.success) {
-          showToast('Failed to save video: ' + data.message, 'error')
+        const result = await adminUpdateVideo(video.id, payload)
+        if (!result.ok) {
+          showToast('Failed to save video: ' + (result.message || 'Unknown error'), 'error')
           return
         }
 

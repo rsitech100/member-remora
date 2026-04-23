@@ -1,15 +1,15 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef } from 'react'
 import { ICourse } from '@/types/api'
 import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Icon } from '@/components/ui/Icon'
 import { Loading } from '@/components/ui/Loading'
-import { ProgressBar } from '@/components/ui/ProgressBar'
 import { useToast } from '@/components/ui/ToastProvider'
 import Image from 'next/image'
+import { adminCreateCourse, adminUpdateCourse } from '@/actions/admin'
 
 interface AdminCourseModalProps {
   course: ICourse | null
@@ -25,7 +25,7 @@ export default function AdminCourseModal({ course, onClose, onSuccess }: AdminCo
     description: course?.description || '',
     image: course?.image || '',
   })
-  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState(course?.image || '')
   const [uploading, setUploading] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -102,25 +102,17 @@ export default function AdminCourseModal({ course, onClose, onSuccess }: AdminCo
         image: uploadedImageUrl,
       }
 
-      const url = isEditing
-        ? `/api/admin/courses/${course.id}`
-        : '/api/admin/courses'
-      const method = isEditing ? 'PATCH' : 'POST'
+      const result = isEditing
+        ? await adminUpdateCourse(course.id, payload)
+        : await adminCreateCourse(payload)
 
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      })
-
-      const data = await response.json()
-      if (data.success) {
+      if (result.ok) {
         showToast('Course saved successfully', 'success')
         onSuccess()
       } else {
-        showToast('Failed to save course: ' + data.message, 'error')
+        showToast('Failed to save course: ' + (result.message || 'Unknown error'), 'error')
       }
-    } catch (error) {
+    } catch {
       showToast('Failed to save course', 'error')
     } finally {
       setSaving(false)

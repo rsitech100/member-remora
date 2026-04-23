@@ -23,7 +23,7 @@ export function transformCoursesForCarousel(courses: ICourse[]) {
     title: item.title,
     description: item.description,
     thumbnail: item.image || '/images/dummy-image.png',
-    duration: `${item.videos?.length || 0} Videos`,
+    duration: `${item.video_count ?? item.videos?.length ?? 0} Videos`,
     instructor: item.subtitle,
     completed: index === 0,
     status: index === 0 ? ('completed' as const) : index === 1 ? ('now_watching' as const) : undefined,

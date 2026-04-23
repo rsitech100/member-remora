@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { LoginInput } from '@/components/auth/input/LoginInput'
 import { LoginButton } from '@/components/auth/button/LoginButton'
+import { requestLoginOtp } from '@/actions/auth'
 
 interface LoginFormProps {
   onSuccess: (phoneNumber: string) => void
@@ -61,15 +62,15 @@ export function LoginForm({ onSuccess, onExpired }: LoginFormProps) {
     setError('')
 
     try {
-      const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone_number: phoneNumber }),
-      })
+      const result = await requestLoginOtp(phoneNumber)
+      if (!result.ok) {
+        setError(result.message || 'Invalid phone number. Please try again')
+        return
+      }
 
-      const data = await response.json()
+      const data = result.data
 
-      if (response.ok && data.success) {
+      if (data.success) {
         onSuccess(phoneNumber)
       } else {
         if (data.expired || data.status === 403 || data.error === 'expired_subscription' || data.message?.toLowerCase().includes('expired')) {
@@ -91,7 +92,7 @@ export function LoginForm({ onSuccess, onExpired }: LoginFormProps) {
           setError(errorMessage)
         }
       }
-    } catch (error) {
+    } catch {
       setError('Invalid phone number. Please try again')
     } finally {
       setIsLoading(false)

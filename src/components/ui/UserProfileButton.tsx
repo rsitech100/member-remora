@@ -27,13 +27,13 @@ export function UserProfileButton({ userName, userInitial }: UserProfileButtonPr
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/logout', { 
+      await fetch('/api/auth/logout', { 
         method: 'POST',
         headers: {
           'Cache-Control': 'no-cache',
         },
       })
-    } catch (error) {
+    } catch {
     }
     // Clear cookie client-side as well (cookie is not httpOnly)
     document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'

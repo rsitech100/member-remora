@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { fetchWithAuth } from '@/lib/api'
 import { getAuthToken } from '@/lib/auth'
-import { IAPIResponse, IWatchHLSData } from '@/types/api'
+import { IAPIResponse, IWatchVideoData } from '@/types/api'
 
 export async function GET(
   request: NextRequest,
@@ -17,9 +17,7 @@ export async function GET(
     }
 
     const { id } = await params
-    
-    const data = await fetchWithAuth<IAPIResponse<IWatchHLSData>>(`/api/watch-hls/${id}`)
-    
+    const data = await fetchWithAuth<IAPIResponse<IWatchVideoData>>(`/api/v2/user/video/${id}`)
     return NextResponse.json(data)
   } catch (error) {
     if (error && typeof error === 'object' && 'digest' in error && String(error.digest).includes('NEXT_REDIRECT')) {
@@ -27,8 +25,9 @@ export async function GET(
     }
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json(
-      { success: false, message: 'Failed to fetch HLS playlist', error: errorMessage },
+      { success: false, message: 'Failed to fetch video', error: errorMessage },
       { status: 500 }
     )
   }
 }
+

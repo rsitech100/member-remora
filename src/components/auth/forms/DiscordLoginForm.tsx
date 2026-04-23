@@ -62,8 +62,8 @@ export function DiscordLoginForm({ onSuccess, onError }: DiscordLoginFormProps) 
                   },
                   body: JSON.stringify({ token: event.data.token }),
                 })
-                const data = await response.json()
-              } catch (error) {
+                await response.json().catch(() => null)
+              } catch {
               }
             }
             onSuccess()
@@ -83,7 +83,7 @@ export function DiscordLoginForm({ onSuccess, onError }: DiscordLoginFormProps) 
           setIsLoading(false)
         }
       }, 500)
-    } catch (error) {
+    } catch {
       onError('Failed to connect to Discord. Please try again.')
       setIsLoading(false)
     }

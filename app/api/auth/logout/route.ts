@@ -18,7 +18,6 @@ export async function GET(request: NextRequest) {
     })
     
     const memberUrl = process.env.NEXT_PUBLIC_MEMBER_APP_URL
-    const adminUrl = process.env.NEXT_PUBLIC_ADMIN_APP_URL
     
     const host = request.headers.get('host') || ''
     const isMemberApp = !memberUrl || memberUrl.includes(host)
@@ -30,7 +29,7 @@ export async function GET(request: NextRequest) {
     const proto = request.headers.get('x-forwarded-proto') || (request.url.startsWith('https://') ? 'https' : 'http')
     const baseUrl = host ? `${proto}://${host}` : request.url
     return NextResponse.redirect(new URL('/login', baseUrl))
-  } catch (error) {
+  } catch {
     const host = request.headers.get('host') || ''
     const proto = request.headers.get('x-forwarded-proto') || (request.url.startsWith('https://') ? 'https' : 'http')
     const baseUrl = host ? `${proto}://${host}` : request.url
@@ -38,7 +37,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
     const cookieStore = await cookies()
 
@@ -55,7 +54,8 @@ export async function POST(request: NextRequest) {
     })
     
     return NextResponse.json({ success: true, message: 'Logged out successfully' })
-  } catch (error) {
+  } catch {
     return NextResponse.json({ success: false, message: 'Logout failed' }, { status: 500 })
   }
 }
+

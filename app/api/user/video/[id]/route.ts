@@ -8,6 +8,7 @@ interface V2UserVideoData {
   title?: string
   description?: string
   playback_url?: string
+  original_url?: string
   thumbnail_url?: string
   duration?: number
   expires_in?: number
@@ -18,12 +19,19 @@ interface V2UserVideoData {
 
 function toEmbedResponse(id: string, payload: IAPIResponse<V2UserVideoData>): IAPIResponse<IEmbedData> {
   const source = payload?.data || {}
-  const apiBaseUrl = process.env.API_BASE_URL || process.env.NEXT_PUBLIC_BASE_URL || ''
+  const apiBaseUrl = (process.env.API_BASE_URL || process.env.NEXT_PUBLIC_BASE_URL || '').replace(/\/$/, '')
   const playPath = `/api/v2/user/video/${id}/play`
+
+  const playbackUrl = source.playback_url
+    ? source.playback_url.startsWith('http')
+      ? source.playback_url
+      : `${apiBaseUrl}${source.playback_url}`
+    : ''
 
   const embedUrl =
     source.embed_url ||
-    source.playback_url ||
+    playbackUrl ||
+    source.original_url ||
     (source.video_token ? `${apiBaseUrl}${playPath}?video_token=${encodeURIComponent(source.video_token)}` : `${apiBaseUrl}${playPath}`)
 
   return {
@@ -39,7 +47,7 @@ function toEmbedResponse(id: string, payload: IAPIResponse<V2UserVideoData>): IA
 }
 
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -68,3 +76,4 @@ export async function GET(
     )
   }
 }
+

@@ -1,7 +1,6 @@
 import { requireAdmin } from '@/lib/auth'
 import { Header } from '@/components/layout/Header'
 import { SessionChecker } from '@/components/auth/SessionChecker'
-import { Container } from '@/components/layout/Container'
 import { CourseProvider } from '@/contexts/CourseContext'
 import { getCourseMapping } from '@/lib/courseMapping'
 
@@ -10,7 +9,7 @@ export default async function AdminLayoutWrapper({
 }: {
   children: React.ReactNode
 }) {
-  const { user, dashboardData } = await requireAdmin()
+  const { dashboardData } = await requireAdmin()
   const courseMapping = await getCourseMapping()
 
   return (

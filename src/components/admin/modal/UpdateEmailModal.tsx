@@ -5,6 +5,7 @@ import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { useToast } from '@/components/ui/ToastProvider'
+import { adminUpdateEmail } from '@/actions/admin'
 
 interface UpdateEmailModalProps {
   adminEmail: string
@@ -59,27 +60,16 @@ export default function UpdateEmailModal({ adminEmail, onClose, onSuccess }: Upd
     try {
       setSaving(true)
 
-      const response = await fetch('/api/admin/email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          current_email: trimmedExistingEmail,
-          new_email: trimmedNewEmail,
-        }),
-      })
+      const result = await adminUpdateEmail(trimmedExistingEmail, trimmedNewEmail)
 
-      const data = await response.json()
-
-      if (!response.ok || !data.success) {
-        showToast(data.message || 'Failed to update email', 'error')
+      if (!result.ok) {
+        showToast(result.message || 'Failed to update email', 'error')
         return
       }
 
       showToast('Email updated successfully', 'success')
       onSuccess()
-    } catch (error) {
+    } catch {
       showToast('Failed to update email', 'error')
     } finally {
       setSaving(false)

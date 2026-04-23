@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { OTPInput } from '@/components/auth/input/OTPInput'
 import { ResendButton } from '@/components/auth/button/ResendButton'
 import { SubmitOTPButton } from '@/components/auth/button/SubmitOTPButton'
+import { requestLoginOtp, verifyOtp } from '@/actions/auth'
 
 interface OTPFormProps {
   phoneNumber: string
@@ -18,17 +19,16 @@ export function OTPForm({ phoneNumber, onSuccess }: OTPFormProps) {
   const handleResend = async () => {
     setError('')
     try {
-      const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone_number: phoneNumber }),
-      })
-
-      const data = await response.json()
-      if (!response.ok || !data.success) {
-        setError(data.error || 'Failed to resend OTP')
+      const result = await requestLoginOtp(phoneNumber)
+      if (!result.ok) {
+        setError(result.message || 'Failed to resend OTP')
+        return
       }
-    } catch (error) {
+
+      if (!result.data.success) {
+        setError(result.data.error || 'Failed to resend OTP')
+      }
+    } catch {
       setError('Failed to resend OTP. Please try again')
     }
   }
@@ -46,25 +46,22 @@ export function OTPForm({ phoneNumber, onSuccess }: OTPFormProps) {
     setError('')
 
     try {
-      const response = await fetch('/api/verify', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          phone_number: phoneNumber, 
-          verification_code: otpValue 
-        }),
-      })
+      const result = await verifyOtp(phoneNumber, otpValue)
+      if (!result.ok) {
+        setError(result.message || 'Invalid OTP. Please try again')
+        setOtp(Array(6).fill(''))
+        return
+      }
 
-      const data = await response.json()
+      const data = result.data
 
-      if (response.ok && data.success) {
+      if (data.success) {
         onSuccess()
       } else {
         setError(data.error || 'Invalid OTP. Please try again')
         setOtp(Array(6).fill(''))
       }
-    } catch (error) {
+    } catch {
       setError('Invalid OTP. Please try again')
       setOtp(Array(6).fill(''))
     } finally {

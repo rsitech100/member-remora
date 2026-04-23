@@ -13,7 +13,6 @@ interface CourseCardProps {
 }
 
 export function CourseCard({
-  id,
   title,
   description,
   thumbnail,

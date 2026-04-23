@@ -5,7 +5,7 @@ export interface IUser {
   email: string
   phone_number: string
   role: string
-  expires_at: string
+  expires_at?: string
 }
 
 export interface IVideo {
@@ -36,6 +36,8 @@ export interface ICourse {
   subtitle: string
   description: string
   image?: string
+  duration?: number
+  video_count?: number
   videos: IVideo[]
 }
 
@@ -44,6 +46,7 @@ export interface IDashboardCourse {
   title: string
   description: string
   subtitle: string
+  image_url?: string
   progress: string
   completed_videos: number
   total_videos: number

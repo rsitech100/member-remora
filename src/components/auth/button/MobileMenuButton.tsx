@@ -55,7 +55,7 @@ export function MobileMenuButton({ userName = 'Guest', userInitial = 'G', expira
             <button
               onClick={async () => {
                 try {
-                  await fetch('/api/logout', { method: 'POST' })
+                  await fetch('/api/auth/logout', { method: 'POST' })
                 } catch {}
                 document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
                 window.location.href = getMemberLoginUrl()

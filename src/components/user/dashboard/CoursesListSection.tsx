@@ -13,7 +13,7 @@ async function getDashboardData() {
   try {
     const response = await fetchWithAuth<IAPIResponse<IDashboardData>>('/api/dashboard')
     return response.data
-  } catch (error) {
+  } catch {
     redirect('/login')
   }
 }
@@ -27,7 +27,7 @@ async function getCourses() {
   try {
     const response = await fetchWithAuth<IAPIResponse<ICourse[]>>('/api/v2/user/course')
     return response.data
-  } catch (error) {
+  } catch {
     redirect('/login')
   }
 }
@@ -41,40 +41,42 @@ export async function CoursesListSection() {
   if (!dashboardData) return null
 
   const dashboardCourses = dashboardData.courses || []
-  const allCoursesMap = new Map(allCourses.map((course) => [course.id, course]))
+  const dashboardCourseIds = new Set(dashboardCourses.map((course) => course.course_id))
+  const visibleCourses = allCourses.filter((course) => dashboardCourseIds.has(course.id))
+  const dashboardCoursesMap = new Map(dashboardCourses.map((course) => [course.course_id, course]))
 
   const lastWatchedCourse = dashboardCourses.find(dc => dc.last_watched_video)
 
-  const coursesToDisplay = dashboardCourses
-    .map((dashboardCourse) => {
-      const course = allCoursesMap.get(dashboardCourse.course_id)
-      if (!course) return null
-
+  const coursesToDisplay = visibleCourses.map((course) => {
+    const dashboardCourse = dashboardCoursesMap.get(course.id)
     const isLastWatched = lastWatchedCourse?.course_id === course.id
-    
+
     let status: 'completed' | 'now_watching' | 'in_progress' | 'not_started' = 'not_started'
-    
-    if (dashboardCourse.status === 'completed') {
+
+    if (dashboardCourse?.status === 'completed') {
       status = 'completed'
-    } else if (isLastWatched && dashboardCourse.completed_videos > 0) {
+    } else if (isLastWatched && (dashboardCourse?.completed_videos || 0) > 0) {
       status = 'now_watching'
-    } else if (dashboardCourse.completed_videos > 0) {
+    } else if ((dashboardCourse?.completed_videos || 0) > 0) {
       status = 'in_progress'
-    } else {
-      status = 'not_started'
     }
-    
+
+    const fallbackVideoCount = course.video_count ?? course.videos?.length ?? 0
+    const hasDashboardTotals = (dashboardCourse?.total_videos || 0) > 0
+    const duration = hasDashboardTotals
+      ? `${dashboardCourse?.completed_videos || 0}/${dashboardCourse?.total_videos || 0} Videos`
+      : `${fallbackVideoCount} Videos`
+
     return {
       id: course.id.toString(),
       title: course.title,
       description: course.description,
       thumbnail: course.image || '/images/dummy-image.png',
-      duration: dashboardCourse?.progress || `${course.videos?.length || 0} Videos`,
+      duration,
       instructor: course.subtitle,
       status,
     }
   })
-  .filter((course): course is NonNullable<typeof course> => course !== null)
 
   return (
     <div className="space-y-4">

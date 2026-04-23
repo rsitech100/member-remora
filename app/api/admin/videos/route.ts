@@ -49,7 +49,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { course_id, ...requestBody } = body
+    const requestBody = { ...body }
+    delete requestBody.course_id
 
     const data = await fetchWithAuth(`/api/v2/admin/video?course_id=${encodeURIComponent(courseId)}`, {
       method: 'POST',

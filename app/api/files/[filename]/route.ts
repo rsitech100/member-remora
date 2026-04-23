@@ -45,7 +45,7 @@ export async function GET(
         'Accept-Ranges': 'bytes',
       },
     })
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { success: false, message: 'Failed to fetch file' },
       { status: 500 }

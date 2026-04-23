@@ -14,7 +14,6 @@ interface CourseCardSmallProps {
 }
 
 export function CourseCardSmall({
-  id,
   title,
   description,
   thumbnail,

@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     await setAuthToken(token)
 
     return NextResponse.json({ success: true, message: 'Token set successfully' })
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { success: false, message: 'Failed to set token' },
       { status: 500 }

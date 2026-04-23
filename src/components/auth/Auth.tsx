@@ -1,24 +1,20 @@
 'use client'
 
-import { useState, useTransition, useEffect } from 'react'
+import { useState, useTransition } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { LoginModal } from '@/components/auth/modal/LoginModal'
 import { OTPModal } from '@/components/auth/modal/OTPModal'
 import { ExpiredModal } from '@/components/auth/modal/ExpiredModal'
+import { fetchDashboardRole } from '@/actions/auth'
 
 export function Auth() {
-  const [step, setStep] = useState<'login' | 'otp' | 'expired'>('login')
-  const [phoneNumber, setPhoneNumber] = useState('')
-  const [isPending, startTransition] = useTransition()
-  const router = useRouter()
   const searchParams = useSearchParams()
-
-  useEffect(() => {
-    const expired = searchParams.get('expired')
-    if (expired === 'true') {
-      setStep('expired')
-    }
-  }, [searchParams])
+  const [step, setStep] = useState<'login' | 'otp' | 'expired'>(() =>
+    searchParams.get('expired') === 'true' ? 'expired' : 'login'
+  )
+  const [phoneNumber, setPhoneNumber] = useState('')
+  const [, startTransition] = useTransition()
+  const router = useRouter()
 
   const handleLoginSuccess = (phone: string) => {
     startTransition(() => {
@@ -35,26 +31,19 @@ export function Auth() {
 
   const redirectToDashboard = async () => {
     try {
-      const response = await fetch('/api/dashboard', {
-        credentials: 'include',
-        headers: {
-          'Cache-Control': 'no-cache',
-        },
-      })
-      const data = await response.json()
+      const result = await fetchDashboardRole()
+      if (!result.ok) {
+        router.push('/dashboard')
+        return
+      }
 
-      if (data.success && data.data?.user?.role) {
-        const role = data.data.user.role
-
-        if (role === 'admin' || role === 'superadmin') {
-          router.push('/admin')
-        } else {
-          router.push('/dashboard')
-        }
+      const role = result.data.role
+      if (role === 'admin' || role === 'superadmin') {
+        router.push('/admin')
       } else {
         router.push('/dashboard')
       }
-    } catch (error) {
+    } catch {
       router.push('/dashboard')
     }
   }

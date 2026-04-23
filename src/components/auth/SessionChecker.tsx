@@ -1,11 +1,10 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { useRouter } from 'next/navigation'
 import { getMemberLoginUrl } from '@/lib/config'
+import { fetchDashboardRole } from '@/actions/auth'
 
 export function SessionChecker() {
-  const router = useRouter()
   const isLoggingOut = useRef(false)
   const hasRedirected = useRef(false)
 
@@ -19,7 +18,7 @@ export function SessionChecker() {
       hasRedirected.current = true
       
       try {
-        await fetch('/api/logout', { method: 'POST' }).catch(() => {})
+        await fetch('/api/auth/logout', { method: 'POST' }).catch(() => {})
       } finally {
         document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
         window.location.href = getMemberLoginUrl()
@@ -32,30 +31,10 @@ export function SessionChecker() {
       }
 
       try {
-        const response = await fetch('/api/dashboard', {
-          redirect: 'manual',
-          headers: {
-            'Cache-Control': 'no-cache',
-          },
-        })
-        
-        const isAuthError = response.type === 'opaqueredirect' || 
-                           response.status === 307 || 
-                           response.status === 401 ||
-                           response.status === 403
-        
-        if (isAuthError) {
+        const result = await fetchDashboardRole()
+        if (!result.ok && result.auth) {
           await handleLogout()
           return
-        }
-
-        if (response.ok) {
-          const data = await response.json()
-          if (!data.success || data.message?.toLowerCase().includes('unauthorized') || 
-              data.message?.toLowerCase().includes('invalid token') ||
-              data.message?.toLowerCase().includes('session expired')) {
-            await handleLogout()
-          }
         }
       } catch {
       }
@@ -68,7 +47,7 @@ export function SessionChecker() {
     return () => {
       clearInterval(intervalId)
     }
-  }, [router])
+  }, [])
 
   return null
 }

@@ -20,11 +20,9 @@ export function LastVideoCard({
   description,
   instructor,
   instructorRole,
-  thumbnail,
   duration,
   totalVideos,
   language,
-  courseId,
   courseTitle
 }: LastVideoCardProps) {
   const courseSlug = generateCourseSlug(courseTitle)

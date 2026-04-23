@@ -9,6 +9,7 @@ import Image from 'next/image'
 import AdminVideoModal from './modal/AdminVideoModal'
 import AdminVideoList from './lists/AdminVideoList'
 import { Container } from '@/components/layout/Container'
+import { adminFetchCourse } from '@/actions/admin'
 
 interface AdminCourseVideoPageProps {
   courseData: ICourseDetailData
@@ -57,14 +58,11 @@ export default function AdminCourseVideoPage({ courseData: initialData }: AdminC
 
   const refreshCourseData = async () => {
     try {
-      const response = await fetch(`/api/admin/courses/${courseData.course.id}`, {
-        cache: 'no-store'
-      })
-      const data = await response.json()
-      if (data.success) {
-        setCourseData(normalizeCourseData(data.data))
+      const result = await adminFetchCourse(courseData.course.id)
+      if (result.ok) {
+        setCourseData(normalizeCourseData(result.data as AdminCourseDetailResponse))
       }
-    } catch (error) { 
+    } catch { 
       // Silent error handling
     }
   }

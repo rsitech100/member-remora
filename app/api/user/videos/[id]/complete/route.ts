@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { fetchWithAuth } from '@/lib/api'
 import { getAuthToken } from '@/lib/auth'
-import { IAPIResponse, IWatchVideoData } from '@/types/api'
 
-export async function GET(
+export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -17,16 +16,18 @@ export async function GET(
     }
 
     const { id } = await params
-    const data = await fetchWithAuth<IAPIResponse<IWatchVideoData>>(`/api/v2/user/video/${id}`)
+    const data = await fetchWithAuth(`/api/videos/${id}/complete`, {
+      method: 'POST',
+    })
     return NextResponse.json(data)
   } catch (error) {
     if (error && typeof error === 'object' && 'digest' in error && String(error.digest).includes('NEXT_REDIRECT')) {
       throw error
     }
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json(
-      { success: false, message: 'Failed to fetch video', error: errorMessage },
+      { success: false, message: 'Failed to mark video as complete' },
       { status: 500 }
     )
   }
 }
+

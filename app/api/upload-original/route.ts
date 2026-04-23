@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
       }
       
       return NextResponse.json(data, { status: response.status })
-    } catch (parseError) {
+    } catch {
       return NextResponse.json(
         { success: false, message: responseText || 'Upload failed' },
         { status: 500 }

@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(data, { status: response.status })
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { 
         success: false, 
@@ -64,3 +64,4 @@ export async function POST(request: NextRequest) {
     )
   }
 }
+

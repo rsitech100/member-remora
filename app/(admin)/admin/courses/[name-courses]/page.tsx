@@ -48,7 +48,7 @@ async function getCourseData(id: string) {
   try {
     const response = await fetchWithAuth<IAPIResponse<AdminCourseApiData>>(`/api/v2/admin/course/${id}`)
     return normalizeCourseData(response.data)
-  } catch (error) {
+  } catch {
     return null
   }
 }

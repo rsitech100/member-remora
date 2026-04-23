@@ -1,5 +1,4 @@
 import { getAuthToken, removeAuthToken } from './auth'
-import { redirect } from 'next/navigation'
 
 const API_BASE_URL = process.env.API_BASE_URL || process.env.NEXT_PUBLIC_BASE_URL
 

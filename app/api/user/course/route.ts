@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { fetchWithAuth } from '@/lib/api'
-import { getAuthToken } from '@/lib/auth'
+import { NextResponse } from 'next/server'
+import { fetchWithAuth, APIError } from '@/lib/api'
+import { getAuthToken, removeAuthToken } from '@/lib/auth'
 import { IAPIResponse, ICourse, IVideo } from '@/types/api'
 
 export const dynamic = 'force-dynamic'
@@ -25,6 +25,8 @@ interface V2Course {
   description: string
   image?: string
   thumbnail_url?: string
+  duration?: number
+  video_count?: number
   videos?: V2Video[]
 }
 
@@ -53,17 +55,21 @@ function mapVideo(video: V2Video): IVideo {
 }
 
 function mapCourse(course: V2Course): ICourse {
+  const mappedVideos = (course.videos || []).map(mapVideo)
+  const videoCount = typeof course.video_count === 'number' ? course.video_count : mappedVideos.length
   return {
     id: course.id,
     title: course.title,
     subtitle: course.subtitle,
     description: course.description,
     image: course.image || course.thumbnail_url || '',
-    videos: (course.videos || []).map(mapVideo),
+    duration: course.duration,
+    video_count: videoCount,
+    videos: mappedVideos,
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const token = await getAuthToken()
     if (!token) {
@@ -85,6 +91,28 @@ export async function GET(request: NextRequest) {
       },
     })
   } catch (error) {
+    if (error && typeof error === 'object' && 'digest' in error && String(error.digest).includes('NEXT_REDIRECT')) {
+      throw error
+    }
+
+    if (error instanceof APIError) {
+      if (error.isAuthError()) {
+        await removeAuthToken().catch(() => {})
+
+        const response = NextResponse.json(
+          { success: false, message: 'Session expired - Please login again', error: error.message },
+          { status: 401 }
+        )
+        response.cookies.delete('auth_token')
+        return response
+      }
+
+      return NextResponse.json(
+        { success: false, message: 'API request failed', error: error.message },
+        { status: error.status }
+      )
+    }
+
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json(
       { success: false, message: 'Failed to fetch courses', error: errorMessage },

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef, memo } from 'react'
 import { Loading } from '@/components/ui/Loading'
 import { IEmbedData } from '@/types/api'
+import { completeUserVideo } from '@/actions/user'
 
 interface VideoPlayerProps {
   videoData: IEmbedData | null
@@ -48,14 +49,9 @@ const VideoPlayerComponent = ({
     hasCompletedRef.current = true
     
     try {
-      const response = await fetch(`/api/videos/${currentVideoId}/complete`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      })
-      
-      // Handle authentication errors
-      if (response.status === 401 || response.status === 403) {
-        await fetch('/api/logout', { method: 'POST' }).catch(() => {})
+      const result = await completeUserVideo(currentVideoId)
+      if (!result.ok && result.auth) {
+        await fetch('/api/auth/logout', { method: 'POST' }).catch(() => {})
         document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
         const memberUrl = process.env.NEXT_PUBLIC_MEMBER_APP_URL
         window.location.href = memberUrl ? `${memberUrl}/login` : '/login'
@@ -65,7 +61,7 @@ const VideoPlayerComponent = ({
       if (onVideoComplete) {
         onVideoComplete()
       }
-    } catch (error) {
+    } catch {
       hasCompletedRef.current = false
     }
   }, [currentVideoId, onVideoComplete])

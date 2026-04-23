@@ -10,7 +10,7 @@ interface AdminVideoListProps {
   onRefresh: () => void
 }
 
-export default function AdminVideoList({ videos, courseId, onRefresh }: AdminVideoListProps) {
+export default function AdminVideoList({ videos, onRefresh }: AdminVideoListProps) {
   if (videos.length === 0) {
     return (
       <div className="text-center py-16 bg-[#1a1a1a] rounded-xl border border-gray-800">

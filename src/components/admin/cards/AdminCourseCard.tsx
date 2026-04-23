@@ -8,6 +8,7 @@ import Link from 'next/link'
 import { useToast } from '@/components/ui/ToastProvider'
 import { ConfirmModal } from '@/components/ui/ConfirmModal'
 import { generateCourseSlug } from '@/lib/utils'
+import { adminDeleteCourse } from '@/actions/admin'
 
 interface AdminCourseCardProps {
   course: ICourse
@@ -25,19 +26,16 @@ export default function AdminCourseCard({ course, onEdit, onRefresh }: AdminCour
 
     try {
       setDeleting(true)
-      const response = await fetch(`/api/admin/courses/${course.id}`, {
-        method: 'DELETE',
-      })
-      const data = await response.json().catch(() => null)
-      const isSuccess = response.ok && (data === null || data?.success === true)
+      const result = await adminDeleteCourse(course.id)
+      const isSuccess = result.ok
 
       if (isSuccess) {
         showToast('Course deleted successfully', 'success')
         onRefresh()
       } else {
-        showToast('Failed to delete course: ' + (data?.message || 'Unknown error'), 'error')
+        showToast('Failed to delete course: ' + (result.message || 'Unknown error'), 'error')
       }
-    } catch (error) {
+    } catch {
       showToast('Failed to delete course', 'error')
     } finally {
       setDeleting(false)

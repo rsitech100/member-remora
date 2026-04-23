@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { VideoPlayer } from './VideoPlayer'
 import { VideoProgressList } from './VideoProgressList'
-import { ICourseDetailData, IEmbedData, IAPIResponse } from '@/types/api'
+import { ICourseDetailData, IEmbedData } from '@/types/api'
+import { fetchUserCourseDetail, fetchUserVideoEmbed } from '@/actions/user'
 
 interface CourseContentWrapperProps {
   initialVideoId: string
@@ -13,12 +14,12 @@ interface CourseContentWrapperProps {
 }
 
 export function CourseContentWrapper({ initialVideoId, courseData: initialCourseData, initialVideoData }: CourseContentWrapperProps) {
+  const hasInitialEmbedUrl = !!initialVideoData?.embed_url
   const [currentVideoId, setCurrentVideoId] = useState(initialVideoId)
-  const [videoData, setVideoData] = useState<IEmbedData | null>(initialVideoData)
-  const [isLoading, setIsLoading] = useState(!initialVideoData)
+  const [videoData, setVideoData] = useState<IEmbedData | null>(hasInitialEmbedUrl ? initialVideoData : null)
+  const [isLoading, setIsLoading] = useState(!hasInitialEmbedUrl)
   const [error, setError] = useState(false)
-  const [isFetching, setIsFetching] = useState(false)
-  const [courseData, setCourseData] = useState(initialCourseData)
+  const [courseData, setCourseData] = useState<ICourseDetailData>(initialCourseData)
   const router = useRouter()
 
   const videos = courseData?.videos || []
@@ -35,57 +36,44 @@ export function CourseContentWrapper({ initialVideoId, courseData: initialCourse
 
   useEffect(() => {
     async function fetchVideo() {
-      if (currentVideoId === initialVideoId && videoData) {
+      if (currentVideoId === initialVideoId && hasInitialEmbedUrl) {
         return
       }
-      
-      if (isFetching) return
-      
-      setIsFetching(true)
+
       setIsLoading(true)
       setError(false)
       
       try {
-        const response = await fetch(`/api/embed/${currentVideoId}`)
-        
-        if (response.status === 401 || response.status === 403) {
-          await fetch('/api/logout', { method: 'POST' }).catch(() => {})
-          document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
-          const memberUrl = process.env.NEXT_PUBLIC_MEMBER_APP_URL
-          window.location.href = memberUrl ? `${memberUrl}/login` : '/login'
-          return
-        }
-        
-        const result: IAPIResponse<IEmbedData> = await response.json()
-        
-        if (!result.success && result.message) {
-          const msg = result.message.toLowerCase()
-          if (msg.includes('unauthorized') || msg.includes('token') || msg.includes('expired')) {
-            await fetch('/api/logout', { method: 'POST' }).catch(() => {})
+        const result = await fetchUserVideoEmbed(currentVideoId)
+
+        if (!result.ok) {
+          if (result.auth) {
+            await fetch('/api/auth/logout', { method: 'POST' }).catch(() => {})
             document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
-            const memberUrl2 = process.env.NEXT_PUBLIC_MEMBER_APP_URL
-            window.location.href = memberUrl2 ? `${memberUrl2}/login` : '/login'
+            const memberUrl = process.env.NEXT_PUBLIC_MEMBER_APP_URL
+            window.location.href = memberUrl ? `${memberUrl}/login` : '/login'
             return
           }
-        }
-        
-        if (result.success && result.data) {
-          setVideoData(result.data)
-        } else {
+
           setError(true)
+          return
         }
-      } catch (err) {
+
+        setVideoData(result.data)
+      } catch {
         setError(true)
       } finally {
         setIsLoading(false)
-        setIsFetching(false)
       }
     }
 
     fetchVideo()
-  }, [currentVideoId])
+  }, [currentVideoId, hasInitialEmbedUrl, initialVideoId])
 
   const handleVideoChange = (videoId: string) => {
+    if (videoId === currentVideoId) {
+      return
+    }
     setCurrentVideoId(videoId)
   }
   
@@ -102,19 +90,17 @@ export function CourseContentWrapper({ initialVideoId, courseData: initialCourse
     await new Promise(resolve => setTimeout(resolve, 500))
     
     try {
-      const response = await fetch(`/api/courses/${courseData.course.id}`, {
-        cache: 'no-store'
-      })
-
-      const result: IAPIResponse<ICourseDetailData> = await response.json()
-      
-      if (result.success && result.data) {
-        setCourseData({
-          ...result.data,
-          videos: result.data.videos || []
-        })
+      const courseId = courseData?.course?.id
+      if (!courseId) {
+        router.refresh()
+        return
       }
-    } catch (error) {
+
+      const result = await fetchUserCourseDetail(courseId)
+      if (result.ok) {
+        setCourseData(result.data)
+      }
+    } catch {
     }
     
     router.refresh()
@@ -157,7 +143,7 @@ export function CourseContentWrapper({ initialVideoId, courseData: initialCourse
           <VideoProgressList 
             courseVideos={videos}
             currentVideoId={currentVideoId}
-            courseTitle={courseData.course.title}
+            courseTitle={courseData?.course?.title || ''}
             onVideoClick={handleVideoChange}
           />
         </div>

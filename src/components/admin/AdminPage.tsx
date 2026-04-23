@@ -8,6 +8,7 @@ import UpdateEmailModal from './modal/UpdateEmailModal'
 import { Button } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/Icon'
 import { Container } from '@/components/layout/Container'
+import { adminFetchCourses } from '@/actions/admin'
 
 interface AdminPageProps {
   initialCourses: ICourse[]
@@ -24,14 +25,11 @@ export default function AdminPage({ initialCourses, initialEmail = '' }: AdminPa
   const fetchCourses = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/admin/courses', {
-        cache: 'no-store'
-      })
-      const data = await response.json()
-      if (data.success) {
-        setCourses(data.data)
+      const result = await adminFetchCourses()
+      if (result.ok) {
+        setCourses(result.data)
       }
-    } catch (error) {
+    } catch {
       // Silent error handling
     } finally {
       setLoading(false)

@@ -6,22 +6,12 @@ const AUTH_COOKIE_NAME = 'auth_token'
 const API_BASE_URL = process.env.API_BASE_URL || process.env.NEXT_PUBLIC_BASE_URL
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 7 // 7 days
 
-
-export function getAdminRedirectUrl(token: string): string {
-  return '/admin'
-}
-
-
-export function isAdminApp(): boolean {
-  return true
-}
-
 export async function getAuthToken(): Promise<string | null> {
   try {
     const cookieStore = await cookies()
     const token = cookieStore.get(AUTH_COOKIE_NAME)
     return token?.value || null
-  } catch (error) {
+  } catch {
     return null
   }
 }
@@ -47,19 +37,19 @@ export async function removeAuthToken(): Promise<void> {
   try {
     const cookieStore = await cookies()
     cookieStore.delete(AUTH_COOKIE_NAME)
-  } catch (error) {
+  } catch {
   }
 }
 
 export async function clientLogout(): Promise<void> {
   try {
-    await fetch('/api/logout', { 
+    await fetch('/api/auth/logout', { 
       method: 'POST',
       headers: {
         'Cache-Control': 'no-cache',
       },
     })
-  } catch (error) {
+  } catch {
     // Silently handle logout error
   }
   
@@ -116,7 +106,7 @@ async function fetchUserData(): Promise<IDashboardData | null> {
     }
 
     return null
-  } catch (error) {
+  } catch {
     // On any error, assume token is invalid
     await removeAuthToken()
     return null

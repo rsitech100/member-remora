@@ -5,6 +5,7 @@ import { IVideo } from '@/types/api'
 import { Icon } from '@/components/ui/Icon'
 import { useToast } from '@/components/ui/ToastProvider'
 import { ConfirmModal } from '@/components/ui/ConfirmModal'
+import { adminConvertVideoToHls, adminDeleteVideo } from '@/actions/admin'
 
 interface AdminVideoCardProps {
   video: IVideo
@@ -23,19 +24,16 @@ export default function AdminVideoCard({ video, index, onRefresh }: AdminVideoCa
 
     try {
       setDeleting(true)
-      const response = await fetch(`/api/admin/videos/${video.id}`, {
-        method: 'DELETE',
-      })
-      const data = await response.json().catch(() => null)
-      const isSuccess = response.ok && (data === null || data?.success === true)
+      const result = await adminDeleteVideo(video.id)
+      const isSuccess = result.ok
 
       if (isSuccess) {
         showToast('Video deleted successfully', 'success')
         onRefresh()
       } else {
-        showToast('Failed to delete video: ' + (data?.message || 'Unknown error'), 'error')
+        showToast('Failed to delete video: ' + (result.message || 'Unknown error'), 'error')
       }
-    } catch (error) {
+    } catch {
       showToast('Failed to delete video', 'error')
     } finally {
       setDeleting(false)
@@ -45,18 +43,15 @@ export default function AdminVideoCard({ video, index, onRefresh }: AdminVideoCa
   const handleWatermark = async () => {
     try {
       setWatermarking(true)
-      const response = await fetch(`/api/admin/videos/${video.id}/convert-hls`, {
-        method: 'POST',
-      })
-      const data = await response.json()
+      const result = await adminConvertVideoToHls(video.id)
 
-      if (data.success) {
+      if (result.ok) {
         showToast('Please wait 10-15 minutes to apply the watermarks, depends on your video size', 'success')
         onRefresh()
       } else {
-        showToast('Failed to add watermark: ' + data.message, 'error')
+        showToast('Failed to add watermark: ' + (result.message || 'Unknown error'), 'error')
       }
-    } catch (error) {
+    } catch {
       showToast('Failed to add watermark', 'error')
     } finally {
       setWatermarking(false)

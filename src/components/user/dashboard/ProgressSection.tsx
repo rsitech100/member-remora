@@ -14,7 +14,7 @@ async function getDashboardData() {
   try {
     const response = await fetchWithAuth<IAPIResponse<IDashboardData>>('/api/dashboard')
     return response.data
-  } catch (error) {
+  } catch {
     redirect('/login')
   }
 }

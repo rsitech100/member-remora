@@ -13,7 +13,7 @@ async function getDashboardData() {
   try {
     const response = await fetchWithAuth<IAPIResponse<IDashboardData>>('/api/dashboard')
     return response.data
-  } catch (error) {
+  } catch {
     redirect('/login')
   }
 }
@@ -34,8 +34,8 @@ export async function LastWatchedSection() {
       description={lastWatchedCourse.description}
       instructor={dashboardData.user.first_name + ' ' + dashboardData.user.last_name}
       instructorRole="Student"
-      thumbnail="/images/last-video.jpg"
-      duration={lastWatchedCourse.progress}
+      thumbnail={lastWatchedCourse.image_url || '/images/last-video.jpg'}
+      duration={`${lastWatchedCourse.completed_videos || 0}/${lastWatchedCourse.total_videos || 0} Videos`}
       totalVideos={`${lastWatchedCourse.completed_videos}/${lastWatchedCourse.total_videos} Videos`}
       language="Indonesia"
       courseId={lastWatchedCourse.course_id}
