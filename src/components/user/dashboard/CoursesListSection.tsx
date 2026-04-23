@@ -25,7 +25,7 @@ async function getCourses() {
   }
   
   try {
-    const response = await fetchWithAuth<IAPIResponse<ICourse[]>>('/api/courses')
+    const response = await fetchWithAuth<IAPIResponse<ICourse[]>>('/api/v2/user/course')
     return response.data
   } catch (error) {
     redirect('/login')
@@ -41,25 +41,27 @@ export async function CoursesListSection() {
   if (!dashboardData) return null
 
   const dashboardCourses = dashboardData.courses || []
+  const allCoursesMap = new Map(allCourses.map((course) => [course.id, course]))
 
   const lastWatchedCourse = dashboardCourses.find(dc => dc.last_watched_video)
 
-  const coursesToDisplay = allCourses.map(course => {
-    const dashboardCourse = dashboardCourses.find(dc => dc.course_id === course.id)
+  const coursesToDisplay = dashboardCourses
+    .map((dashboardCourse) => {
+      const course = allCoursesMap.get(dashboardCourse.course_id)
+      if (!course) return null
+
     const isLastWatched = lastWatchedCourse?.course_id === course.id
     
     let status: 'completed' | 'now_watching' | 'in_progress' | 'not_started' = 'not_started'
     
-    if (dashboardCourse) {
-      if (dashboardCourse.status === 'completed') {
-        status = 'completed'
-      } else if (isLastWatched && dashboardCourse.completed_videos > 0) {
-        status = 'now_watching'
-      } else if (dashboardCourse.completed_videos > 0) {
-        status = 'in_progress'
-      } else {
-        status = 'not_started'
-      }
+    if (dashboardCourse.status === 'completed') {
+      status = 'completed'
+    } else if (isLastWatched && dashboardCourse.completed_videos > 0) {
+      status = 'now_watching'
+    } else if (dashboardCourse.completed_videos > 0) {
+      status = 'in_progress'
+    } else {
+      status = 'not_started'
     }
     
     return {
@@ -72,6 +74,7 @@ export async function CoursesListSection() {
       status,
     }
   })
+  .filter((course): course is NonNullable<typeof course> => course !== null)
 
   return (
     <div className="space-y-4">

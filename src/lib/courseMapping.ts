@@ -5,7 +5,7 @@ import { generateCourseSlug } from './utils'
 
 export const getCourseMapping = cache(async (): Promise<{ [slug: string]: number }> => {
   try {
-    const response = await fetchWithAuth<IAPIResponse<ICourse[]>>('/api/courses')
+    const response = await fetchWithAuth<IAPIResponse<ICourse[]>>('/api/v2/user/course')
     const mapping: { [slug: string]: number } = {}
     
     response.data.forEach(course => {

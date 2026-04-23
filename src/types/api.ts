@@ -79,9 +79,14 @@ export interface ICourseDetailData {
 }
 
 export interface IWatchVideoData {
+  video_id?: number
   title: string
-  video_url: string
   description?: string
+  playback_url?: string
+  thumbnail_url?: string
+  duration?: number
+  expires_in?: number
+  video_url?: string
 }
 
 export interface IWatchHLSData {
