@@ -53,8 +53,7 @@ const VideoPlayerComponent = ({
       if (!result.ok && result.auth) {
         await fetch('/api/auth/logout', { method: 'POST' }).catch(() => {})
         document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
-        const memberUrl = process.env.NEXT_PUBLIC_MEMBER_APP_URL
-        window.location.href = memberUrl ? `${memberUrl}/login` : '/login'
+        window.location.href = '/login'
         return
       }
       
