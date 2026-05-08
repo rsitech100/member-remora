@@ -29,9 +29,9 @@ function toEmbedResponse(id: string, payload: IAPIResponse<V2UserVideoData>): IA
     : ''
 
   const embedUrl =
+    source.original_url ||
     source.embed_url ||
     playbackUrl ||
-    source.original_url ||
     (source.video_token ? `${apiBaseUrl}${playPath}?video_token=${encodeURIComponent(source.video_token)}` : `${apiBaseUrl}${playPath}`)
 
   return {
@@ -76,4 +76,3 @@ export async function GET(
     )
   }
 }
-

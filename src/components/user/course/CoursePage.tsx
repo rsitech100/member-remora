@@ -68,9 +68,9 @@ function normalizeEmbedData(videoId: string, payload: IAPIResponse<V2UserVideoDa
     : ''
 
   const embedUrl =
+    source.original_url ||
     source.embed_url ||
     playbackUrl ||
-    source.original_url ||
     (source.video_token ? `${apiBaseUrl}${playPath}?video_token=${encodeURIComponent(source.video_token)}` : `${apiBaseUrl}${playPath}`)
 
   return {
